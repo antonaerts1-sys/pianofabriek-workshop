@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pianofabriek — Workshop wireframes</title>
+<style>
+  :root {
+    --ink: #1A1A1A;
+    --muted: #6B7280;
+    --accent: #1A6DFF;
+    --bg: #FFFFFF;
+    --surface: #F9FAFB;
+    --border: #E5E7EB;
+    --wf-line: #9CA3AF;
+    --wf-fill: #F3F4F6;
+    --wf-dark: #D1D5DB;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1160px; margin: 0 auto; padding: 48px 32px 120px; }
+
+  .doc-eyebrow {
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  h1 {
+    font-size: 32px; font-weight: 600; letter-spacing: -0.02em;
+    margin: 8px 0 12px; line-height: 1.2;
+  }
+  .lead { color: var(--muted); max-width: 720px; margin: 0 0 16px; font-size: 16px; }
+
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin: 24px 0 0; padding: 16px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500;
+    padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--muted);
+  }
+  .tag::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: var(--wf-line); }
+  .tag.mvp { border-color: var(--accent); color: var(--accent); }
+  .tag.mvp::before { background: var(--accent); }
+  .tag.f2 { border-color: var(--border); color: var(--muted); }
+  .tag.f2::before { background: var(--wf-dark); }
+  .tag.no { border-color: var(--ink); color: var(--ink); }
+  .tag.no::before { background: var(--ink); }
+
+  .section { margin-top: 72px; }
+  .section > h2 {
+    font-size: 24px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px;
+  }
+  .section > .section-sub { color: var(--muted); margin: 0 0 32px; max-width: 720px; }
+
+  .concept {
+    display: grid;
+    grid-template-columns: minmax(380px, 1.1fr) 1fr;
+    gap: 32px;
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    align-items: start;
+  }
+  @media (max-width: 860px) { .concept { grid-template-columns: 1fr; } }
+
+  .concept-info .num {
+    font-family: ui-monospace, monospace;
+    font-size: 12px; color: var(--muted);
+  }
+  .concept-info h3 { margin: 4px 0 8px; font-size: 18px; font-weight: 600; }
+  .concept-info p { margin: 0 0 12px; color: var(--ink); font-size: 14px; max-width: 460px; }
+  .concept-info p.why { color: var(--muted); }
+  .ws-vraag {
+    border-left: 2px solid var(--accent);
+    padding: 8px 0 8px 16px;
+    margin-top: 16px;
+    max-width: 440px;
+  }
+  .ws-vraag .lbl {
+    font-size: 11px; font-weight: 500; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px;
+  }
+  .ws-vraag .q { font-size: 14px; }
+
+  /* ============ WIREFRAME PRIMITIVES ============ */
+  .wf {
+    border: 1px solid var(--wf-line);
+    border-radius: 8px;
+    background: var(--bg);
+    padding: 20px;
+    font-size: 11px;
+    color: var(--muted);
+    position: relative;
+  }
+  .wf.crossed { opacity: 0.85; }
+  .wf.crossed::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top right, transparent calc(50% - 1px), var(--ink), transparent calc(50% + 1px));
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  .wf-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 10px; margin-bottom: 14px;
+    border-bottom: 1px solid var(--wf-dark);
+    font-weight: 600; color: var(--ink); font-size: 11px;
+  }
+  .wf-bar .r { font-weight: 400; color: var(--muted); }
+  .wf-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .wf-sub { font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+  .wf-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 10px 0 4px; font-weight: 600; }
+  .wf-input {
+    border: 1px solid var(--wf-line); border-radius: 4px;
+    padding: 6px 8px; background: var(--bg);
+    color: var(--ink); margin-bottom: 6px;
+    min-height: 24px;
+  }
+  .wf-input.ta { min-height: 44px; }
+  .wf-input.ghost { color: var(--wf-line); }
+  .wf-chiprow { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .wf-chip {
+    border: 1px solid var(--wf-line); border-radius: 999px;
+    padding: 3px 9px; font-size: 10px; color: var(--muted); background: var(--bg);
+  }
+  .wf-chip.on { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+  .wf-btn {
+    display: inline-block;
+    border: 1px solid var(--ink); border-radius: 4px;
+    background: var(--ink); color: var(--bg);
+    padding: 5px 12px; font-size: 10px; font-weight: 600;
+  }
+  .wf-btn.ghost { background: var(--bg); color: var(--ink); }
+  .wf-btn.soft { background: var(--bg); color: var(--muted); border-color: var(--wf-line); }
+  .wf-row { display: flex; gap: 6px; align-items: center; }
+  .wf-row.between { justify-content: space-between; }
+  .wf-row.end { justify-content: flex-end; }
+  .wf-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .wf-grid3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; }
+  .wf-box {
+    border: 1px dashed var(--wf-line); border-radius: 4px;
+    padding: 8px; margin-bottom: 6px; background: var(--wf-fill);
+  }
+  .wf-line { height: 6px; background: var(--wf-fill); border-radius: 3px; margin: 4px 0; }
+  .wf-line.w60 { width: 60%; } .wf-line.w40 { width: 40%; } .wf-line.w80 { width: 80%; }
+  .wf-steps { display: flex; gap: 4px; align-items: center; margin-bottom: 14px; }
+  .wf-step {
+    width: 18px; height: 18px; border-radius: 999px;
+    border: 1px solid var(--wf-line);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; color: var(--muted);
+  }
+  .wf-step.on { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+  .wf-hr { height: 1px; background: var(--wf-dark); margin: 12px 0; }
+  .wf-tablerow {
+    display: grid; grid-template-columns: 64px 1.4fr 1fr 0.9fr 0.8fr;
+    gap: 6px; padding: 6px 0;
+    border-bottom: 1px solid var(--wf-fill);
+    align-items: center;
+  }
+  .wf-tablerow.head { color: var(--ink); font-weight: 600; font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--wf-dark); }
+  .wf-kv { display: grid; grid-template-columns: 90px 1fr; gap: 3px 10px; font-size: 10px; }
+  .wf-kv .k { color: var(--wf-line); }
+  .wf-kv .v { color: var(--ink); }
+  .wf-status { font-weight: 600; color: var(--ink); }
+  .wf-note {
+    border-left: 2px solid var(--wf-line);
+    padding: 6px 0 6px 10px;
+    font-size: 10px; color: var(--muted);
+    margin: 10px 0;
+  }
+  .wf-mail {
+    border: 1px solid var(--wf-line); border-radius: 6px;
+    background: var(--surface); padding: 12px;
+    font-size: 10px;
+  }
+  .wf-mail .from { color: var(--muted); padding-bottom: 6px; border-bottom: 1px solid var(--wf-dark); margin-bottom: 8px; }
+  .wf-timeline-item { display: flex; gap: 8px; align-items: flex-start; padding: 5px 0; }
+  .wf-dot { width: 8px; height: 8px; border-radius: 999px; border: 1px solid var(--wf-line); margin-top: 3px; flex-shrink: 0; }
+  .wf-dot.on { background: var(--ink); border-color: var(--ink); }
+  .wf-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin: 8px 0; }
+  .wf-cal span {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    font-size: 8px; border: 1px solid var(--wf-fill); border-radius: 3px; color: var(--muted);
+  }
+  .wf-cal span.busy { background: var(--wf-dark); color: var(--ink); }
+  .wf-cal span.maybe { background: var(--wf-fill); }
+  .wf-sidebar-layout { display: grid; grid-template-columns: 86px 1fr; gap: 12px; }
+  .wf-side { border-right: 1px solid var(--wf-dark); padding-right: 8px; font-size: 9px; }
+  .wf-side div { padding: 4px 0; color: var(--muted); }
+  .wf-side div.on { color: var(--ink); font-weight: 600; }
+  .badge-row { display: flex; gap: 8px; margin-bottom: 12px; }
+
+  .toc {
+    margin-top: 32px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px;
+  }
+  .toc a {
+    display: block; padding: 10px 14px;
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--ink); text-decoration: none; font-size: 13px;
+  }
+  .toc a:hover { border-color: var(--accent); color: var(--accent); }
+  .toc a .n { color: var(--muted); font-family: ui-monospace, monospace; font-size: 11px; margin-right: 8px; }
+
+  .print-note { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+  @media print {
+    .concept { break-inside: avoid; }
+    .toc { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="doc-eyebrow">Workshop GC Pianofabriek · conceptverkenning</div>
+    <h1>Wat kan, wat kan later, wat kan niet</h1>
+    <p class="lead">Schetsen van alle bouwstenen voor de digitalisering van de zaalverhuur. Bewust grijs en schematisch: het gaat vandaag over <strong>wat</strong> we bouwen, niet over hoe het eruitziet. Elk concept heeft een label en een vraag voor het gesprek.</p>
+    <div class="legend">
+      <span class="tag mvp">MVP — bouwen we nu (budget Impact Together)</span>
+      <span class="tag f2">Fase 2 — kan later, vraagt extra budget</span>
+      <span class="tag no">Niet mogelijk — technische grens van Yesplan</span>
+    </div>
+    <nav class="toc">
+      <a href="#s-instroom"><span class="n">A</span>De aanvraag (klant)</a>
+      <a href="#s-beslissen"><span class="n">B</span>Beslissen (Isabelle)</a>
+      <a href="#s-opvolgen"><span class="n">C</span>Opvolgen (klant)</a>
+      <a href="#s-communicatie"><span class="n">D</span>Communicatie</a>
+      <a href="#s-yesplan"><span class="n">E</span>Yesplan</a>
+      <a href="#s-geld"><span class="n">F</span>Geld en documenten</a>
+      <a href="#s-beheer"><span class="n">G</span>Beheer en extra's</a>
+    </nav>
+  </header>
+
+  <!-- ============ A. INSTROOM ============ -->
+  <section class="section" id="s-instroom">
+    <h2>A — De aanvraag: hoe komt een vraag binnen?</h2>
+    <p class="section-sub">Vandaag: mail, telefoon en website door elkaar, gemiddeld 6 mails heen en weer. Het doel: één kanaal waar de klant alles in één keer volledig aanlevert.</p>
+
+    <!-- A1 -->
+    <div class="concept" id="c-a1">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">A1</span>
+          <h3>De klant beschrijft zijn activiteit</h3>
+          <p>Eerste stap van de aanvraag: wat ga je doen, voor hoeveel mensen, open of gesloten? Een verplichte omschrijving met hulpvragen zorgt dat jullie meteen het volledige verhaal hebben.</p>
+          <p class="why">Privéfeesten krijgen meteen een waarschuwing. Concerten, tentoonstellingen en residenties worden doorverwezen naar een rechtstreeks contact.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Welke vragen moeten we stellen zodat jullie bijna nooit meer extra info moeten opvragen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Pianofabriek · zaalaanvraag <span class="r">NL · FR</span></div>
+        <div class="wf-steps">
+          <span class="wf-step on">1</span><span class="wf-step">2</span><span class="wf-step">3</span><span class="wf-step">4</span><span class="wf-step">5</span>
+        </div>
+        <div class="wf-title">Wat wil je organiseren?</div>
+        <div class="wf-label">Type activiteit *</div>
+        <div class="wf-chiprow">
+          <span class="wf-chip">Vergadering</span>
+          <span class="wf-chip on">Opleiding</span>
+          <span class="wf-chip">Conferentie</span>
+          <span class="wf-chip">Receptie</span>
+          <span class="wf-chip">Repetitie</span>
+          <span class="wf-chip">Iets anders</span>
+        </div>
+        <div class="wf-note">Concert, tentoonstelling of residentie? Mail naar zalen@pianofabriek.be — die bekijken we apart.</div>
+        <div class="wf-label">Beschrijf je activiteit *</div>
+        <div class="wf-input ta">Wat is het doel? Wie komt er? Hoe ziet het programma eruit?</div>
+        <div class="wf-grid2">
+          <div>
+            <div class="wf-label">Aantal deelnemers *</div>
+            <div class="wf-input">22</div>
+          </div>
+          <div>
+            <div class="wf-label">Toegankelijkheid *</div>
+            <div class="wf-chiprow"><span class="wf-chip on">Gesloten groep</span><span class="wf-chip">Publiek</span></div>
+          </div>
+        </div>
+        <div class="wf-row end"><span class="wf-btn">Volgende ›</span></div>
+      </div>
+    </div>
+
+    <!-- A2 -->
+    <div class="concept" id="c-a2">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">A2</span>
+          <h3>Meerdere dagen in één aanvraag</h3>
+          <p>Eén aanvraag kan tot 10 dagen bevatten, elk met eigen begin- en einduur. Het systeem bewaakt het sluitingsuur van 23u en toont de "half mei"-regel voor het volgende seizoen.</p>
+          <p class="why">Gebaseerd op echte aanvragen zoals de tweedaagse van Kenniscentrum Pleegzorg.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Is max 10 data per aanvraag de juiste grens? En max 3 maanden vooruit, klopt dat?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Pianofabriek · zaalaanvraag <span class="r">stap 2/5</span></div>
+        <div class="wf-title">Wanneer wil je het organiseren?</div>
+        <div class="wf-label">Datum en tijd *</div>
+        <div class="wf-grid3">
+          <div class="wf-input">do 07/05/2026</div>
+          <div class="wf-input">09:00</div>
+          <div class="wf-input">16:00</div>
+        </div>
+        <div class="wf-grid3">
+          <div class="wf-input">vr 08/05/2026</div>
+          <div class="wf-input">09:00</div>
+          <div class="wf-input">16:00</div>
+        </div>
+        <div style="color: var(--ink); font-weight: 600; font-size: 10px; margin: 4px 0 10px;">+ Voeg dag toe <span style="color: var(--muted); font-weight: 400;">(max 10)</span></div>
+        <div class="wf-note"><strong>Volgend seizoen?</strong> Voor data tussen september en juni bevestigen we pas vanaf half mei, na onze eigen programmering.</div>
+        <div class="wf-note"><strong>Let op:</strong> einduur kan niet later dan 23:00.</div>
+        <div class="wf-row between"><span class="wf-btn ghost">‹ Terug</span><span class="wf-btn">Volgende ›</span></div>
+      </div>
+    </div>
+
+    <!-- A3 -->
+    <div class="concept" id="c-a3">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">A3</span>
+          <h3>Technisch materiaal en horeca, met richtprijzen</h3>
+          <p>De klant bestelt meteen uit jullie vaste aanbod: beamer, micro, koffie, broodjes. De vaste prijzen staan erbij, dus de vraag "wat kost dat?" verdwijnt grotendeels uit het mailverkeer.</p>
+          <p class="why">De zaalhuurprijs tonen we hier bewust niet: die hangt af van de zaal die jullie toewijzen en van de prijscategorie. Die volgt bij de goedkeuring.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Klopt het aanbod hieronder? En is "prijzen tonen vanaf het begin" iets dat jullie durven?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Pianofabriek · zaalaanvraag <span class="r">stap 3/5</span></div>
+        <div class="wf-title">Wat heb je nodig?</div>
+        <div class="wf-box">
+          <div class="wf-label" style="margin-top:0;">Technisch materiaal (per dagdeel, per zaal)</div>
+          <div class="wf-row between"><span>Beamer — 20 €</span><span class="wf-input" style="width:40px; margin:0; text-align:center;">1</span></div>
+          <div class="wf-row between"><span>Micro + versterkt geluid — 20 €</span><span class="wf-input" style="width:40px; margin:0; text-align:center;">0</span></div>
+          <div class="wf-row between"><span>Flipchart — 8 €</span><span class="wf-input" style="width:40px; margin:0; text-align:center;">0</span></div>
+        </div>
+        <div class="wf-box">
+          <div class="wf-label" style="margin-top:0;">Horeca (vegetarische keuken)</div>
+          <div class="wf-row between"><span>Thermos koffie (10 koppen) — 8 €</span><span class="wf-input" style="width:40px; margin:0; text-align:center;">3</span></div>
+          <div class="wf-row between"><span>Lunch broodjes — 5,50 €/pers</span><span class="wf-input" style="width:40px; margin:0; text-align:center;">22</span></div>
+          <div class="wf-row between"><span>Lunch buffet — 15 €/pers</span><span class="wf-input" style="width:40px; margin:0; text-align:center;">0</span></div>
+        </div>
+        <div class="wf-label">Allergieën, dieet of speciale wensen</div>
+        <div class="wf-input ta ghost">2 personen glutenvrij...</div>
+        <div class="wf-row between"><span style="font-weight:600; color:var(--ink);">Richtprijs extra's: ± 165 €</span><span class="wf-btn">Volgende ›</span></div>
+      </div>
+    </div>
+
+    <!-- A4 -->
+    <div class="concept" id="c-a4">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">A4</span>
+          <h3>Identificatie + prijscategorie: de klant kiest, jullie verifiëren</h3>
+          <p>Organisatiegegevens, BTW-nummer met formaatcontrole, facturatieadres en contactpersoon. De klant duidt zelf één van de vier prijscategorieën aan.</p>
+          <p class="why">Automatisch bepalen welke categorie geldt (Brussel-vzw vs non-profit) is onbetrouwbaar, dat gaven jullie zelf aan. Daarom: klant kiest, Isabelle controleert bij goedkeuring. Eén extra klik voor jullie, geen foute automatiek.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Zijn deze vier categorie-omschrijvingen helder genoeg voor een klant om zelf te kiezen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Pianofabriek · zaalaanvraag <span class="r">stap 4/5</span></div>
+        <div class="wf-title">Wie ben je?</div>
+        <div class="wf-grid2">
+          <div><div class="wf-label">Naam organisatie *</div><div class="wf-input">Kenniscentrum Pleegzorg vzw</div></div>
+          <div><div class="wf-label">BTW / ondernemingsnr *</div><div class="wf-input">BE 0123.456.789 ✓</div></div>
+        </div>
+        <div class="wf-label">Facturatieadres + e-mail digitale factuur *</div>
+        <div class="wf-input">Stapelplein 28, 9000 Gent</div>
+        <div class="wf-label">Contactpersoon *</div>
+        <div class="wf-input">Suzan de Hoog · suzan@... · +32 9 ...</div>
+        <div class="wf-hr"></div>
+        <div class="wf-label">Prijscategorie — kies wat past *</div>
+        <div class="wf-box" style="background:var(--bg);">○ Vzw / organisatie binnen Sint-Gillis</div>
+        <div class="wf-box" style="background:var(--bg);">○ Vzw / organisatie binnen Brussel</div>
+        <div class="wf-box" style="background:var(--bg); border-style:solid; border-color:var(--ink);">● Non-profit of vzw buiten Brussel</div>
+        <div class="wf-box" style="background:var(--bg);">○ Commercieel, politiek of syndicaal</div>
+        <div style="font-size:9px; color:var(--muted);">We controleren je keuze bij de goedkeuring.</div>
+      </div>
+    </div>
+
+    <!-- A5: zaalkeuze NIET -->
+    <div class="concept" id="c-a5">
+      <div>
+        <div class="badge-row"><span class="tag no">Bewust niet</span></div>
+        <div class="concept-info">
+          <span class="num">A5</span>
+          <h3>Zelf een zaal kiezen met live kalender — doen we bewust niet</h3>
+          <p>Dit is wat veel boekingssites doen, en wat klanten misschien verwachten: zaal kiezen, kalender zien, slot aanklikken.</p>
+          <p class="why">Waarom niet? Vier redenen uit jullie eigen antwoorden: de plannen van de inhoudelijke teams staan nog niet in Yesplan, de "half mei"-regel maakt 9 maanden per jaar onzeker, opbouw- en afbouwtijden ontbreken in Yesplan, en akoestische conflicten tussen zalen staan nergens. Een kalender die "vrij" toont terwijl het niet vrij is, creëert frustratie en extra mails — precies wat we willen vermijden.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Zijn jullie het ermee eens dat de zaaltoewijzing bij Isabelle blijft? Wat zou er nodig zijn om dit ooit wél te kunnen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf crossed">
+        <div class="wf-bar">Zaal kiezen <span class="r">concept — vervalt</span></div>
+        <div class="wf-grid2" style="margin-bottom:10px;">
+          <div class="wf-box" style="text-align:center; padding:14px;">Calcutta<br><span style="font-size:9px;">max 30 pers.</span></div>
+          <div class="wf-box" style="text-align:center; padding:14px;">Arenberg<br><span style="font-size:9px;">max 80 pers.</span></div>
+        </div>
+        <div class="wf-label">Beschikbaarheid mei 2026</div>
+        <div class="wf-cal">
+          <span>1</span><span class="busy">2</span><span>3</span><span class="maybe">4</span><span>5</span><span class="busy">6</span><span>7</span>
+          <span>8</span><span>9</span><span class="maybe">10</span><span class="busy">11</span><span>12</span><span>13</span><span class="maybe">14</span>
+        </div>
+        <div class="wf-note">Probleem: deze kalender kan niet kloppen. Yesplan kent de echte beschikbaarheid niet volledig.</div>
+      </div>
+    </div>
+
+    <!-- A6: tussenoplossing omschrijving zaal -->
+    <div class="concept" id="c-a6">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">A6</span>
+          <h3>Wel: de zalen tonen als inspiratie, zonder boekbaarheid</h3>
+          <p>Een publieke zalenpagina met foto's, capaciteit en kenmerken per zaal. De klant kan een voorkeur uitspreken in zijn aanvraag, maar de toewijzing blijft bij jullie.</p>
+          <p class="why">Zo weten klanten wat het huis te bieden heeft (een veelgestelde vraag) zonder dat we beschikbaarheid moeten beloven die we niet kennen.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Voorkeurzaal als optioneel veld in de aanvraag: handig of schept het verkeerde verwachtingen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Onze zalen <span class="r">publieke pagina</span></div>
+        <div class="wf-grid2">
+          <div class="wf-box" style="padding:0; overflow:hidden;">
+            <div style="height:36px; background:var(--wf-dark);"></div>
+            <div style="padding:8px;">
+              <strong style="color:var(--ink); font-size:10px;">Calcutta</strong><br>
+              <span style="font-size:9px;">Vergaderzaal · 30 pers · beamer</span>
+            </div>
+          </div>
+          <div class="wf-box" style="padding:0; overflow:hidden;">
+            <div style="height:36px; background:var(--wf-dark);"></div>
+            <div style="padding:8px;">
+              <strong style="color:var(--ink); font-size:10px;">Arenberg</strong><br>
+              <span style="font-size:9px;">Theaterzaal · 80 pers · podium</span>
+            </div>
+          </div>
+          <div class="wf-box" style="padding:0; overflow:hidden;">
+            <div style="height:36px; background:var(--wf-dark);"></div>
+            <div style="padding:8px;">
+              <strong style="color:var(--ink); font-size:10px;">Dakar</strong><br>
+              <span style="font-size:9px;">Atelier · 20 pers · daglicht</span>
+            </div>
+          </div>
+          <div class="wf-box" style="padding:0; overflow:hidden;">
+            <div style="height:36px; background:var(--wf-dark);"></div>
+            <div style="padding:8px;">
+              <strong style="color:var(--ink); font-size:10px;">Dublin</strong><br>
+              <span style="font-size:9px;">Repetitie · 15 pers · spiegels</span>
+            </div>
+          </div>
+        </div>
+        <div class="wf-note">Geen "boek nu"-knop. Wel: "Vraag een zaal aan" → start de aanvraag. Optioneel veld "voorkeurzaal" in stap 1.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ B. BESLISSEN ============ -->
+  <section class="section" id="s-beslissen">
+    <h2>B — Beslissen: Isabelle's werkbank</h2>
+    <p class="section-sub">Alle aanvragen op één plek in plaats van verspreid over de mailbox. Isabelle beslist, het systeem communiceert.</p>
+
+    <!-- B1 -->
+    <div class="concept" id="c-b1">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">B1</span>
+          <h3>De aanvragenlijst</h3>
+          <p>Elke aanvraag komt automatisch binnen met status "nieuw". Zoeken, filteren op status, in één oogopslag zien wat aandacht vraagt. Ook als Isabelle afwezig is, staat alles netjes in de rij — niets verdwijnt in een mailbox.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Wie behandelt aanvragen als Isabelle afwezig is? Moet die persoon iets anders zien of kunnen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Werkbank · aanvragen <span class="r">Isabelle</span></div>
+        <div class="wf-sidebar-layout">
+          <div class="wf-side">
+            <div class="on">Alle (7)</div>
+            <div>Nieuw (2)</div>
+            <div>In behandeling (2)</div>
+            <div>Goedgekeurd (2)</div>
+            <div>Alternatief (1)</div>
+            <div>Geweigerd (0)</div>
+          </div>
+          <div>
+            <div class="wf-input ghost" style="margin-bottom:8px;">Zoek op naam, organisatie of referentie…</div>
+            <div class="wf-tablerow head"><span>Ref</span><span>Aanvrager</span><span>Activiteit</span><span>Data</span><span>Status</span></div>
+            <div class="wf-tablerow"><span>0142</span><span>Kenniscentrum Pleegzorg</span><span>Opleiding</span><span>7-8 mei</span><span class="wf-status">Nieuw</span></div>
+            <div class="wf-tablerow"><span>0141</span><span>ADDE asbl</span><span>Formation</span><span>14 mei</span><span class="wf-status">Nieuw</span></div>
+            <div class="wf-tablerow"><span>0138</span><span>Brusselse VZW</span><span>Vergadering</span><span>22 mei</span><span>In behandeling</span></div>
+            <div class="wf-tablerow"><span>0135</span><span>Syndic Stamenei</span><span>Vergadering</span><span>3 juni</span><span>Goedgekeurd</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B2 -->
+    <div class="concept" id="c-b2">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">B2</span>
+          <h3>Het dossier: alles van één aanvraag op één plek</h3>
+          <p>De volledige aanvraag gestructureerd: activiteit, data, horeca, technisch, organisatie, contact. Plus het verloop: wat is wanneer gebeurd, welke mails zijn vertrokken, interne notities.</p>
+          <p class="why">Dit is het "verhaal van de klant" dat vandaag nergens staat. Ook Olivier of een collega kan dit dossier openen en meteen mee zijn.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Wat moet er nog meer in het dossier staan dat we nu vergeten?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Dossier AAV-2026-0142 <span class="r">‹ terug naar lijst</span></div>
+        <div class="wf-row between" style="margin-bottom:10px;">
+          <div>
+            <div class="wf-title" style="margin:0;">Tweedaagse opleiding pleegzorg</div>
+            <span style="font-size:9px;">Kenniscentrum Pleegzorg vzw · ingediend 4 mei</span>
+          </div>
+          <div class="wf-row">
+            <span class="wf-btn soft">Weigeren</span>
+            <span class="wf-btn soft">Alternatief</span>
+            <span class="wf-btn">Aanvaarden</span>
+          </div>
+        </div>
+        <div class="wf-grid2">
+          <div>
+            <div class="wf-box">
+              <div class="wf-label" style="margin-top:0;">Activiteit</div>
+              <div class="wf-kv">
+                <span class="k">Type</span><span class="v">Opleiding · 22 pers</span>
+                <span class="k">Data</span><span class="v">7-8 mei · 09:00-16:00</span>
+                <span class="k">Horeca</span><span class="v">Koffie, broodjes ×22</span>
+                <span class="k">Technisch</span><span class="v">1× beamer</span>
+              </div>
+            </div>
+            <div class="wf-box">
+              <div class="wf-label" style="margin-top:0;">Organisatie</div>
+              <div class="wf-kv">
+                <span class="k">BTW</span><span class="v">BE 0123.456.789</span>
+                <span class="k">Categorie</span><span class="v">Non-profit (te checken)</span>
+              </div>
+            </div>
+          </div>
+          <div class="wf-box">
+            <div class="wf-label" style="margin-top:0;">Verloop</div>
+            <div class="wf-timeline-item"><span class="wf-dot on"></span><span>4 mei 14:32 — aanvraag ontvangen</span></div>
+            <div class="wf-timeline-item"><span class="wf-dot on"></span><span>4 mei 14:32 — bevestigingsmail verstuurd</span></div>
+            <div class="wf-timeline-item"><span class="wf-dot"></span><span>interne notitie toevoegen…</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- B3 -->
+    <div class="concept" id="c-b3">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">B3</span>
+          <h3>Aanvaarden = zaal toewijzen, in één beweging</h3>
+          <p>Isabelle kiest de zaal (of meerdere zalen, zoals een lunchruimte erbij), schrijft eventueel een persoonlijke opmerking, en klikt op bevestigen. De klant krijgt automatisch de bevestigingsmail, Olivier en techniek krijgen automatisch hun notificatie.</p>
+          <p class="why">Eén klik vervangt drie mails. De zaalexpertise blijft waar ze zit: bij Isabelle.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Welke informatie moet er minstens in de bevestiging naar de klant staan?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Aanvraag aanvaarden <span class="r">×</span></div>
+        <div class="wf-label">Toegewezen zaal *</div>
+        <div class="wf-chiprow">
+          <span class="wf-chip">Arenberg</span>
+          <span class="wf-chip on">Calcutta</span>
+          <span class="wf-chip">Casablanca</span>
+          <span class="wf-chip">Charleroi</span>
+          <span class="wf-chip">Dakar</span>
+          <span class="wf-chip">Dublin</span>
+        </div>
+        <div class="wf-label">Extra zaal (optioneel)</div>
+        <div class="wf-chiprow"><span class="wf-chip on">Alcantara — lunchpauze</span><span class="wf-chip">+ voeg toe</span></div>
+        <div class="wf-label">Persoonlijke opmerking voor de klant</div>
+        <div class="wf-input ta">Welkom! Calcutta past perfect voor jullie groep…</div>
+        <div class="wf-note">Bij bevestigen vertrekt automatisch: ✓ mail naar klant ✓ notificatie Olivier (horeca) ✓ notificatie techniek</div>
+        <div class="wf-row end"><span class="wf-btn ghost">Annuleren</span>&nbsp;<span class="wf-btn">Bevestig en verstuur</span></div>
+      </div>
+    </div>
+
+    <!-- B4 -->
+    <div class="concept" id="c-b4">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">B4</span>
+          <h3>Alternatief voorstellen (de derde knop)</h3>
+          <p>Naast aanvaarden en weigeren is er een derde optie: een andere zaal of andere data voorstellen, met een persoonlijke toelichting. De klant kan in zijn opvolgpagina met één klik akkoord gaan.</p>
+          <p class="why">Jullie vroegen hier expliciet om: "drie opties, bij alle drie een veld voor een opmerking".</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Hoe vaak stellen jullie vandaag een alternatief voor? Wat staat er dan typisch in zo'n voorstel?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Alternatief voorstellen <span class="r">×</span></div>
+        <div class="wf-label">Voorgestelde zaal</div>
+        <div class="wf-chiprow"><span class="wf-chip on">Calcutta</span><span class="wf-chip">Arenberg</span><span class="wf-chip">Andere…</span></div>
+        <div class="wf-label">Voorgestelde data</div>
+        <div class="wf-grid3">
+          <div class="wf-input">di 12/05/2026</div>
+          <div class="wf-input">09:00</div>
+          <div class="wf-input">16:00</div>
+        </div>
+        <div class="wf-label">Toelichting *</div>
+        <div class="wf-input ta">Op de oorspronkelijke data staat een interne workshop. Een week later is alles vrij…</div>
+        <div class="wf-row end"><span class="wf-btn ghost">Annuleren</span>&nbsp;<span class="wf-btn">Verstuur voorstel</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ C. OPVOLGEN ============ -->
+  <section class="section" id="s-opvolgen">
+    <h2>C — Opvolgen: wat de klant ziet na het indienen</h2>
+    <p class="section-sub">Vandaag bellen of mailen klanten voor hun status. Straks kijken ze zelf, via een persoonlijke link. Geen account, geen wachtwoord.</p>
+
+    <!-- C1 -->
+    <div class="concept" id="c-c1">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">C1</span>
+          <h3>De opvolgpagina (persoonlijke link, geen login)</h3>
+          <p>In de bevestigingsmail zit een unieke link. Daarop ziet de klant de status, de tijdslijn en alles wat hij heeft ingediend. Bij goedkeuring: welke zaal, en de persoonlijke opmerking van Isabelle.</p>
+          <p class="why">Een volwaardig login-portaal (zie concept G1) is voor later. De link doet 90% van het werk voor 10% van de moeite.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Volstaat zo'n persoonlijke link, of zijn er klanten die echt een account met historiek nodig hebben?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Jouw aanvraag <span class="r">AAV-2026-0142</span></div>
+        <div class="wf-row between" style="margin-bottom:8px;">
+          <div class="wf-title" style="margin:0;">Tweedaagse opleiding pleegzorg</div>
+          <span class="wf-status">Goedgekeurd ✓</span>
+        </div>
+        <div class="wf-timeline-item"><span class="wf-dot on"></span><span>Aanvraag ontvangen — 4 mei 14:32</span></div>
+        <div class="wf-timeline-item"><span class="wf-dot on"></span><span>In behandeling — 4 mei 16:45</span></div>
+        <div class="wf-timeline-item"><span class="wf-dot on"></span><span>Goedgekeurd door Isabelle — 5 mei 11:10</span></div>
+        <div class="wf-box">
+          <div class="wf-label" style="margin-top:0;">Bevestiging</div>
+          <div class="wf-kv">
+            <span class="k">Zaal</span><span class="v">Calcutta + Alcantara (lunch)</span>
+            <span class="k">Data</span><span class="v">7-8 mei · 09:00-16:00</span>
+            <span class="k">Bericht</span><span class="v">"Welkom! Calcutta past perfect…"</span>
+          </div>
+        </div>
+        <div class="wf-note">Volgende stap: contract en factuur volgen per e-mail. Betaling uiterlijk 2 weken voor het evenement.</div>
+      </div>
+    </div>
+
+    <!-- C2 -->
+    <div class="concept" id="c-c2">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">C2</span>
+          <h3>Reageren op een alternatief voorstel</h3>
+          <p>Als Isabelle een alternatief voorstelt, ziet de klant het voorstel met haar toelichting en twee knoppen: akkoord, of liever contact opnemen. Bij akkoord is de zaak meteen rond, zonder één extra mail.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Mag een akkoord van de klant het dossier meteen op "goedgekeurd" zetten, of willen jullie er nog eens naar kijken?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Jouw aanvraag <span class="r">AAV-2026-0142</span></div>
+        <div class="wf-row between" style="margin-bottom:8px;">
+          <div class="wf-title" style="margin:0;">Tweedaagse opleiding pleegzorg</div>
+          <span class="wf-status">Wachten op jouw antwoord</span>
+        </div>
+        <div class="wf-box" style="border-style:solid; border-color:var(--ink);">
+          <div class="wf-label" style="margin-top:0;">Pianofabriek stelt een alternatief voor</div>
+          <div class="wf-kv">
+            <span class="k">Nieuwe data</span><span class="v">12-13 mei · 09:00-16:00</span>
+            <span class="k">Zaal</span><span class="v">Calcutta</span>
+          </div>
+          <div class="wf-note" style="margin:8px 0;">"Op de oorspronkelijke data staat een interne workshop. Een week later is alles vrij." — Isabelle</div>
+          <div class="wf-row">
+            <span class="wf-btn">Akkoord met voorstel</span>
+            <span class="wf-btn ghost">Liever contact opnemen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C3 -->
+    <div class="concept" id="c-c3">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">C3</span>
+          <h3>Wijziging aanvragen via de opvolgpagina</h3>
+          <p>Jullie derde grootste tijdvreter: wijzigingen aan bestaande reservaties via eindeloze mailthreads. Straks: één knop op de opvolgpagina. Het verzoek komt in het dossier terecht, Isabelle verwerkt het en de klant ziet het antwoord.</p>
+          <p class="why">Bewust eenvoudig: vrij tekstveld, geen volledig herbewerken van de aanvraag. De wijzigingsregels (7 werkdagen eten, 2 werkdagen drank) staan ernaast.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Welke wijzigingen komen het vaakst voor? Aantallen, uren, data, zalen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Wijziging aanvragen <span class="r">×</span></div>
+        <div class="wf-note">Wijzigingen aan horeca kunnen tot 7 werkdagen voor het evenement, drank tot 2 werkdagen.</div>
+        <div class="wf-label">Wat wil je wijzigen? *</div>
+        <div class="wf-input ta">We worden met 26 in plaats van 22 personen. Kunnen er 4 broodjes bij?</div>
+        <div class="wf-row end"><span class="wf-btn">Verstuur wijzigingsverzoek</span></div>
+        <div class="wf-hr"></div>
+        <div class="wf-label">Eerdere verzoeken</div>
+        <div class="wf-timeline-item"><span class="wf-dot on"></span><span>6 mei — "Extra flipchart graag" → verwerkt ✓</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ D. COMMUNICATIE ============ -->
+  <section class="section" id="s-communicatie">
+    <h2>D — Communicatie: mails die zichzelf versturen</h2>
+    <p class="section-sub">Het verschil tussen wat in de MVP zit en wat later komt: mails die vertrekken <strong>bij een actie</strong> zijn er meteen. Mails die vertrekken <strong>op een tijdstip</strong> (herinneringen) komen later.</p>
+
+    <!-- D1 -->
+    <div class="concept" id="c-d1">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">D1</span>
+          <h3>Automatische mails bij elke statuswijziging</h3>
+          <p>Indiening, goedkeuring, weigering, alternatief: telkens vertrekt automatisch de juiste mail, met de opmerking van Isabelle erin. In het Nederlands of Frans, afhankelijk van de taal van de aanvraag.</p>
+          <p class="why">Dit raakt jullie grootste tijdvreter rechtstreeks: van gemiddeld 6 mails per aanvraag naar 1 à 2.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Wie schrijft en valideert de teksten van deze mails, in beide talen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-mail">
+          <div class="from"><strong>Van:</strong> zalen@pianofabriek.be · <strong>Aan:</strong> suzan@kenniscentrum…</div>
+          <strong style="color:var(--ink);">Je aanvraag is goedgekeurd — AAV-2026-0142</strong>
+          <div class="wf-line w80"></div>
+          <div class="wf-line"></div>
+          <div class="wf-line w60"></div>
+          <div class="wf-box" style="margin-top:8px;">Zaal: Calcutta · 7-8 mei · 09:00-16:00<br>"Welkom! Calcutta past perfect…" — Isabelle</div>
+          <div class="wf-line w40"></div>
+          <span class="wf-btn" style="margin-top:6px;">Bekijk je aanvraag ›</span>
+        </div>
+        <div class="wf-note" style="margin-top:12px;">Vertrekt automatisch op het moment dat Isabelle op "Aanvaarden" klikt. Geen apart mailwerk.</div>
+      </div>
+    </div>
+
+    <!-- D2 -->
+    <div class="concept" id="c-d2">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">D2</span>
+          <h3>Interne notificaties naar Olivier en techniek</h3>
+          <p>Bij elke goedkeuring krijgen Olivier (horeca) en het technisch team automatisch een mail met precies hun deel van het dossier: wat, wanneer, voor hoeveel personen, welke bestelling.</p>
+          <p class="why">Dit dicht het gat waar vandaag informatie verloren gaat tussen onthaal, horeca en techniek. Niemand hoeft nog iets door te spelen.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag (aan Olivier)</div>
+            <div class="q">Wat moet er in jouw notificatie staan zodat je niets meer hoeft na te vragen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-mail">
+          <div class="from"><strong>Van:</strong> systeem · <strong>Aan:</strong> olivier@pianofabriek.be</div>
+          <strong style="color:var(--ink);">Nieuwe goedgekeurde reservatie met horeca — 7-8 mei</strong>
+          <div class="wf-box" style="margin-top:8px;">
+            Kenniscentrum Pleegzorg · 22 pers · Calcutta<br>
+            3× thermos koffie · 2× thee · 22× broodjes · 2× cake<br>
+            <strong style="color:var(--ink);">Let op: 2 personen glutenvrij</strong>
+          </div>
+          <span class="wf-btn ghost" style="margin-top:6px;">Open dossier ›</span>
+        </div>
+        <div class="wf-note" style="margin-top:12px;">Zelfde principe voor techniek: beamer, micro, opstelling.</div>
+      </div>
+    </div>
+
+    <!-- D3 -->
+    <div class="concept" id="c-d3">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2</span></div>
+        <div class="concept-info">
+          <span class="num">D3</span>
+          <h3>Geplande herinneringen — fase 2</h3>
+          <p>Mails die vanzelf vertrekken op een tijdstip: betalingsherinnering als de deadline nadert, melding dat de wijzigingstermijn bijna verstrijkt, tevredenheidsvraag na het evenement.</p>
+          <p class="why">Waardevol, maar het vraagt een betrouwbaar gepland mailsysteem met configuratie en uitzonderingen. Dat is een eigen project. In de MVP bewaakt Isabelle de deadlines zoals nu, maar mét overzicht in de werkbank.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Welke herinnering zou het meest opleveren als we er ooit één bouwen: betaling, wijzigingsdeadline of enquête?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Geplande mails <span class="r">fase 2</span></div>
+        <div class="wf-timeline-item"><span class="wf-dot"></span><span>Dag 7 na goedkeuring — betalingsherinnering</span></div>
+        <div class="wf-timeline-item"><span class="wf-dot"></span><span>9 werkdagen voor event — "wijzigen kan nog tot…"</span></div>
+        <div class="wf-timeline-item"><span class="wf-dot"></span><span>Dag na event — tevredenheidsvraag (ja/nee)</span></div>
+        <div class="wf-note">Vraagt: planning-systeem, configureerbare termijnen, uitzonderingen, monitoring.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ E. YESPLAN ============ -->
+  <section class="section" id="s-yesplan">
+    <h2>E — Yesplan: de eerlijke realiteit</h2>
+    <p class="section-sub">Yesplan blijft jullie planning, en die van de hele VGC. Maar de koppeling werkt maar in één richting, en zelfs die richting is beperkt.</p>
+
+    <!-- E1 -->
+    <div class="concept" id="c-e1">
+      <div>
+        <div class="badge-row"><span class="tag no">Niet mogelijk</span></div>
+        <div class="concept-info">
+          <span class="num">E1</span>
+          <h3>"Goedkeuren en het staat in Yesplan" — kan niet</h3>
+          <p>De droom: Isabelle klikt op aanvaarden en het evenement verschijnt automatisch in Yesplan, met alle gegevens ingevuld.</p>
+          <p class="why">Yesplan laat externe systemen geen evenementen aanmaken en geen statussen of velden aanpassen. Dit is een platformkeuze van Yesplan/VGC, geen instelling die iemand kan aanzetten. Dat hebben zowel Marc als jullie eigen prioriteitennota bevestigd. We bouwen er dus niet omheen, we zijn er eerlijk over.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Is iedereen aan boord met deze realiteit, zodat ze niet halverwege het project terugkomt als verwachting?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf crossed">
+        <div class="wf-bar">Automatische doorstroom <span class="r">vervalt</span></div>
+        <div style="display:flex; align-items:center; gap:10px; justify-content:center; padding:18px 0;">
+          <div class="wf-box" style="margin:0; text-align:center; padding:14px;">Onze tool<br><span style="font-size:9px;">aanvraag goedgekeurd</span></div>
+          <div style="font-size:16px; color:var(--ink);">→</div>
+          <div class="wf-box" style="margin:0; text-align:center; padding:14px;">Yesplan<br><span style="font-size:9px;">event automatisch aangemaakt</span></div>
+        </div>
+        <div class="wf-note">Yesplan API: geen events aanmaken, geen statussen wijzigen vanuit externe systemen.</div>
+      </div>
+    </div>
+
+    <!-- E2 -->
+    <div class="concept" id="c-e2">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">E2</span>
+          <h3>Wat wél kan: het dossier als perfecte bron voor Yesplan</h3>
+          <p>Isabelle blijft het evenement zelf in Yesplan zetten, zoals nu. Het verschil: ze werkt vanuit één volledig, gestructureerd dossier in plaats van uit een mailthread. De werkbank toont de gegevens in de volgorde waarin Yesplan ze vraagt.</p>
+          <p class="why">Eerlijke inschatting: het overtypen wordt sneller en foutloos, maar het verdwijnt niet. Dat is de grens die Yesplan ons oplegt.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag (aan Isabelle)</div>
+            <div class="q">In welke volgorde vul jij een evenement in Yesplan in? Dan zetten we het dossier in exact die volgorde.</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Dossier · Yesplan-weergave <span class="r">werkbank</span></div>
+        <div class="wf-note" style="margin-top:0;">Gegevens in Yesplan-volgorde, klaar om over te nemen:</div>
+        <div class="wf-box">
+          <div class="wf-kv">
+            <span class="k">Naam event</span><span class="v">Opleiding Kenniscentrum Pleegzorg</span>
+            <span class="k">Locatie</span><span class="v">GCPIF_Calcutta</span>
+            <span class="k">Datum/tijd</span><span class="v">07/05 09:00-16:00 + 08/05</span>
+            <span class="k">Organisatie</span><span class="v">Kenniscentrum Pleegzorg vzw</span>
+            <span class="k">Contact</span><span class="v">Suzan de Hoog</span>
+            <span class="k">Catering</span><span class="v">koffie 3×, broodjes 22×, glutenvrij 2p</span>
+            <span class="k">Techniek</span><span class="v">beamer 1×</span>
+          </div>
+        </div>
+        <div class="wf-row"><span class="wf-btn ghost">Kopieer alles</span></div>
+      </div>
+    </div>
+
+    <!-- E3 -->
+    <div class="concept" id="c-e3">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2 — te onderzoeken</span></div>
+        <div class="concept-info">
+          <span class="num">E3</span>
+          <h3>Yesplan-bezetting als hulp voor Isabelle (niet voor de klant)</h3>
+          <p>De Yesplan-data die we wél kunnen lezen, tonen we in de werkbank als <em>hulp bij het beslissen</em>: "op 7 mei staat in Yesplan al iets in Calcutta". Isabelle interpreteert, het systeem beweert niets.</p>
+          <p class="why">Voor de klant is deze data te onbetrouwbaar (zie A5), maar voor Isabelle, die de context kent, kan het een handig eerste signaal zijn. Te onderzoeken na de MVP: is de datakwaliteit goed genoeg om nuttig te zijn?</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag (aan Isabelle)</div>
+            <div class="q">Zou zo'n signaal jou helpen, of kijk je toch altijd zelf in Yesplan?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Dossier · beschikbaarheidssignaal <span class="r">fase 2</span></div>
+        <div class="wf-note" style="margin-top:0;">Gevraagde data: 7-8 mei, 22 personen</div>
+        <div class="wf-box">
+          <strong style="color:var(--ink); font-size:10px;">Signaal uit Yesplan (indicatief)</strong><br>
+          7 mei · Calcutta — niets gevonden<br>
+          7 mei · Arenberg — "Repetitie Cie X" 14:00-18:00<br>
+          8 mei · Calcutta — niets gevonden
+        </div>
+        <div class="wf-note">Let op: eigen programmering en opbouwtijden staan mogelijk niet in Yesplan. Altijd zelf controleren.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ F. GELD ============ -->
+  <section class="section" id="s-geld">
+    <h2>F — Geld en documenten</h2>
+    <p class="section-sub">Facturatie en contracten blijven in de MVP lopen zoals vandaag. Hieronder wat er later bovenop kan, zodat jullie weten wat er op de roadmap kan staan.</p>
+
+    <!-- F1 -->
+    <div class="concept" id="c-f1">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2</span></div>
+        <div class="concept-info">
+          <span class="num">F1</span>
+          <h3>Betalingsverzoek met QR-code of betaallink</h3>
+          <p>Na goedkeuring automatisch een betalingsverzoek met uniek referentienummer, eventueel met QR-code of Mollie/Payconiq-link. De boekhouding ziet betalingen automatisch gematcht.</p>
+          <p class="why">Vraagt een betaalprovider-contract, koppeling met de boekhouding en een sluitend verval-proces. Te bouwen zodra de basis draait.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag (aan Sebastien)</div>
+            <div class="q">Hoeveel tijd kost het matchen van betalingen vandaag? Dat bepaalt of dit fase 2 of fase 3 is.</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Betalingsverzoek <span class="r">fase 2</span></div>
+        <div class="wf-mail">
+          <div class="from"><strong>Aan:</strong> klant · na goedkeuring</div>
+          <strong style="color:var(--ink);">Betalingsverzoek — AAV-2026-0142</strong>
+          <div class="wf-box" style="margin-top:8px;">
+            Bedrag: 315,00 €<br>
+            Mededeling: +++026/1690/0142+++<br>
+            Uiterlijk: 2 weken voor het evenement
+          </div>
+          <div class="wf-row" style="margin-top:6px;">
+            <div style="width:42px; height:42px; background:var(--wf-dark); border-radius:4px;"></div>
+            <span class="wf-btn">Betaal online ›</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F2 -->
+    <div class="concept" id="c-f2">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2</span></div>
+        <div class="concept-info">
+          <span class="num">F2</span>
+          <h3>Koppeling met Exact Online</h3>
+          <p>Klantgegevens automatisch naar Exact, factuur automatisch aangemaakt bij bevestiging, betaalstatus automatisch terug naar het dossier.</p>
+          <p class="why">Dit stond in jullie prioriteitennota en het is technisch haalbaar, maar het is een volwaardig integratieproject met eigen risico's (klantnummers, BTW-regimes per zaal, foutafhandeling). Eerst moet de basis bewijzen dat ze werkt.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Wat doet vandaag meer pijn: de instroom van aanvragen of de facturatie-administratie? Dat bepaalt de volgorde.</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Exact Online koppeling <span class="r">fase 2</span></div>
+        <div style="display:flex; align-items:center; gap:8px; justify-content:center; padding:14px 0; flex-wrap:wrap;">
+          <div class="wf-box" style="margin:0; text-align:center; padding:10px;">Onze tool<br><span style="font-size:9px;">dossier bevestigd</span></div>
+          <div style="color:var(--muted);">→</div>
+          <div class="wf-box" style="margin:0; text-align:center; padding:10px;">Exact Online<br><span style="font-size:9px;">factuur aangemaakt</span></div>
+          <div style="color:var(--muted);">→</div>
+          <div class="wf-box" style="margin:0; text-align:center; padding:10px;">Dossier<br><span style="font-size:9px;">status "betaald"</span></div>
+        </div>
+        <div class="wf-note">Klantnummer-matching, BTW per zaal (0% vs 21%), foutafhandeling: serieus integratiewerk.</div>
+      </div>
+    </div>
+
+    <!-- F3 -->
+    <div class="concept" id="c-f3">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2</span></div>
+        <div class="concept-info">
+          <span class="num">F3</span>
+          <h3>Contract digitaal ondertekenen</h3>
+          <p>Contract en algemene voorwaarden automatisch gegenereerd en digitaal ondertekend in de opvolgpagina. Vervangt printen, tekenen, scannen, terugmailen.</p>
+          <p class="why">In de MVP genereren we het dossier; het contract zelf blijven jullie maken en mailen zoals nu. E-handtekening vraagt een betrouwbare provider en juridische checks.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Hoe vaak loopt het contract-proces vandaag vertraging op? Is dit pijnlijk genoeg voor fase 2?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Documenten in opvolgpagina <span class="r">fase 2</span></div>
+        <div class="wf-box">
+          <div class="wf-row between">
+            <span>Gebruiksovereenkomst 26169.pdf</span>
+            <span class="wf-btn ghost">Onderteken ›</span>
+          </div>
+        </div>
+        <div class="wf-box">
+          <div class="wf-row between">
+            <span>Algemene voorwaarden.pdf</span>
+            <span class="wf-btn soft">Bekijk</span>
+          </div>
+        </div>
+        <div class="wf-box">
+          <div class="wf-row between">
+            <span>Factuur 2026-0598.pdf</span>
+            <span class="wf-btn soft">Download</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ G. BEHEER ============ -->
+  <section class="section" id="s-beheer">
+    <h2>G — Beheer en extra's</h2>
+    <p class="section-sub">De rest van de wensenlijst, eerlijk gelabeld.</p>
+
+    <!-- G1 -->
+    <div class="concept" id="c-g1">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2</span></div>
+        <div class="concept-info">
+          <span class="num">G1</span>
+          <h3>Volwaardig klantenportaal met account en historiek</h3>
+          <p>Klanten loggen in, zien al hun reservaties (verleden en toekomst), documenten en facturen, en dienen nieuwe aanvragen in vanuit hun profiel. Geen dubbele invoer voor terugkerende klanten.</p>
+          <p class="why">Waardevol voor de vaste klanten, maar het brengt account-beheer, wachtwoorden, GDPR-verzwaringen en dubbele-account-preventie mee. De persoonlijke link (C1) vangt het belangrijkste op zonder die last.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Hoeveel procent van jullie aanvragen komt van terugkerende klanten? Dat bepaalt de waarde van accounts.</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Mijn Pianofabriek <span class="r">fase 2 · ingelogd</span></div>
+        <div class="wf-sidebar-layout">
+          <div class="wf-side">
+            <div class="on">Reservaties</div>
+            <div>Documenten</div>
+            <div>Facturen</div>
+            <div>Mijn profiel</div>
+          </div>
+          <div>
+            <div class="wf-box"><div class="wf-row between"><span>Opleiding · 7-8 mei</span><span class="wf-status">Bevestigd</span></div></div>
+            <div class="wf-box"><div class="wf-row between"><span>Vergadering · 3 maart</span><span>Afgerond</span></div></div>
+            <div class="wf-box"><div class="wf-row between"><span>Workshop · 12 jan</span><span>Afgerond</span></div></div>
+            <span class="wf-btn">+ Nieuwe aanvraag</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G2 -->
+    <div class="concept" id="c-g2">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2</span></div>
+        <div class="concept-info">
+          <span class="num">G2</span>
+          <h3>Zelf prijzen en horeca-aanbod beheren</h3>
+          <p>Olivier past zelf het horeca-aanbod aan (seizoensgebonden, daglimieten), prijzen worden geïndexeerd zonder tussenkomst van de bouwer.</p>
+          <p class="why">In de MVP staan prijzen en aanbod in een configuratiebestand: een wijziging doorgeven kost jullie een mailtje en ons enkele minuten. Een volwaardige beheer-module bouwen kost dagen. Die verhouding maakt de keuze: eerst bewijzen dat het systeem werkt, dan beheer toevoegen.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag (aan Olivier)</div>
+            <div class="q">Hoe vaak wijzigt het aanbod echt? Wekelijks, maandelijks, per seizoen?</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Beheer · horeca-aanbod <span class="r">fase 2</span></div>
+        <div class="wf-tablerow head" style="grid-template-columns: 2fr 1fr 1fr 1fr;"><span>Artikel</span><span>Prijs</span><span>Min. pers</span><span>Actief</span></div>
+        <div class="wf-tablerow" style="grid-template-columns: 2fr 1fr 1fr 1fr;"><span>Lunch broodjes</span><span>5,50 €</span><span>—</span><span>✓</span></div>
+        <div class="wf-tablerow" style="grid-template-columns: 2fr 1fr 1fr 1fr;"><span>Dagschotel</span><span>8,00 €</span><span>5</span><span>✓ ma-do</span></div>
+        <div class="wf-tablerow" style="grid-template-columns: 2fr 1fr 1fr 1fr;"><span>Lunch buffet</span><span>15,00 €</span><span>15</span><span>✓</span></div>
+        <div class="wf-row" style="margin-top:8px;"><span class="wf-btn ghost">+ Artikel toevoegen</span></div>
+      </div>
+    </div>
+
+    <!-- G3 -->
+    <div class="concept" id="c-g3">
+      <div>
+        <div class="badge-row"><span class="tag f2">Fase 2</span></div>
+        <div class="concept-info">
+          <span class="num">G3</span>
+          <h3>Tevredenheidsvraag na afloop</h3>
+          <p>Daags na het evenement een simpele vraag: tevreden, ja of nee? Bij "nee" een open veld. Resultaten in de werkbank.</p>
+          <p class="why">Eenvoudig concept, maar het hangt af van geplande mails (D3). Komt dus samen met die bouwsteen.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Wat zouden jullie met de antwoorden doen? Dat bepaalt of dit prioriteit verdient.</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-mail">
+          <div class="from"><strong>Aan:</strong> klant · dag na evenement</div>
+          <strong style="color:var(--ink);">Hoe was het bij Pianofabriek?</strong>
+          <div class="wf-row" style="margin-top:8px;">
+            <span class="wf-btn">Tevreden</span>
+            <span class="wf-btn ghost">Kon beter</span>
+          </div>
+          <div class="wf-note" style="margin-top:8px;">Bij "kon beter": open tekstveld. Resultaat zichtbaar in werkbank.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G4 -->
+    <div class="concept" id="c-g4">
+      <div>
+        <div class="badge-row"><span class="tag mvp">MVP</span></div>
+        <div class="concept-info">
+          <span class="num">G4</span>
+          <h3>De sociale missie zichtbaar maken</h3>
+          <p>Jullie wens om transparanter te zijn over de werking als inschakelingsonderneming: een vaste tekst op de aanvraagpagina en in de bevestigingsmail. Klanten weten vooraf dat ze werken met mensen in opleiding.</p>
+          <p class="why">Dit is bijna gratis om mee te nemen en het managet meteen de verwachtingen rond professionaliteit, een van jullie genoemde misverstanden.</p>
+          <div class="ws-vraag">
+            <div class="lbl">Vraag voor vandaag</div>
+            <div class="q">Wie schrijft deze tekst? Twee à drie zinnen volstaan.</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf">
+        <div class="wf-bar">Onderaan de aanvraagpagina</div>
+        <div class="wf-box">
+          <strong style="color:var(--ink); font-size:10px;">Goed om te weten</strong><br>
+          Pianofabriek is een sociale inschakelingsonderneming. Ons team bestaat deels uit medewerkers in opleiding — in techniek, horeca en onthaal. Zo draagt jouw reservatie bij aan hun traject.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="print-note">
+    <p><strong>Gebruik in de workshop:</strong> per concept eerst de schets tonen, dan de vraag stellen. De labels zijn het voorstel van Gather; de workshop beslist. Concepten kunnen van label wisselen zolang het totaalbudget van de MVP bewaakt blijft.</p>
+    <p>Gather · juni 2026 · gebaseerd op de voorbereidende vragen (13/04), het architectuurdocument (20/05), de prioriteitennota (08/06) en twee echte aanvraagdossiers.</p>
+  </footer>
+
+</div>
+</body>
+</html>
