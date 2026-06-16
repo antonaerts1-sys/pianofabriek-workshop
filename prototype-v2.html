@@ -173,6 +173,18 @@
   .opt-qty .line { font-size: 13px; color: var(--muted); margin-left: auto; }
   .opt-item.on .opt-head .check { background: var(--accent); border-color: var(--accent); }
   .opt-item.on .opt-head .check::after { content: '✓'; color: white; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  /* gated secties (open enkel wat je nodig hebt) */
+  .gate-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 14px; }
+  .gate-head h4 { margin: 0; font-size: 15px; font-weight: 600; }
+  .gate-head .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .gate-body { border-top: 1px solid var(--border); padding: 12px 14px 14px; }
+  .opt-row { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--border); }
+  .opt-row:first-child { border-top: none; }
+  .opt-row .opt-name { font-size: 14px; }
+  .opt-row .unit { font-size: 12px; color: var(--muted); }
+  .opt-row .line { font-size: 13px; color: var(--muted); min-width: 56px; text-align: right; }
+  .lunch-field { margin-bottom: 12px; }
+  .lunch-subtotal { margin-top: 12px; font-size: 14px; font-weight: 600; color: var(--ink); }
   /* lunch keuze */
   .lunch-people { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); max-width: 620px; }
   .lunch-people label { font-size: 14px; }
@@ -464,39 +476,45 @@
       <div class="stepper" data-stepper="3"></div>
       <div class="step-names" data-stepnames="3"></div>
       <h3 class="question">Wat heb je nodig?</h3>
-      <p class="question-sub">Kies wat je wil reserveren. Niets nodig? Sla gerust over. Deze prijzen zijn vast; de zaalhuur zelf volgt bij de goedkeuring.</p>
+      <p class="question-sub">Klap open wat van toepassing is. Niets nodig? Ga gewoon door. De zaalhuur zelf volgt bij de goedkeuring.</p>
 
-      <div class="menu" id="menuTech">
-        <div class="menu-h"><h4>Technisch materiaal</h4><div class="meta">Tik aan wat je nodig hebt.</div></div>
-        <div class="opt-item" data-price="20" data-name="Beamer" data-kind="stuk"></div>
-        <div class="opt-item" data-price="20" data-name="Micro en versterkt geluid" data-kind="stuk"></div>
-        <div class="opt-item" data-price="8" data-name="Flipchart" data-kind="stuk"></div>
-        <div class="opt-item" data-price="20" data-name="Permanentie podiumtechnicus" data-kind="uur"></div>
-      </div>
-
-      <div class="menu" id="menuDrink">
-        <div class="menu-h"><h4>Dranken</h4><div class="meta">Onze keuken is vegetarisch. Tik aan wat je wil.</div></div>
-        <div class="opt-item" data-price="8" data-name="Thermos koffie (10 koppen)" data-kind="stuk"></div>
-        <div class="opt-item" data-price="8" data-name="Thermos thee (10 koppen)" data-kind="stuk"></div>
-        <div class="opt-item" data-price="3" data-name="Plat water 1 L" data-kind="fles"></div>
-        <div class="opt-item" data-price="3" data-name="Bruisend water 1 L" data-kind="fles"></div>
-        <div class="opt-item" data-price="3" data-name="Fruitsap bio 1 L" data-kind="fles"></div>
-        <div class="opt-item" data-price="13" data-name="Cake voor 10 personen" data-kind="stuk"></div>
-      </div>
-
-      <div class="menu" id="menuLunch">
-        <div class="menu-h"><h4>Lunch</h4><div class="meta">Kies één formule voor je groep.</div></div>
-        <div data-card-group="lunch" id="lunchGroup" style="padding:8px;">
-          <div class="check-card sel" data-value="geen" data-price="0"><div class="ttl">Geen lunch</div></div>
-          <div class="check-card" data-value="Broodjesassortiment" data-price="5.5"><div class="ttl">Broodjesassortiment</div><div class="desc">5,50 € per persoon</div></div>
-          <div class="check-card" data-value="Broodjes met soep" data-price="8"><div class="ttl">Broodjes met soep</div><div class="desc">8 € per persoon</div></div>
-          <div class="check-card" data-value="Lunchbuffet" data-price="15"><div class="ttl">Lunchbuffet</div><div class="desc">15 € per persoon · vanaf 15 personen</div></div>
-          <div class="check-card" data-value="Dagschotel" data-price="8"><div class="ttl">Dagschotel</div><div class="desc">8 € per persoon · vanaf 5 personen</div></div>
+      <div class="menu">
+        <div class="gate-head">
+          <div><h4>Technisch materiaal</h4><div class="meta">Beamer, micro, flipchart, podiumtechnicus</div></div>
+          <div class="seg" data-seg="gate-tech"><button type="button" class="on" data-value="nee">Nee</button><button type="button" data-value="ja">Ja</button></div>
         </div>
-        <div class="lunch-people" id="lunchPeopleWrap" hidden>
-          <label>Voor hoeveel personen?</label>
-          <div class="stepper-num"><button type="button" data-num="-" data-target="lunchPeople">−</button><input id="lunchPeople" value="22" inputmode="numeric"><button type="button" data-num="+" data-target="lunchPeople">+</button></div>
-          <label class="check-row" data-check-toggle="dessert" style="margin:0;"><span class="check"></span><div style="font-size:13px;">Dessert toevoegen (+2 € per persoon)</div></label>
+        <div class="gate-body" id="techBody" hidden></div>
+      </div>
+
+      <div class="menu">
+        <div class="gate-head">
+          <div><h4>Dranken</h4><div class="meta">Koffie, thee, water, fruitsap, cake. Onze keuken is vegetarisch.</div></div>
+          <div class="seg" data-seg="gate-drink"><button type="button" class="on" data-value="nee">Nee</button><button type="button" data-value="ja">Ja</button></div>
+        </div>
+        <div class="gate-body" id="drinkBody" hidden></div>
+      </div>
+
+      <div class="menu">
+        <div class="gate-head">
+          <div><h4>Lunch</h4><div class="meta">Eén formule voor de groep</div></div>
+          <div class="seg" data-seg="gate-lunch"><button type="button" class="on" data-value="nee">Nee</button><button type="button" data-value="ja">Ja</button></div>
+        </div>
+        <div class="gate-body" id="lunchDetail" hidden>
+          <div class="lunch-field">
+            <label class="field-label">Formule</label>
+            <select class="input" id="lunchFormule" style="max-width:420px;">
+              <option value="Broodjesassortiment" data-price="5.5">Broodjesassortiment — 5,50 € per persoon</option>
+              <option value="Broodjes met soep" data-price="8">Broodjes met soep — 8 € per persoon</option>
+              <option value="Lunchbuffet" data-price="15">Lunchbuffet — 15 € per persoon (vanaf 15 personen)</option>
+              <option value="Dagschotel" data-price="8">Dagschotel — 8 € per persoon (vanaf 5 personen)</option>
+            </select>
+          </div>
+          <div class="lunch-field">
+            <label class="field-label">Voor hoeveel personen?</label>
+            <div class="stepper-num"><button type="button" data-num="-" data-target="lunchPeople">−</button><input id="lunchPeople" value="22" inputmode="numeric"><button type="button" data-num="+" data-target="lunchPeople">+</button></div>
+          </div>
+          <label class="check-row" data-check-toggle="dessert" style="margin:8px 0 0;"><span class="check"></span><div style="font-size:13px;">Dessert toevoegen (+2 € per persoon)</div></label>
+          <div class="lunch-subtotal" id="lunchSubtotal"></div>
         </div>
       </div>
 
@@ -507,7 +525,7 @@
         <textarea class="input" id="allergy" placeholder="bv. glutenvrij, notenallergie...">2 personen glutenvrij.</textarea>
       </div>
 
-      <div class="total-bar"><span class="l">Richtprijs technisch + horeca (zonder zaalhuur)</span><span class="v" id="grandTotal">0 €</span></div>
+      <div class="total-bar" id="totalBar" hidden><span class="l">Geschatte extra's (zonder zaalhuur)</span><span class="v" id="grandTotal">0 €</span></div>
 
       <div class="actions">
         <button class="btn-text" data-go="wizard-2">‹ Terug</button>
@@ -575,6 +593,13 @@
           </div>
           <input class="input" id="contact2Email" placeholder="E-mailadres (optioneel)" style="margin-top:12px;">
         </div>
+      </div>
+
+      <div class="hairline"></div>
+
+      <div class="field">
+        <label class="field-label">Iets dat we nog moeten weten? <span class="opt">(optioneel)</span></label>
+        <textarea class="input" id="extraInfo" placeholder="Bijzondere wensen, context, een vraag voor ons..."></textarea>
       </div>
 
       <div class="actions">
@@ -902,31 +927,43 @@ document.addEventListener('click', (e)=>{
   const chip = e.target.closest('.chip');
   if(chip && chip.closest('[data-chip-group]')){ const g=chip.closest('[data-chip-group]'); $$('.chip',g).forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); onChipChange(g,chip); return; }
   const seg = e.target.closest('.seg button');
-  if(seg){ const g=seg.closest('.seg'); $$('button',g).forEach(b=>b.classList.remove('on')); seg.classList.add('on'); if(g.dataset.seg==='gratis'){ $('#prijsWrap').hidden = seg.dataset.value!=='Betalend'; } return; }
-  const card = e.target.closest('[data-card-group] .check-card');
-  if(card){ const g=card.closest('[data-card-group]'); $$('.check-card',g).forEach(c=>c.classList.remove('sel')); card.classList.add('sel'); onCardChange(g,card); return; }
+  if(seg){
+    const g=seg.closest('.seg'); $$('button',g).forEach(b=>b.classList.remove('on')); seg.classList.add('on');
+    if(g.dataset.seg==='gratis'){ $('#prijsWrap').hidden = seg.dataset.value!=='Betalend'; }
+    if(g.dataset.seg && g.dataset.seg.indexOf('gate-')===0){ onGate(g.dataset.seg, seg.dataset.value); }
+    return;
+  }
   const tog = e.target.closest('[data-check-toggle]');
   if(tog){ $('.check',tog).classList.toggle('checked'); if(tog.dataset.checkToggle==='dessert') computeTotal(); return; }
-  const optHead = e.target.closest('.opt-head');
-  if(optHead){ const it=optHead.closest('.opt-item'); const on=it.classList.toggle('on'); it.querySelector('.opt-qty').hidden=!on; computeTotal(); return; }
 });
-function onCardChange(group, card){
-  if(group.id==='lunchGroup'){
-    const isLunch = card.dataset.value!=='geen';
-    $('#lunchPeopleWrap').hidden = !isLunch;
-    if(isLunch){ const p=parseInt($('#people').value||'0',10)||0; if(p>0) $('#lunchPeople').value=p; }
-    computeTotal();
-  }
+const GATE_BODY = { 'gate-tech':'techBody', 'gate-drink':'drinkBody', 'gate-lunch':'lunchDetail' };
+function onGate(gate, value){
+  const body = $('#'+GATE_BODY[gate]);
+  const ja = value==='ja';
+  body.hidden = !ja;
+  if(!ja){ body.querySelectorAll('.qty').forEach(q=>q.value=0); }
+  else if(gate==='gate-lunch'){ const p=parseInt($('#people').value||'0',10)||0; if(p>0) $('#lunchPeople').value=p; }
+  computeTotal();
+}
+const TECH_ITEMS = [
+  {n:'Beamer', p:20, kind:'stuk'}, {n:'Micro en versterkt geluid', p:20, kind:'stuk'},
+  {n:'Flipchart', p:8, kind:'stuk'}, {n:'Permanentie podiumtechnicus', p:20, kind:'uur'}
+];
+const DRINK_ITEMS = [
+  {n:'Thermos koffie (10 koppen)', p:8}, {n:'Thermos thee (10 koppen)', p:8},
+  {n:'Plat water 1 L', p:3}, {n:'Bruisend water 1 L', p:3},
+  {n:'Fruitsap bio 1 L', p:3}, {n:'Cake voor 10 personen', p:13}
+];
+function itemRow(it){
+  const unit = it.kind==='uur' ? (it.p+' €/uur') : (it.p+' €');
+  return `<div class="opt-row" data-price="${it.p}" data-name="${it.n}" data-kind="${it.kind||'stuk'}">
+    <span class="opt-name">${it.n} <span class="unit">${unit}</span></span>
+    <div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="0" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div>
+    <span class="line"></span></div>`;
 }
 function renderMenus(){
-  $$('.menu .opt-item').forEach(it=>{
-    const price=parseFloat(it.dataset.price); const kind=it.dataset.kind||'stuk';
-    const priceLabel = kind==='uur' ? (price+' €/uur') : (price+' €');
-    const qtyLabel = kind==='uur' ? 'Aantal uur' : 'Aantal';
-    it.innerHTML = `
-      <div class="opt-head"><span class="check"></span><span class="opt-name">${it.dataset.name}</span><span class="opt-price">${priceLabel}</span></div>
-      <div class="opt-qty" hidden><label>${qtyLabel}</label><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="1" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>`;
-  });
+  $('#techBody').innerHTML = TECH_ITEMS.map(itemRow).join('');
+  $('#drinkBody').innerHTML = DRINK_ITEMS.map(itemRow).join('');
 }
 function onChipChange(group, chip){
   if(group.id==='typeChips'){
@@ -983,6 +1020,7 @@ document.addEventListener('click',(e)=>{
 });
 // typed quantities recompute too
 document.addEventListener('input',(e)=>{ if(e.target.classList.contains('qty') || e.target.id==='lunchPeople') computeTotal(); });
+document.addEventListener('change',(e)=>{ if(e.target.id==='lunchFormule') computeTotal(); });
 
 // ===== step 1: desc counter =====
 $('#desc').addEventListener('input', ()=>{ $('#descCount').textContent = $('#desc').value.length; if($('#desc').value.trim()){ $('#desc').classList.remove('err'); $('#descErr').classList.remove('show'); } });
@@ -1047,24 +1085,30 @@ $('#addDate').addEventListener('click', ()=>{
 });
 
 // ===== step 3: total =====
+function lunchActive(){ const b=$('[data-seg="gate-lunch"] button.on'); return b && b.dataset.value==='ja'; }
 function lunchData(){
-  const lc=$('#lunchGroup .check-card.sel');
-  if(!lc || lc.dataset.value==='geen') return null;
-  const price=parseFloat(lc.dataset.price);
+  if(!lunchActive()) return null;
+  const opt=$('#lunchFormule').selectedOptions[0];
+  const price=parseFloat(opt.dataset.price);
   const ppl=parseInt($('#lunchPeople').value||'0',10)||0;
   const dessert=$('[data-check-toggle="dessert"] .check').classList.contains('checked');
-  return {name:lc.dataset.value, price, ppl, dessert};
+  return {name:opt.value, price, ppl, dessert};
 }
 function computeTotal(){
   let total=0;
-  $$('.menu .opt-item.on').forEach(it=>{
-    const price=parseFloat(it.dataset.price); const qty=parseInt(it.querySelector('.opt-qty input').value||'0',10)||0;
+  $$('#techBody .opt-row, #drinkBody .opt-row').forEach(it=>{
+    const price=parseFloat(it.dataset.price); const qty=parseInt(it.querySelector('.qty').value||'0',10)||0;
     const line=price*qty; total+=line;
-    const ln=it.querySelector('.opt-qty .line'); if(ln) ln.textContent = qty>0 ? euro(line) : '';
+    const ln=it.querySelector('.line'); if(ln) ln.textContent = qty>0 ? euro(line) : '';
   });
   const lu=lunchData();
-  if(lu){ total += lu.price*lu.ppl + (lu.dessert?2*lu.ppl:0); }
+  if(lu){
+    const sub = lu.price*lu.ppl + (lu.dessert?2*lu.ppl:0);
+    total += sub;
+    $('#lunchSubtotal').textContent = lu.ppl>0 ? (lu.name+' voor '+lu.ppl+' personen'+(lu.dessert?' met dessert':'')+' = '+euro(sub)) : '';
+  } else if($('#lunchSubtotal')){ $('#lunchSubtotal').textContent=''; }
   $('#grandTotal').textContent = euro(total);
+  $('#totalBar').hidden = total<=0;
 }
 
 // ===== validation + next =====
@@ -1101,9 +1145,9 @@ function getWizardData(){
     d: fmtDate(c.querySelector('.dd').value), t: (c.querySelector('.ds').value||'')+' — '+(c.querySelector('.de').value||'')
   }));
   const tech=[]; const horeca=[];
-  $$('#menuTech .opt-item.on').forEach(it=>{ const q=parseInt(it.querySelector('.opt-qty input').value||'0',10)||0; if(q>0) tech.push(q+(it.dataset.kind==='uur'?' uur ':'× ')+it.dataset.name); });
-  $$('#menuDrink .opt-item.on').forEach(it=>{ const q=parseInt(it.querySelector('.opt-qty input').value||'0',10)||0; if(q>0) horeca.push(q+'× '+it.dataset.name); });
-  const lu=lunchData(); if(lu){ horeca.push(lu.name+' voor '+lu.ppl+' pers'+(lu.dessert?' + dessert':'')); }
+  $$('#techBody .opt-row').forEach(it=>{ const q=parseInt(it.querySelector('.qty').value||'0',10)||0; if(q>0) tech.push(q+(it.dataset.kind==='uur'?' uur ':'× ')+it.dataset.name); });
+  $$('#drinkBody .opt-row').forEach(it=>{ const q=parseInt(it.querySelector('.qty').value||'0',10)||0; if(q>0) horeca.push(q+'× '+it.dataset.name); });
+  const lu=lunchData(); if(lu && lu.ppl>0){ horeca.push(lu.name+' voor '+lu.ppl+' pers'+(lu.dessert?' + dessert':'')); }
   const orgType = currentOrgType();
   const isPart = orgType==='Particulier';
   const addr = [$('#orgStreet').value, ($('#orgZip').value+' '+$('#orgCity').value).trim()].filter(Boolean).join(', ');
@@ -1118,7 +1162,7 @@ function getWizardData(){
     days, prefRoom:$('#prefRoom').value,
     tech:tech.join(', ')||'geen', horeca:horeca.join(', ')||'geen', opmerking:$('#allergy').value.trim(),
     org:$('#orgName').value, orgType, vat:isPart?'geen (particulier)':$('#orgVat').value, addr, zip:$('#orgZip').value, invoice:$('#orgInvoice').value,
-    contact:$('#contactName').value, email:$('#contactEmail').value, phone:$('#contactPhone').value, contact2,
+    contact:$('#contactName').value, email:$('#contactEmail').value, phone:$('#contactPhone').value, contact2, extraInfo:$('#extraInfo').value.trim(),
     tariefLabel:tarief.label, tariefReason:tarief.reason, tariefConfident:tarief.confident, total:$('#grandTotal').textContent
   };
 }
@@ -1136,6 +1180,7 @@ function renderReview(){
     ['Organisatie', `${d.org}<br><span class="muted">${d.vat} · ${d.addr}</span>${tariefLine}`, 'wizard-4'],
     ['Contact', `${d.contact} · ${d.email} · ${d.phone}` + (d.contact2?`<br><span class="muted">Op de dag: ${d.contact2}</span>`:''), 'wizard-4'],
   ];
+  if(d.extraInfo) rows.push(['Extra info', d.extraInfo, 'wizard-4']);
   $('#reviewBox').innerHTML = rows.map(r=>`<div class="review-row"><div class="rk">${r[0]}</div><div class="rv">${r[1]}</div><button class="edit" data-edit="${r[2]}">Wijzig</button></div>`).join('');
   $$('#reviewBox .edit').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.edit)));
 }
@@ -1153,7 +1198,7 @@ $('#submitBtn').addEventListener('click', ()=>{
   c.tech=d.tech; c.horeca=d.horeca; c.opmerking=d.opmerking; c.org=d.org; c.orgShort=d.org.replace(/ vzw| asbl/i,'');
   c.vat=d.vat; c.addr=d.addr; c.contact=d.contact; c.email=d.email; c.phone=d.phone;
   c.category=d.tariefLabel; c.tariefReason=d.tariefReason; c.tariefConfident=d.tariefConfident; c.contact2=d.contact2;
-  c.prefRoom=d.prefRoom; c.forWho=d.forWho; c.gratis=d.gratis; c.deelnamePrijs=d.deelnamePrijs;
+  c.prefRoom=d.prefRoom; c.forWho=d.forWho; c.gratis=d.gratis; c.deelnamePrijs=d.deelnamePrijs; c.extraInfo=d.extraInfo;
   $('#mailDot').hidden=false;
   setView('wizard-done');
   toast('Aanvraag verstuurd, bevestigingsmail onderweg');
@@ -1246,6 +1291,7 @@ function openDetail(id){
       <div class="k">Tarief (voorstel)</div><div class="v">${r.category} <span class="muted">— te bevestigen</span>${r.tariefReason?`<br><span class="muted" style="font-size:12px;">Afgeleid uit: ${r.tariefReason}</span>`:''}</div>
       <div class="k">Contact</div><div class="v">${r.contact} · ${r.email} · ${r.phone}</div>
       ${r.contact2?`<div class="k">Op de dag zelf</div><div class="v">${r.contact2}</div>`:''}
+      ${r.extraInfo?`<div class="k">Extra info</div><div class="v" style="font-style:italic;">"${r.extraInfo}"</div>`:''}
     </div></div>`;
   const m=STATUS_META[r.status];
   $('#dStatus').className='status-text '+m.stxt; $('#dStatus').textContent=m.label+(r.status==='goedgekeurd'&&r.assignedRoom?(' · '+r.assignedRoom):'');
