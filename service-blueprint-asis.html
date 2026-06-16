@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pianofabriek — Service blueprint (as-is)</title>
+<style>
+  :root {
+    --ink: #1A1A1A;
+    --muted: #6B7280;
+    --accent: #1A6DFF;
+    --accent-soft: #EFF4FF;
+    --pain: #C2410C;
+    --pain-soft: #FFF4ED;
+    --bg: #FFFFFF;
+    --surface: #F9FAFB;
+    --border: #E5E7EB;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--ink);
+    font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 1280px; margin: 0 auto; padding: 40px 28px 96px; }
+
+  .eyebrow { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  h1 { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin: 8px 0 10px; line-height: 1.15; }
+  .lead { color: var(--muted); max-width: 760px; margin: 0 0 24px; font-size: 16px; }
+
+  .howto { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin: 24px 0 8px; }
+  @media (max-width: 760px){ .howto { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; }
+  .card h3 { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
+  .timebox { display: flex; flex-direction: column; gap: 8px; }
+  .timebox .t { display: grid; grid-template-columns: 64px 1fr; gap: 12px; font-size: 14px; align-items: start; }
+  .timebox .t .clock { font-family: ui-monospace, monospace; font-size: 12px; color: var(--accent); padding-top: 2px; }
+  .legend { display: flex; flex-direction: column; gap: 10px; }
+  .legend .row { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .swatch { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+  .swatch.accent { background: var(--accent); }
+  .swatch.pain { background: var(--pain); }
+  .swatch.muted { background: var(--muted); }
+
+  /* blueprint grid */
+  .scroll { overflow-x: auto; margin: 40px 0 0; border: 1px solid var(--border); border-radius: 12px; }
+  .grid { min-width: 1120px; display: grid; grid-template-columns: 170px repeat(6, 1fr); }
+  .cell { padding: 14px 14px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); font-size: 13px; }
+  .grid > .cell:nth-child(7n+1) { position: sticky; left: 0; background: var(--surface); z-index: 2; font-weight: 600; font-size: 12px; color: var(--ink); }
+  .grid > .cell:nth-child(7n) { border-right: none; }
+
+  /* phase header row */
+  .ph { background: var(--ink); color: var(--bg); border-bottom: none; }
+  .ph .n { font-family: ui-monospace, monospace; font-size: 11px; opacity: 0.7; }
+  .ph .ttl { font-weight: 600; font-size: 13px; margin-top: 2px; line-height: 1.25; }
+  .grid > .cell.ph:nth-child(7n+1) { background: var(--ink); color: var(--bg); }
+  .corner { background: var(--ink) !important; color: var(--bg) !important; display: flex; align-items: flex-end; }
+  .corner span { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; }
+
+  .lane-label .sub { font-weight: 400; color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+  ul.mini { margin: 0; padding-left: 15px; }
+  ul.mini li { margin-bottom: 4px; }
+  .dash { color: var(--muted); }
+
+  /* feeling row */
+  .feel { text-align: center; }
+  .feel .word { font-weight: 600; font-size: 13px; }
+  .feel .face { font-family: ui-monospace, monospace; color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  /* pain cells */
+  .pain-cell { background: var(--pain-soft); }
+  .grid > .cell.pain-lane:nth-child(7n+1) { background: var(--pain); color: var(--bg); }
+  .pain-tag { display: inline-block; font-size: 10px; font-weight: 600; color: var(--pain); border: 1px solid var(--pain); border-radius: 999px; padding: 0 6px; margin-right: 4px; }
+  .pain-cell .top { display: inline-block; font-size: 10px; font-weight: 700; color: var(--bg); background: var(--pain); border-radius: 999px; padding: 1px 7px; margin-top: 6px; }
+
+  /* top 3 */
+  .top3 { margin-top: 48px; }
+  .top3 h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 4px; }
+  .top3 .sub { color: var(--muted); margin: 0 0 20px; }
+  .top3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 760px){ .top3-grid { grid-template-columns: 1fr; } }
+  .top-card { border: 1px solid var(--border); border-left: 3px solid var(--pain); border-radius: 0 12px 12px 0; padding: 18px 20px; }
+  .top-card .rank { font-family: ui-monospace, monospace; font-size: 12px; color: var(--pain); }
+  .top-card h4 { margin: 4px 0 6px; font-size: 16px; font-weight: 600; }
+  .top-card p { margin: 0; font-size: 13px; color: var(--muted); }
+
+  /* doorvraag */
+  .probe { margin-top: 48px; }
+  .probe-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .probe-head h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .toggle { background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--ink); font-family: inherit; }
+  .toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .probe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px){ .probe-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 620px){ .probe-grid { grid-template-columns: 1fr; } }
+  .probe-card { border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .probe-card .ph-n { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); }
+  .probe-card h4 { margin: 4px 0 12px; font-size: 14px; font-weight: 600; }
+  .probe-card ul { margin: 0; padding-left: 16px; }
+  .probe-card li { font-size: 13px; margin-bottom: 8px; color: var(--ink); }
+
+  .bridge { margin-top: 48px; border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 12px; padding: 24px 26px; }
+  .bridge h2 { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
+  .bridge p { margin: 0; color: var(--ink); max-width: 760px; }
+
+  .foot { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+
+  @media print { .scroll { overflow: visible; } .grid { min-width: 0; } .toggle { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="eyebrow">Workshop GC Pianofabriek · as-is</div>
+    <h1>Hoe verloopt een zaalaanvraag vandaag?</h1>
+    <p class="lead">Dit is onze inschatting van het huidige proces, van eerste contact tot factuur. Het is een vertrekpunt, geen waarheid. Het doel van deze sessie: samen nagaan of dit klopt, en waar de echte pijn zit. Daarna lopen we door het prototype.</p>
+
+    <div class="howto">
+      <div class="card">
+        <h3>Zo gebruiken we dit (30 minuten)</h3>
+        <div class="timebox">
+          <div class="t"><span class="clock">0-5'</span><span>Korte schets van het geheel. "Herkennen jullie deze grote lijnen?"</span></div>
+          <div class="t"><span class="clock">5-20'</span><span>Fase per fase overlopen. Per fase: klopt dit? Wat ontbreekt? Waar zit de frustratie? We vullen aan en corrigeren live.</span></div>
+          <div class="t"><span class="clock">20-28'</span><span>De drie grootste pijnpunten kiezen. Waar verliezen jullie het meeste tijd of energie?</span></div>
+          <div class="t"><span class="clock">28-30'</span><span>Brug naar het prototype: welke pijn nemen we als eerste weg?</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Legende</h3>
+        <div class="legend">
+          <div class="row"><span class="swatch muted"></span> Een gewone stap in het proces</div>
+          <div class="row"><span class="swatch pain"></span> Een pijnpunt, een plek waar het stroef loopt</div>
+          <div class="row"><span class="swatch accent"></span> Waar we straks met het prototype op inspelen</div>
+        </div>
+        <p style="font-size:13px; color:var(--muted); margin:14px 0 0;">Tip: laat de groep eerst zelf vertellen voor je de pijnpunten toont. Wat zij spontaan noemen, is goud.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="scroll">
+    <div class="grid">
+
+      <!-- HEADER ROW -->
+      <div class="cell corner"><span>Fase &rarr;</span></div>
+      <div class="cell ph"><div class="n">01</div><div class="ttl">Oriëntatie &amp; aanvraag</div></div>
+      <div class="cell ph"><div class="n">02</div><div class="ttl">Vervolledigen &amp; afstemmen</div></div>
+      <div class="cell ph"><div class="n">03</div><div class="ttl">Beschikbaarheid &amp; beslissing</div></div>
+      <div class="cell ph"><div class="n">04</div><div class="ttl">Bevestiging &amp; contract</div></div>
+      <div class="cell ph"><div class="n">05</div><div class="ttl">Voorbereiding &amp; evenement</div></div>
+      <div class="cell ph"><div class="n">06</div><div class="ttl">Facturatie &amp; afsluiting</div></div>
+
+      <!-- FEELING ROW -->
+      <div class="cell lane-label">Klantgevoel<div class="sub">de beleving</div></div>
+      <div class="cell feel"><div class="word">Zoekend</div><div class="face">wat kan, wat kost het?</div></div>
+      <div class="cell feel"><div class="word">Ongeduldig</div><div class="face">weer een mail...</div></div>
+      <div class="cell feel"><div class="word">Afwachtend</div><div class="face">is het nu rond?</div></div>
+      <div class="cell feel"><div class="word">Gerustgesteld</div><div class="face">het is bevestigd</div></div>
+      <div class="cell feel"><div class="word">Verwachtingsvol</div><div class="face">de dag zelf</div></div>
+      <div class="cell feel"><div class="word">Afgerond</div><div class="face">factuur betaald</div></div>
+
+      <!-- KLANT ROW -->
+      <div class="cell lane-label">Klant<div class="sub">wat hij doet</div></div>
+      <div class="cell"><ul class="mini"><li>Zoekt een zaal</li><li>Neemt contact via mail, telefoon of website</li><li>Stuurt een eerste, vaak onvolledige vraag</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Beantwoordt vragen</li><li>Levert info in stukjes</li><li>Wacht op een voorstel</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Wacht op antwoord</li><li>Soms dagen zonder nieuws</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Krijgt bevestiging + prijs</li><li>Tekent en stuurt contract terug</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Vraagt soms last-minute wijzigingen</li><li>Komt langs voor het evenement</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Krijgt de factuur</li><li>Betaalt</li></ul></div>
+
+      <!-- ONTHAAL ROW -->
+      <div class="cell lane-label">Onthaal<div class="sub">Isabelle</div></div>
+      <div class="cell"><ul class="mini"><li>Vangt aanvragen op via 3 kanalen</li><li>Geen vaste vorm of checklist</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Vraagt ontbrekende info op</li><li>Stemt af over zaal, horeca, techniek</li><li>Gemiddeld 6 mails per aanvraag</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Checkt beschikbaarheid in Yesplan</li><li>Polst interne teams</li><li>Beslist: aanvaarden, weigeren of alternatief</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Zet de status in Yesplan</li><li>Typt alle info manueel over</li><li>Maakt en verstuurt het contract</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Speelt info door naar horeca en techniek</li><li>Verwerkt wijzigingen</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Geeft door aan financieel</li></ul></div>
+
+      <!-- BACKSTAGE ROW -->
+      <div class="cell lane-label">Achter de schermen<div class="sub">horeca, techniek, teams, financieel</div></div>
+      <div class="cell"><span class="dash">Nog niet betrokken</span></div>
+      <div class="cell"><ul class="mini"><li>Horeca (Olivier) wordt bevraagd</li><li>Techniek wordt bevraagd</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Inhoudelijke teams: eigen plannen</li><li>Half mei-grens voor volgend seizoen</li></ul></div>
+      <div class="cell"><span class="dash">Wacht op de bevestigde info</span></div>
+      <div class="cell"><ul class="mini"><li>Horeca en techniek lezen hun deel in Yesplan</li><li>Zetten klaar</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Financieel (Sebastien): factuur, opvolging betaling</li></ul></div>
+
+      <!-- SYSTEMS ROW -->
+      <div class="cell lane-label">Systemen &amp; sporen<div class="sub">waar info leeft</div></div>
+      <div class="cell"><ul class="mini"><li>Mailbox</li><li>Telefoon</li><li>Websiteformulier</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Mailbox (lange threads)</li><li>Info in losse berichten</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Yesplan (lezen)</li><li>Kennis in Isabelle's hoofd</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Yesplan (overtypen)</li><li>Contract in Word/PDF</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Yesplan</li><li>Mail naar diensten</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Boekhouding</li><li>Mail</li></ul></div>
+
+      <!-- PAIN ROW -->
+      <div class="cell lane-label pain-lane">Pijnpunten<div class="sub" style="color:rgba(255,255,255,0.7)">waar het stroef loopt</div></div>
+      <div class="cell pain-cell"><span class="pain-tag">P1</span>Drie kanalen door elkaar, geen vaste vorm<br><span class="pain-tag" style="margin-top:6px;">P2</span>Aanvragen vaak onvolledig</div>
+      <div class="cell pain-cell"><span class="pain-tag">P3</span>Eindeloos heen-en-weer mailen<div class="top">Tijdvreter #1</div><br><span class="pain-tag" style="margin-top:6px;">P4</span>Info versnipperd over diensten</div>
+      <div class="cell pain-cell"><span class="pain-tag">P5</span>Intern beschikbaarheid uitzoeken<div class="top">Tijdvreter #2</div><br><span class="pain-tag" style="margin-top:6px;">P6</span>Yesplan toont niet alles (buffers, eigen plannen)<br><span class="pain-tag" style="margin-top:6px;">P7</span>Valt Isabelle weg, dan stilstand</div>
+      <div class="cell pain-cell"><span class="pain-tag">P8</span>Alles manueel overtypen in Yesplan<br><span class="pain-tag" style="margin-top:6px;">P9</span>Contract: printen, tekenen, scannen</div>
+      <div class="cell pain-cell"><span class="pain-tag">P10</span>Wijzigingen aan reservaties<div class="top">Tijdvreter #3</div><br><span class="pain-tag" style="margin-top:6px;">P11</span>Info gaat verloren tussen diensten</div>
+      <div class="cell pain-cell"><span class="pain-tag">P12</span>Betalingen manueel matchen<br><span class="pain-tag" style="margin-top:6px;">P13</span>Geen historiek, geen centraal dossier</div>
+
+    </div>
+  </div>
+
+  <!-- TOP 3 -->
+  <section class="top3">
+    <h2>De drie grootste tijdvreters</h2>
+    <p class="sub">Dit zijn de pijnpunten die Isabelle zelf als zwaarst benoemt. Klopt deze rangschikking? Of ervaren jullie het anders?</p>
+    <div class="top3-grid">
+      <div class="top-card"><div class="rank">Tijdvreter #1 · fase 2</div><h4>Het heen-en-weer mailen</h4><p>Gemiddeld zes mails per aanvraag, vaak over details. Het kost het meeste tijd en het begint al doordat de eerste aanvraag zelden volledig is.</p></div>
+      <div class="top-card"><div class="rank">Tijdvreter #2 · fase 3</div><h4>Beschikbaarheid intern uitzoeken</h4><p>Nakijken wat de inhoudelijke teams van plan zijn, want hun activiteiten staan nog niet altijd in Yesplan. Veel intern afstemmen voor één ja of nee.</p></div>
+      <div class="top-card"><div class="rank">Tijdvreter #3 · fase 5</div><h4>Wijzigingen aan reservaties</h4><p>Last-minute aanpassingen aan uren, data of aantallen, vooral bij reservaties met meerdere zalen. Opnieuw veel mailverkeer en kans op fouten.</p></div>
+    </div>
+  </section>
+
+  <!-- DOORVRAAG -->
+  <section class="probe">
+    <div class="probe-head">
+      <h2>Doorvraag-vragen per fase</h2>
+      <button class="toggle" id="toggleProbe">Verberg vragen</button>
+    </div>
+    <div class="probe-grid" id="probeGrid">
+      <div class="probe-card"><div class="ph-n">Fase 01</div><h4>Oriëntatie &amp; aanvraag</h4><ul><li>Via welk kanaal komen de meeste aanvragen binnen?</li><li>Wat ontbreekt het vaakst in een eerste aanvraag?</li><li>Wie helpen we vandaag telefonisch en waarom?</li></ul></div>
+      <div class="probe-card"><div class="ph-n">Fase 02</div><h4>Vervolledigen &amp; afstemmen</h4><ul><li>Waarover gaan die zes mails meestal?</li><li>Wie moet je intern aanspreken, en hoe?</li><li>Waar loopt het mis tussen onthaal, horeca en techniek?</li></ul></div>
+      <div class="probe-card"><div class="ph-n">Fase 03</div><h4>Beschikbaarheid &amp; beslissing</h4><ul><li>Hoe weet je of een zaal écht vrij is?</li><li>Wat staat er niet in Yesplan?</li><li>Wat gebeurt er als jij er even niet bent?</li></ul></div>
+      <div class="probe-card"><div class="ph-n">Fase 04</div><h4>Bevestiging &amp; contract</h4><ul><li>Hoeveel tijd kost het overtypen in Yesplan?</li><li>Welke velden vul je telkens opnieuw in?</li><li>Waar loopt het contractproces vast?</li></ul></div>
+      <div class="probe-card"><div class="ph-n">Fase 05</div><h4>Voorbereiding &amp; evenement</h4><ul><li>Welke wijzigingen komen het vaakst voor?</li><li>Hoe weten horeca en techniek wat ze moeten doen?</li><li>Wat loopt er soms mis op de dag zelf?</li></ul></div>
+      <div class="probe-card"><div class="ph-n">Fase 06</div><h4>Facturatie &amp; afsluiting</h4><ul><li>Hoeveel werk is de facturatie en opvolging?</li><li>Weten jullie achteraf of de klant tevreden was?</li><li>Waar zou je de historiek van een klant willen terugvinden?</li></ul></div>
+    </div>
+  </section>
+
+  <!-- BRIDGE -->
+  <section class="bridge">
+    <h2>En dan: het prototype</h2>
+    <p>Nu we samen weten waar de pijn zit, lopen we door het prototype. We bekijken telkens: welk pijnpunt lost dit op, en welk bewust nog niet? Zo wordt meteen duidelijk wat we als eerste bouwen, en wat voor later is.</p>
+  </section>
+
+  <footer class="foot">
+    Service blueprint as-is · Gather voor GC Pianofabriek · gebaseerd op de voorbereidende vragen (13/04), de prioriteitennota (08/06) en twee echte aanvraagdossiers. Bedoeld als gespreksopener, niet als vaststaand feit.
+  </footer>
+
+</div>
+
+<script>
+  var shown = true;
+  document.getElementById('toggleProbe').addEventListener('click', function(){
+    shown = !shown;
+    document.getElementById('probeGrid').style.display = shown ? 'grid' : 'none';
+    this.textContent = shown ? 'Verberg vragen' : 'Toon vragen';
+  });
+</script>
+</body>
+</html>
