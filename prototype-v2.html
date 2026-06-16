@@ -1316,5 +1316,28 @@ renderSteppers(); renderLanding(); renderMenus(); initDates(); computeTotal(); u
 renderFilters(); renderList();
 setRole('klant'); setView('landing');
 </script>
+
+<!-- Feedback / comment-laag (druk C om een opmerking te plaatsen) -->
+<script>
+  window.CM_CONFIG = {
+    projectName: 'Pianofabriek zaalverhuur — prototype V1',
+    storagePrefix: 'pianofabriek_v1_',
+    apiEndpoint: null,
+    pageNames: { 'prototype-v2.html': 'Prototype V1' },
+    screenNames: {
+      'landing': 'Zalen / start',
+      'wizard-1': 'Aanvraag · stap 1 (activiteit)',
+      'wizard-2': 'Aanvraag · stap 2 (wanneer)',
+      'wizard-3': 'Aanvraag · stap 3 (wat nodig)',
+      'wizard-4': 'Aanvraag · stap 4 (wie ben je)',
+      'wizard-review': 'Aanvraag · controleren',
+      'wizard-done': 'Aanvraag · bevestiging',
+      'mailbox': 'Mailbox klant',
+      'werkbank-list': 'Werkbank · overzicht',
+      'werkbank-detail': 'Werkbank · dossier'
+    }
+  };
+</script>
+<script src="comments.js"></script>
 </body>
 </html>
