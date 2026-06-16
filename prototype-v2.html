@@ -134,6 +134,7 @@
   .date-remove { color: var(--muted); cursor: pointer; border: none; background: transparent; font-size: 20px; height: 38px; }
   .date-meta { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; gap: 12px; align-items: center; }
   .date-meta .warn { color: var(--danger); }
+  .date-busy { font-size: 13px; color: var(--ink); margin-top: 10px; border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; }
   .date-add-btn { font-size: 14px; color: var(--accent); cursor: pointer; background: transparent; border: 1px dashed var(--border); border-radius: 8px; padding: 10px 16px; width: 100%; max-width: 620px; }
   .date-add-btn:hover { border-color: var(--accent); }
   .copy-times { font-size: 13px; color: var(--accent); background: transparent; border: none; cursor: pointer; padding: 0; margin-top: 4px; }
@@ -1000,11 +1001,16 @@ function makeDateRow(date, start, end){
       <div><label>Tot</label><input class="input de" type="time" value="${end||''}"></div>
       <button class="date-remove" title="Verwijder">×</button>
     </div>
-    <div class="date-meta"></div>`;
+    <div class="date-meta"></div>
+    <div class="date-busy" hidden></div>`;
   row.querySelector('.date-remove').addEventListener('click', ()=>{ row.remove(); updateDateMeta(); });
   row.querySelectorAll('input').forEach(i=>i.addEventListener('input', updateDateMeta));
   return row;
 }
+// Gesimuleerde "drukke" dagen uit Yesplan. In de echte V1 komt dit live uit de
+// Yesplan-proxy. We tonen alleen een NEGATIEF signaal ("druk"), nooit "vrij",
+// want Yesplan-bezetting is wel betrouwbaar, Yesplan-vrij niet.
+const YP_BUSY = ['2026-05-14','2026-06-17','2026-06-18','2026-07-05'];
 function updateDateMeta(){
   let hasNextSeason=false;
   $$('#dateList .date-card').forEach(card=>{
@@ -1015,11 +1021,15 @@ function updateDateMeta(){
       const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
       const dur=(eh*60+em)-(sh*60+sm);
       if(dur>0) parts.push('<span>'+Math.floor(dur/60)+'u'+(dur%60?(' '+(dur%60)+'m'):'')+'</span>');
-      if(eh>23 || (eh===23&&em>0) || eh<sh) {} // handled below
       if((eh*60+em) > 23*60) parts.push('<span class="warn">Sluitingsuur is 23:00</span>');
     }
     if(date){ const d=new Date(date+'T00:00'); const y=d.getFullYear(),m=d.getMonth(); if((y===2026&&m>=8)||(y===2027&&m<=5)) hasNextSeason=true; }
     meta.innerHTML = parts.join('');
+    const busyEl = card.querySelector('.date-busy');
+    if(date && YP_BUSY.includes(date)){
+      busyEl.hidden=false;
+      busyEl.innerHTML = 'Op deze dag staat er al veel gepland, er is mogelijk weinig of niets vrij. Je mag je aanvraag wel indienen, we bekijken het en laten het weten.';
+    } else { busyEl.hidden=true; busyEl.innerHTML=''; }
   });
   $('#halfMeiNotice').hidden = !hasNextSeason;
 }
