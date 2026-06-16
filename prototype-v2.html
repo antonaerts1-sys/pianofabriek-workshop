@@ -3,15 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pianofabriek — Klikbaar prototype · versie B (smalle MVP)</title>
+<title>Pianofabriek — Klikbaar prototype · v1 (volledig uitgewerkt)</title>
 <style>
   :root {
     --ink: #1A1A1A;
     --muted: #6B7280;
     --accent: #1A6DFF;
+    --accent-soft: #EFF4FF;
     --bg: #FFFFFF;
     --surface: #F9FAFB;
     --border: #E5E7EB;
+    --danger: #B42318;
+    --danger-soft: #FEF3F2;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -26,6 +29,7 @@
   [hidden] { display: none !important; }
   button { font-family: inherit; }
   a { color: var(--accent); text-decoration: none; }
+  input, textarea, select { font-family: inherit; }
 
   /* Demo bar */
   .demo-bar {
@@ -36,110 +40,162 @@
   }
   .demo-label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
   .demo-tabs { display: flex; gap: 4px; background: var(--surface); border-radius: 8px; padding: 4px; }
-  .demo-tab {
-    background: transparent; border: none; padding: 6px 14px; border-radius: 6px;
-    font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap;
-  }
+  .demo-tab { background: transparent; border: none; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; }
   .demo-tab.active { background: var(--bg); color: var(--ink); border: 1px solid var(--border); }
-  .demo-tab .dot {
-    display: inline-block; width: 7px; height: 7px; border-radius: 999px;
-    background: var(--accent); margin-left: 6px; vertical-align: middle;
-  }
+  .demo-tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 999px; background: var(--accent); margin-left: 6px; vertical-align: middle; }
   .demo-reset { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 6px 12px; white-space: nowrap; }
   .demo-reset:hover { color: var(--accent); }
 
-  .app {
-    max-width: 1080px; margin: 32px auto;
-    background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
-    overflow: hidden; min-height: 70vh;
-  }
+  .app { max-width: 1080px; margin: 32px auto; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; min-height: 70vh; }
 
-  /* Wizard */
-  .wizard-top { display: flex; justify-content: space-between; align-items: center; padding: 24px 40px; border-bottom: 1px solid var(--border); }
-  .wizard-brand { font-size: 14px; font-weight: 600; color: var(--ink); }
-  .wizard-lang { font-size: 13px; color: var(--muted); }
-  .wizard-lang button { background: transparent; border: none; color: inherit; padding: 4px 8px; cursor: pointer; font-size: 13px; }
-  .wizard-lang button.active { color: var(--accent); font-weight: 500; }
-  .wizard-body { padding: 40px; }
-  .stepper { display: flex; align-items: center; gap: 8px; margin-bottom: 32px; }
-  .step-dot {
-    width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border);
-    display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); font-weight: 500;
-  }
+  /* Top bar within app */
+  .app-top { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border); }
+  .app-brand { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .lang { font-size: 13px; color: var(--muted); display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+  .lang button { background: transparent; border: none; color: var(--muted); padding: 4px 12px; cursor: pointer; font-size: 13px; }
+  .lang button.active { background: var(--ink); color: var(--bg); }
+
+  /* ===== Landing (zalen) ===== */
+  .hero { padding: 48px 40px 32px; }
+  .hero h1 { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 10px; max-width: 620px; line-height: 1.15; }
+  .hero p { color: var(--muted); margin: 0 0 24px; max-width: 560px; font-size: 16px; }
+  .rooms { padding: 0 40px 16px; }
+  .rooms h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 16px; }
+  .room-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 820px) { .room-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .room-grid { grid-template-columns: 1fr; } }
+  .room-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .room-photo { height: 96px; background: linear-gradient(135deg, #E9EDF5, #D7DDEA); display: flex; align-items: flex-end; padding: 10px 12px; }
+  .room-photo span { font-size: 11px; color: #5B6477; background: rgba(255,255,255,0.7); border-radius: 6px; padding: 2px 8px; }
+  .room-info { padding: 14px 16px; }
+  .room-info h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+  .room-info p { margin: 0; font-size: 13px; color: var(--muted); }
+  .room-cap { font-size: 12px; color: var(--ink); margin-top: 6px; }
+  .landing-foot { padding: 24px 40px 40px; }
+  .price-note { font-size: 13px; color: var(--muted); margin: 0 0 20px; max-width: 560px; }
+  .disclaimer { font-size: 12px; color: var(--muted); margin-top: 16px; font-style: italic; }
+
+  /* ===== Wizard ===== */
+  .wizard-body { padding: 36px 40px; }
+  .stepper { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .step-dot { width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); font-weight: 500; flex-shrink: 0; }
   .step-dot.active { border-color: var(--accent); color: var(--accent); }
   .step-dot.done { border-color: var(--accent); background: var(--accent); color: white; }
-  .step-line { flex: 1; height: 1px; background: var(--border); max-width: 80px; }
+  .step-line { flex: 1; height: 1px; background: var(--border); max-width: 90px; }
   .step-line.done { background: var(--accent); }
-  .question { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; max-width: 600px; }
-  .question-sub { color: var(--muted); margin: 0 0 24px; max-width: 600px; }
-  .field { margin-bottom: 20px; max-width: 600px; }
-  .field-label { display: block; font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+  .step-names { display: flex; gap: 8px; margin-bottom: 28px; font-size: 12px; color: var(--muted); }
+  .step-names span { flex: 1; max-width: 118px; }
+  .step-names span.active { color: var(--accent); font-weight: 500; }
+
+  .question { font-size: 23px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 6px; max-width: 620px; }
+  .question-sub { color: var(--muted); margin: 0 0 24px; max-width: 620px; }
+  .required-hint { font-size: 12px; color: var(--muted); margin: 0 0 20px; }
+  .required-hint b { color: var(--accent); }
+
+  .field { margin-bottom: 22px; max-width: 620px; }
+  .field-label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 7px; }
   .field-label .req { color: var(--accent); }
-  .field-hint { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .input {
-    border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
-    font-size: 15px; font-family: inherit; color: var(--ink); width: 100%; outline: none; background: var(--bg);
-  }
-  .input:focus { border-color: var(--accent); }
-  textarea.input { min-height: 96px; resize: vertical; }
+  .field-label .opt { color: var(--muted); font-weight: 400; }
+  .field-hint { font-size: 13px; color: var(--muted); margin-top: 5px; }
+  .field-hint.bullets { padding-left: 0; list-style: none; margin: 6px 0 0; }
+  .field-hint.bullets li { padding-left: 16px; position: relative; }
+  .field-hint.bullets li::before { content: '·'; position: absolute; left: 4px; }
+
+  .input { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 15px; color: var(--ink); width: 100%; outline: none; background: var(--bg); }
+  .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .input.err { border-color: var(--danger); background: var(--danger-soft); }
+  textarea.input { min-height: 92px; resize: vertical; }
+  .input-counter { font-size: 12px; color: var(--muted); text-align: right; margin-top: 4px; }
+
+  .field-err { font-size: 13px; color: var(--danger); margin-top: 6px; display: none; }
+  .field-err.show { display: block; }
+
   .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip { border: 1px solid var(--border); border-radius: 999px; padding: 8px 16px; font-size: 14px; background: var(--bg); color: var(--ink); cursor: pointer; user-select: none; }
-  .chip.selected { border-color: var(--accent); color: var(--accent); }
-  .radio-row { display: flex; gap: 24px; }
-  .radio-row label { display: flex; align-items: center; gap: 8px; font-size: 15px; cursor: pointer; }
-  .radio { width: 16px; height: 16px; border-radius: 999px; border: 1px solid var(--border); display: inline-block; cursor: pointer; }
-  .radio.checked { border: 4px solid var(--accent); background: var(--bg); }
-  .wizard-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); max-width: 600px; }
-  .btn-primary { background: var(--accent); color: white; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
-  .btn-secondary { background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
-  .btn-text { background: transparent; color: var(--accent); border: none; padding: 10px 0; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
-  .btn-text:disabled { color: var(--muted); cursor: not-allowed; }
-  .btn-danger { background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .chip:hover { border-color: var(--muted); }
+  .chip.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .chip.warn-chip.selected { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
 
-  .date-row { display: grid; grid-template-columns: 1fr 1fr 1fr 32px; gap: 12px; margin-bottom: 12px; max-width: 600px; align-items: end; }
-  .date-row-remove { color: var(--muted); font-size: 18px; cursor: pointer; border: 1px solid var(--border); border-radius: 8px; width: 32px; height: 42px; display: inline-flex; align-items: center; justify-content: center; user-select: none; }
-  .date-add { font-size: 14px; color: var(--accent); cursor: pointer; margin-top: 4px; display: inline-block; background: transparent; border: none; padding: 0; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg button { background: var(--bg); border: none; padding: 9px 16px; font-size: 14px; color: var(--muted); cursor: pointer; border-right: 1px solid var(--border); }
+  .seg button:last-child { border-right: none; }
+  .seg button.on { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
 
-  .section-block { border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 16px; background: var(--bg); max-width: 600px; }
-  .section-block h4 { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
-  .section-block .meta { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
-  .item-row { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--border); }
-  .item-row:first-of-type { border-top: none; }
-  .item-name { font-size: 14px; }
-  .item-price { font-size: 13px; color: var(--muted); }
-  .item-qty { width: 64px; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; text-align: center; font-family: inherit; font-size: 14px; }
-  .running-total { display: flex; justify-content: space-between; align-items: center; max-width: 600px; padding: 12px 0; font-size: 14px; }
-  .running-total strong { color: var(--ink); }
+  /* stepper number control */
+  .stepper-num { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .stepper-num button { width: 36px; height: 38px; border: none; background: var(--bg); color: var(--ink); font-size: 18px; cursor: pointer; }
+  .stepper-num button:hover { background: var(--surface); }
+  .stepper-num input { width: 48px; height: 38px; border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; font-size: 15px; outline: none; }
 
-  .notice { border-left: 2px solid var(--accent); padding: 12px 0 12px 16px; margin: 16px 0; max-width: 600px; color: var(--ink); font-size: 14px; }
-  .notice .label { font-size: 11px; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  /* date rows */
+  .date-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; max-width: 620px; }
+  .date-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr 36px; gap: 10px; align-items: center; }
+  .date-grid label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 3px; }
+  .date-remove { color: var(--muted); cursor: pointer; border: none; background: transparent; font-size: 20px; height: 38px; }
+  .date-meta { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; gap: 12px; align-items: center; }
+  .date-meta .warn { color: var(--danger); }
+  .date-add-btn { font-size: 14px; color: var(--accent); cursor: pointer; background: transparent; border: 1px dashed var(--border); border-radius: 8px; padding: 10px 16px; width: 100%; max-width: 620px; }
+  .date-add-btn:hover { border-color: var(--accent); }
+  .copy-times { font-size: 13px; color: var(--accent); background: transparent; border: none; cursor: pointer; padding: 0; margin-top: 4px; }
 
-  .summary { border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 600px; }
-  .summary-section { padding: 14px 0; border-top: 1px solid var(--border); }
-  .summary-section:first-child { border-top: none; padding-top: 0; }
-  .summary-section h5 { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 6px; }
-  .summary-section p { margin: 0; font-size: 14px; }
-  .check-row { display: flex; gap: 12px; align-items: flex-start; margin: 12px 0; max-width: 600px; cursor: pointer; user-select: none; }
+  .notice { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; margin: 16px 0; max-width: 620px; color: var(--ink); font-size: 14px; border-radius: 0 8px 8px 0; }
+  .notice .label { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .notice.warn { border-left-color: var(--danger); background: var(--danger-soft); }
+  .notice.warn .label { color: var(--danger); }
+
+  /* shopping section */
+  .shop { border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; max-width: 620px; }
+  .shop h4 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+  .shop .meta { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  .shop-item { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--border); }
+  .shop-item:first-of-type { border-top: none; }
+  .shop-item .name { font-size: 14px; }
+  .shop-item .unit { font-size: 12px; color: var(--muted); }
+  .shop-item .line { font-size: 13px; color: var(--muted); min-width: 56px; text-align: right; }
+  .total-bar { display: flex; justify-content: space-between; align-items: center; max-width: 620px; padding: 16px 22px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin-bottom: 8px; }
+  .total-bar .l { font-size: 14px; color: var(--muted); }
+  .total-bar .v { font-size: 18px; font-weight: 600; }
+
+  /* checkbox rows */
+  .check-row { display: flex; gap: 12px; align-items: flex-start; margin: 12px 0; max-width: 620px; cursor: pointer; user-select: none; }
   .check { width: 18px; height: 18px; border: 1px solid var(--border); border-radius: 4px; flex-shrink: 0; margin-top: 2px; position: relative; }
   .check.checked { background: var(--accent); border-color: var(--accent); }
   .check.checked::after { content: '✓'; color: white; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
-  .check-row a { color: var(--accent); }
+  .check-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; }
+  .check-card.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .check-card .ttl { font-size: 14px; font-weight: 600; }
+  .check-card .desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
 
-  .confirm-hero { padding: 16px 0 24px; }
-  .confirm-ref { display: inline-block; border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-family: ui-monospace, monospace; font-size: 14px; margin: 16px 0 24px; }
-  .next-steps { border-top: 1px solid var(--border); padding-top: 24px; margin-top: 24px; }
+  .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 36px; padding-top: 22px; border-top: 1px solid var(--border); max-width: 620px; }
+  .btn-primary { background: var(--accent); color: white; border: none; border-radius: 8px; padding: 11px 22px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .btn-secondary { background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 11px 22px; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn-text { background: transparent; color: var(--accent); border: none; padding: 11px 0; font-size: 15px; font-weight: 500; cursor: pointer; }
+  .btn-text:disabled { color: var(--muted); cursor: not-allowed; }
+  .btn-ghost { background: var(--bg); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; padding: 11px 22px; font-size: 15px; font-weight: 500; cursor: pointer; }
+
+  /* review */
+  .review { border: 1px solid var(--border); border-radius: 12px; padding: 8px 24px; max-width: 620px; }
+  .review-row { padding: 16px 0; border-top: 1px solid var(--border); display: grid; grid-template-columns: 130px 1fr auto; gap: 16px; align-items: start; }
+  .review-row:first-child { border-top: none; }
+  .review-row .rk { font-size: 13px; color: var(--muted); }
+  .review-row .rv { font-size: 14px; }
+  .review-row .edit { font-size: 13px; color: var(--accent); cursor: pointer; background: transparent; border: none; }
+
+  /* confirm */
+  .confirm { padding: 8px 0 16px; }
+  .confirm .ref { display: inline-block; border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-family: ui-monospace, monospace; font-size: 14px; margin: 12px 0 22px; }
+  .next-steps { border-top: 1px solid var(--border); padding-top: 22px; margin-top: 24px; max-width: 620px; }
   .next-steps h4 { margin: 0 0 12px; font-size: 14px; font-weight: 600; }
-  .next-steps ul { margin: 0; padding-left: 20px; color: var(--muted); }
+  .next-steps ol { margin: 0; padding-left: 20px; color: var(--muted); }
   .next-steps li { padding: 4px 0; }
 
-  /* Mailbox */
+  /* mailbox */
   .mailbox-head { padding: 24px 40px; border-bottom: 1px solid var(--border); }
   .mailbox-head h2 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
   .mailbox-head p { margin: 0; color: var(--muted); font-size: 14px; }
   .mailbox-body { padding: 24px 40px 40px; }
-  .mail {
-    border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; overflow: hidden;
-  }
+  .mail { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
   .mail-head { padding: 16px 20px; border-bottom: 1px solid var(--border); background: var(--surface); }
   .mail-subject { font-weight: 600; font-size: 15px; margin: 0 0 4px; }
   .mail-meta { font-size: 12px; color: var(--muted); }
@@ -152,14 +208,13 @@
   .mail-empty h3 { color: var(--ink); margin: 0 0 8px; font-size: 18px; }
   .mail-quote { font-style: italic; color: var(--ink); border-left: 2px solid var(--border); padding-left: 14px; margin: 12px 0; }
 
-  /* Admin */
-  .admin-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 700px; }
+  /* admin */
+  .admin-shell { display: grid; grid-template-columns: 250px 1fr; min-height: 720px; }
   .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; }
-  .sidebar-brand { padding: 0 24px 20px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; }
+  .sidebar-brand { padding: 0 24px 18px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 600; }
   .sidebar-cta { padding: 16px 24px 8px; }
-  .nav-section { padding: 8px 0; }
-  .nav-section-title { padding: 8px 24px 8px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
-  .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 24px; font-size: 14px; color: var(--ink); cursor: pointer; border-left: 2px solid transparent; }
+  .nav-section-title { padding: 12px 24px 8px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 24px; font-size: 14px; color: var(--ink); cursor: pointer; border-left: 2px solid transparent; }
   .nav-item:hover { background: var(--bg); }
   .nav-item.active { color: var(--accent); font-weight: 500; background: var(--bg); border-left-color: var(--accent); }
   .nav-item .count { font-size: 12px; color: var(--muted); }
@@ -167,28 +222,32 @@
   .admin-main { padding: 24px 32px; background: var(--bg); overflow: hidden; }
 
   .pulse-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-  .pulse-cell { border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+  .pulse-cell { border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; cursor: pointer; }
+  .pulse-cell:hover { border-color: var(--muted); }
+  .pulse-cell.sel { border-color: var(--accent); background: var(--accent-soft); }
   .pulse-cell .n { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; }
-  .pulse-cell .l { font-size: 13px; color: var(--muted); }
   .pulse-cell.attention .n { color: var(--accent); }
+  .pulse-cell .l { font-size: 13px; color: var(--muted); }
 
-  .admin-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .admin-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; }
   .admin-head h2 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
-  .admin-search { width: 280px; }
+  .admin-search { width: 300px; }
   .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .admin-table th, .admin-table td { text-align: left; padding: 12px 12px; border-bottom: 1px solid var(--border); }
   .admin-table th { font-weight: 500; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
   .admin-table tbody tr { cursor: pointer; }
   .admin-table tbody tr:hover { background: var(--surface); }
   .admin-table .ref { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); }
-  .row-status-new { color: var(--accent); font-weight: 500; }
-  .row-status-pending { color: var(--ink); }
-  .row-status-ok { color: var(--muted); }
-  .row-status-alt { color: var(--accent); }
-  .row-status-rejected { color: var(--muted); text-decoration: line-through; }
-  .warn-flag { color: var(--accent); font-size: 12px; font-weight: 500; }
+  .st-new { color: var(--accent); font-weight: 500; }
+  .st-pending { color: var(--ink); }
+  .st-ok { color: var(--muted); }
+  .st-alt { color: var(--accent); }
+  .st-rej { color: var(--muted); text-decoration: line-through; }
+  .warn-flag { color: var(--danger); font-size: 12px; font-weight: 500; }
   .source-badge { font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
+  .empty-row td { text-align: center; color: var(--muted); padding: 32px; }
 
+  .back-link { background: transparent; border: none; color: var(--accent); cursor: pointer; font-size: 14px; padding: 0 0 16px; }
   .detail-head { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; gap: 24px; flex-wrap: wrap; }
   .detail-head h3 { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
   .detail-head .ref { font-family: ui-monospace, monospace; font-size: 13px; color: var(--muted); }
@@ -202,19 +261,24 @@
   .kv .v { color: var(--ink); }
   .status-text { font-size: 14px; font-weight: 500; }
   .status-text.in-behandeling { color: var(--muted); }
+  .status-text.nieuw { color: var(--accent); }
   .status-text.goedgekeurd { color: var(--accent); }
   .status-text.alt { color: var(--accent); }
   .status-text.geweigerd { color: var(--ink); }
+  .yp-field { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+  .yp-field input { flex: 1; }
   .comm-log { border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
   .comm-entry { padding: 12px 0; border-top: 1px solid var(--border); font-size: 13px; }
   .comm-entry:first-of-type { border-top: none; padding-top: 0; }
   .comm-meta { color: var(--muted); margin-bottom: 4px; font-size: 12px; }
-  .back-link { background: transparent; border: none; color: var(--accent); cursor: pointer; font-size: 14px; padding: 0 0 16px; font-family: inherit; }
+  .note-add { display: flex; gap: 8px; margin-top: 14px; }
+  .note-add input { flex: 1; font-size: 13px; padding: 8px 12px; }
+  .note-add button { font-size: 13px; padding: 8px 14px; }
 
-  /* Modal */
+  /* modal */
   .modal-backdrop { position: fixed; inset: 0; background: rgba(26,26,26,0.4); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
   .modal { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; max-width: 560px; width: 100%; padding: 32px; max-height: 90vh; overflow-y: auto; }
-  .modal h3 { margin: 0 0 8px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .modal h3 { margin: 0 0 8px; font-size: 20px; font-weight: 600; }
   .modal p.muted { color: var(--muted); margin: 0 0 24px; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
 
@@ -223,14 +287,13 @@
 
   .muted { color: var(--muted); }
   .small { font-size: 13px; }
-  .hairline { height: 1px; background: var(--border); margin: 24px 0; }
+  .hairline { height: 1px; background: var(--border); margin: 24px 0; max-width: 620px; }
 </style>
 </head>
 <body>
 
-<!-- DEMO BAR -->
 <div class="demo-bar">
-  <span class="demo-label">Prototype · versie B</span>
+  <span class="demo-label">Prototype · v1</span>
   <div class="demo-tabs">
     <button class="demo-tab active" data-role="klant">Aanvraag (klant)</button>
     <button class="demo-tab" data-role="mailbox">Mailbox klant<span class="dot" id="mailDot" hidden></span></button>
@@ -239,256 +302,305 @@
   <button class="demo-reset" id="resetBtn">Reset</button>
 </div>
 
-<!-- ===== KLANT (WIZARD) ===== -->
+<!-- ===================== KLANT ===================== -->
 <div class="app" data-role-view="klant">
 
+  <!-- LANDING -->
+  <div data-view="landing">
+    <div class="app-top">
+      <div class="app-brand">Pianofabriek · zaalverhuur</div>
+      <div class="lang"><button class="active">NL</button><button data-lang-fr>FR</button></div>
+    </div>
+    <div class="hero">
+      <h1>Een zaal huren bij Pianofabriek</h1>
+      <p>Vertel ons in een paar stappen wat je wil organiseren. Wij bekijken welke zaal het best past en laten binnen twee werkdagen iets weten.</p>
+      <button class="btn-primary" data-go="wizard-1">Start je aanvraag ›</button>
+    </div>
+    <div class="rooms">
+      <h2>Onze zalen</h2>
+      <div class="room-grid" id="roomGrid"></div>
+    </div>
+    <div class="landing-foot">
+      <p class="price-note" id="priceNote"></p>
+      <p class="disclaimer">Zalen, capaciteiten en kenmerken zijn ter illustratie in dit prototype en worden samen met Pianofabriek bevestigd.</p>
+    </div>
+  </div>
+
   <!-- STAP 1 -->
-  <div data-view="wizard-1">
-    <div class="wizard-top"><div class="wizard-brand">Pianofabriek · zaalaanvraag</div><div class="wizard-lang"><button class="active">NL</button>·<button>FR</button></div></div>
+  <div data-view="wizard-1" hidden>
+    <div class="app-top"><div class="app-brand">Pianofabriek · zaalaanvraag</div><div class="lang"><button class="active">NL</button><button data-lang-fr>FR</button></div></div>
     <div class="wizard-body">
-      <div class="stepper">
-        <span class="step-dot active">1</span><span class="step-line"></span>
-        <span class="step-dot">2</span><span class="step-line"></span>
-        <span class="step-dot">3</span><span class="step-line"></span>
-        <span class="step-dot">4</span>
-      </div>
+      <div class="stepper" data-stepper="1"></div>
+      <div class="step-names" data-stepnames="1"></div>
       <h3 class="question">Wat wil je organiseren?</h3>
-      <p class="question-sub">Hoe beter we begrijpen wat je gaat doen, hoe sneller we kunnen reageren.</p>
+      <p class="question-sub">Hoe beter we begrijpen wat je gaat doen, hoe sneller en gerichter we kunnen antwoorden.</p>
+      <p class="required-hint">Velden met <b>*</b> zijn verplicht.</p>
+
       <div class="field">
         <label class="field-label">Type activiteit <span class="req">*</span></label>
-        <div class="chip-row" data-chip-group="type">
-          <span class="chip" data-value="vergadering">Vergadering</span>
-          <span class="chip selected" data-value="opleiding">Opleiding</span>
-          <span class="chip" data-value="conferentie">Conferentie</span>
-          <span class="chip" data-value="receptie">Receptie</span>
-          <span class="chip" data-value="repetitie">Repetitie</span>
-          <span class="chip" data-value="andere">Iets anders</span>
+        <div class="chip-row" data-chip-group="type" id="typeChips">
+          <span class="chip selected" data-value="Opleiding">Opleiding</span>
+          <span class="chip" data-value="Vergadering">Vergadering</span>
+          <span class="chip" data-value="Conferentie">Conferentie</span>
+          <span class="chip" data-value="Receptie">Receptie</span>
+          <span class="chip" data-value="Repetitie">Repetitie</span>
+          <span class="chip" data-value="Iets anders">Iets anders</span>
         </div>
-        <div class="field-hint">Concert, tentoonstelling of residentie? Die bekijken we apart, mail naar zalen@pianofabriek.be. Privéfeesten doen we niet.</div>
+        <div class="field-hint" id="typeHint" hidden></div>
+        <input class="input" id="typeOther" placeholder="Omschrijf kort wat voor activiteit" style="margin-top:10px; max-width:420px;" hidden>
       </div>
+
       <div class="field">
         <label class="field-label">Beschrijf je activiteit <span class="req">*</span></label>
-        <textarea class="input" placeholder="Wat is het doel? Wie komt er? Hoe ziet het programma eruit?">Tweedaagse opleiding rond pleegzorg voor begeleiders uit de sector. Plenaire ochtendsessies en kleinere break-out groepjes in de namiddag. Lunchpauze tussendoor.</textarea>
+        <textarea class="input" id="desc" maxlength="600" placeholder="Vertel ons wat je gaat doen...">Tweedaagse opleiding rond pleegzorg voor begeleiders uit de sector. Plenaire ochtendsessies en kleinere break-out groepjes in de namiddag. Lunchpauze tussendoor.</textarea>
+        <ul class="field-hint bullets">
+          <li>Wat is het doel van de activiteit?</li>
+          <li>Wie komt er, en hoe is de groep verdeeld?</li>
+          <li>Heb je een bepaalde opstelling of sfeer nodig?</li>
+        </ul>
+        <div class="input-counter"><span id="descCount">0</span> / 600</div>
+        <div class="field-err" id="descErr">Geef een korte omschrijving zodat we je goed kunnen helpen.</div>
       </div>
-      <div class="field" style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+
+      <div class="field" style="display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start;">
         <div>
           <label class="field-label">Aantal deelnemers <span class="req">*</span></label>
-          <input class="input" value="22">
+          <div class="stepper-num">
+            <button type="button" data-num="-" data-target="people">−</button>
+            <input id="people" value="22" inputmode="numeric">
+            <button type="button" data-num="+" data-target="people">+</button>
+          </div>
+          <div class="field-hint">Bepaalt mee welke zaal past.</div>
         </div>
         <div>
-          <label class="field-label">Toegankelijk voor <span class="req">*</span></label>
-          <div class="radio-row" style="padding-top:10px;" data-radio-group="audience">
-            <label data-value="gesloten"><span class="radio checked"></span>Gesloten groep</label>
-            <label data-value="publiek"><span class="radio"></span>Publiek</label>
+          <label class="field-label">Voor wie is het toegankelijk? <span class="req">*</span></label>
+          <div class="seg" data-seg="audience">
+            <button type="button" class="on" data-value="Gesloten groep">Gesloten groep</button>
+            <button type="button" data-value="Publiek toegankelijk">Publiek</button>
           </div>
+          <div class="field-hint">Gesloten = enkel je eigen genodigden.</div>
         </div>
       </div>
-      <div class="wizard-actions">
-        <button class="btn-text" disabled>‹ Terug</button>
-        <button class="btn-primary" data-go="wizard-2">Volgende stap ›</button>
+
+      <div class="actions">
+        <button class="btn-text" data-go="landing">‹ Terug</button>
+        <button class="btn-primary" data-next="1">Volgende stap ›</button>
       </div>
     </div>
   </div>
 
   <!-- STAP 2 -->
   <div data-view="wizard-2" hidden>
-    <div class="wizard-top"><div class="wizard-brand">Pianofabriek · zaalaanvraag</div><div class="wizard-lang"><button class="active">NL</button>·<button>FR</button></div></div>
+    <div class="app-top"><div class="app-brand">Pianofabriek · zaalaanvraag</div><div class="lang"><button class="active">NL</button><button data-lang-fr>FR</button></div></div>
     <div class="wizard-body">
-      <div class="stepper">
-        <span class="step-dot done">✓</span><span class="step-line done"></span>
-        <span class="step-dot active">2</span><span class="step-line"></span>
-        <span class="step-dot">3</span><span class="step-line"></span>
-        <span class="step-dot">4</span>
-      </div>
+      <div class="stepper" data-stepper="2"></div>
+      <div class="step-names" data-stepnames="2"></div>
       <h3 class="question">Wanneer wil je het organiseren?</h3>
-      <p class="question-sub">Voeg één of meerdere dagen toe. Voor meer dan 10 dagen of meer dan 3 maanden vooruit: contacteer ons rechtstreeks.</p>
-      <div class="field">
-        <label class="field-label">Datum en tijd <span class="req">*</span></label>
-        <div id="dateRows">
-          <div class="date-row"><div><input class="input" value="do 07/05/2026"></div><div><input class="input" value="09:00"></div><div><input class="input" value="16:00"></div><div class="date-row-remove" data-remove-date>×</div></div>
-          <div class="date-row"><div><input class="input" value="vr 08/05/2026"></div><div><input class="input" value="09:00"></div><div><input class="input" value="16:00"></div><div class="date-row-remove" data-remove-date>×</div></div>
-        </div>
-        <button class="date-add" id="addDateBtn">+ Voeg dag toe</button>
-      </div>
-      <div class="notice">
+      <p class="question-sub">Voeg één of meerdere dagen toe. Voor meer dan 10 dagen of meer dan 3 maanden vooruit contacteer je ons best rechtstreeks.</p>
+
+      <div id="dateList"></div>
+      <button class="date-add-btn" id="addDate">+ Voeg een dag toe</button>
+
+      <div id="halfMeiNotice" class="notice" hidden>
         <div class="label">Goed om te weten</div>
-        Voor data tussen september 2026 en juni 2027 bevestigen we pas vanaf half mei, omdat we eerst onze eigen programmering vastleggen. Het einduur kan niet later dan 23:00.
+        Eén of meer van je data valt in het volgende seizoen (september 2026 — juni 2027). Daarvoor bevestigen we pas vanaf half mei, omdat we eerst onze eigen programmering vastleggen. Je aanvraag mag wel al binnen.
       </div>
-      <div class="wizard-actions">
+
+      <div class="field" style="margin-top:24px;">
+        <label class="field-label">Heb je een voorkeurzaal? <span class="opt">(optioneel)</span></label>
+        <select class="input" id="prefRoom" style="max-width:420px;"></select>
+        <div class="field-hint">Wij wijzen de definitieve zaal toe op basis van je activiteit en de beschikbaarheid. Een voorkeur helpt, maar is geen reservatie.</div>
+      </div>
+
+      <div class="actions">
         <button class="btn-text" data-go="wizard-1">‹ Terug</button>
-        <button class="btn-primary" data-go="wizard-3">Volgende stap ›</button>
+        <button class="btn-primary" data-next="2">Volgende stap ›</button>
       </div>
     </div>
   </div>
 
   <!-- STAP 3 -->
   <div data-view="wizard-3" hidden>
-    <div class="wizard-top"><div class="wizard-brand">Pianofabriek · zaalaanvraag</div><div class="wizard-lang"><button class="active">NL</button>·<button>FR</button></div></div>
+    <div class="app-top"><div class="app-brand">Pianofabriek · zaalaanvraag</div><div class="lang"><button class="active">NL</button><button data-lang-fr>FR</button></div></div>
     <div class="wizard-body">
-      <div class="stepper">
-        <span class="step-dot done">✓</span><span class="step-line done"></span>
-        <span class="step-dot done">✓</span><span class="step-line done"></span>
-        <span class="step-dot active">3</span><span class="step-line"></span>
-        <span class="step-dot">4</span>
-      </div>
+      <div class="stepper" data-stepper="3"></div>
+      <div class="step-names" data-stepnames="3"></div>
       <h3 class="question">Wat heb je nodig?</h3>
-      <p class="question-sub">Selecteer wat je wil reserveren. Deze prijzen zijn vast. De zaalhuurprijs zelf volgt bij de goedkeuring.</p>
-      <div class="section-block">
+      <p class="question-sub">Kies wat je wil reserveren. Niets nodig? Sla gerust over. Deze prijzen zijn vast; de zaalhuur zelf volgt bij de goedkeuring.</p>
+
+      <div class="shop">
         <h4>Technisch materiaal</h4>
         <p class="meta">Per dagdeel, per zaal.</p>
-        <div class="item-row"><div class="item-name">Beamer</div><div class="item-price">20 €</div><input class="item-qty" value="1"></div>
-        <div class="item-row"><div class="item-name">Micro en versterkt geluid</div><div class="item-price">20 €</div><input class="item-qty" value="0"></div>
-        <div class="item-row"><div class="item-name">Flipchart</div><div class="item-price">8 €</div><input class="item-qty" value="0"></div>
+        <div class="shop-item" data-price="20" data-name="Beamer"><span class="name">Beamer <span class="unit">· 20 €</span></span><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="1" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>
+        <div class="shop-item" data-price="20" data-name="Micro en versterkt geluid"><span class="name">Micro en versterkt geluid <span class="unit">· 20 €</span></span><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="0" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>
+        <div class="shop-item" data-price="8" data-name="Flipchart"><span class="name">Flipchart <span class="unit">· 8 €</span></span><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="0" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>
       </div>
-      <div class="section-block">
+
+      <div class="shop">
         <h4>Horeca</h4>
         <p class="meta">Onze keuken is vegetarisch. Wijzigingen tot 7 werkdagen voor het evenement.</p>
-        <div class="item-row"><div class="item-name">Thermos 10 koppen koffie</div><div class="item-price">8 €</div><input class="item-qty" value="3"></div>
-        <div class="item-row"><div class="item-name">Thermos 10 koppen thee</div><div class="item-price">8 €</div><input class="item-qty" value="2"></div>
-        <div class="item-row"><div class="item-name">Lunch broodjes assortiment</div><div class="item-price">5,50 €/pers</div><input class="item-qty" value="22"></div>
+        <div class="shop-item" data-price="8" data-name="Thermos koffie"><span class="name">Thermos 10 koppen koffie <span class="unit">· 8 €</span></span><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="3" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>
+        <div class="shop-item" data-price="8" data-name="Thermos thee"><span class="name">Thermos 10 koppen thee <span class="unit">· 8 €</span></span><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="2" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>
+        <div class="shop-item" data-price="5.5" data-name="Lunch broodjes"><span class="name">Lunch broodjes assortiment <span class="unit">· 5,50 €/pers</span></span><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="22" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>
+        <div class="shop-item" data-price="15" data-name="Lunch buffet"><span class="name">Lunch buffet <span class="unit">· 15 €/pers · vanaf 15 pers</span></span><div class="stepper-num"><button type="button" data-num="-" data-shop>−</button><input class="qty" value="0" inputmode="numeric"><button type="button" data-num="+" data-shop>+</button></div><span class="line"></span></div>
+        <div class="field-hint" id="horecaHint" style="margin-top:12px;"></div>
       </div>
+
       <div class="field">
-        <label class="field-label">Opmerking (allergieën, dieet, speciale wensen)</label>
-        <textarea class="input" placeholder="Allergenen, voorkeuren...">2 personen glutenvrij.</textarea>
+        <label class="field-label">Allergieën, dieet of speciale wensen <span class="opt">(optioneel)</span></label>
+        <textarea class="input" id="allergy" placeholder="bv. glutenvrij, notenallergie...">2 personen glutenvrij.</textarea>
       </div>
-      <div class="running-total"><span class="muted">Richtprijs extra's (zonder zaalhuur)</span><strong>± 162 €</strong></div>
-      <div class="wizard-actions">
+
+      <div class="total-bar"><span class="l">Richtprijs technisch + horeca (zonder zaalhuur)</span><span class="v" id="grandTotal">0 €</span></div>
+
+      <div class="actions">
         <button class="btn-text" data-go="wizard-2">‹ Terug</button>
-        <button class="btn-primary" data-go="wizard-4">Volgende stap ›</button>
+        <button class="btn-primary" data-next="3">Volgende stap ›</button>
       </div>
     </div>
   </div>
 
   <!-- STAP 4 -->
   <div data-view="wizard-4" hidden>
-    <div class="wizard-top"><div class="wizard-brand">Pianofabriek · zaalaanvraag</div><div class="wizard-lang"><button class="active">NL</button>·<button>FR</button></div></div>
+    <div class="app-top"><div class="app-brand">Pianofabriek · zaalaanvraag</div><div class="lang"><button class="active">NL</button><button data-lang-fr>FR</button></div></div>
     <div class="wizard-body">
-      <div class="stepper">
-        <span class="step-dot done">✓</span><span class="step-line done"></span>
-        <span class="step-dot done">✓</span><span class="step-line done"></span>
-        <span class="step-dot done">✓</span><span class="step-line done"></span>
-        <span class="step-dot active">4</span>
-      </div>
+      <div class="stepper" data-stepper="4"></div>
+      <div class="step-names" data-stepnames="4"></div>
       <h3 class="question">Wie ben je?</h3>
       <p class="question-sub">We hebben dit nodig voor de bevestiging, het contract en de factuur.</p>
+
       <div class="field">
         <label class="field-label">Type organisatie <span class="req">*</span></label>
-        <div class="chip-row" data-chip-group="orgtype">
-          <span class="chip selected" data-value="vzw">Vzw / organisatie</span>
-          <span class="chip" data-value="bedrijf">Bedrijf</span>
-          <span class="chip" data-value="openbaar">Openbare instelling</span>
-          <span class="chip" data-value="particulier">Particulier</span>
+        <div class="chip-row" data-chip-group="orgtype" id="orgtypeChips">
+          <span class="chip selected" data-value="Vzw / organisatie">Vzw / organisatie</span>
+          <span class="chip" data-value="Bedrijf">Bedrijf</span>
+          <span class="chip" data-value="Openbare instelling">Openbare instelling</span>
+          <span class="chip" data-value="Particulier">Particulier</span>
         </div>
       </div>
+
       <div class="field" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-        <div><label class="field-label">Naam organisatie <span class="req">*</span></label><input class="input" value="Kenniscentrum Pleegzorg vzw"></div>
-        <div><label class="field-label">BTW of ondernemingsnr <span class="req">*</span></label><input class="input" value="BE 0123.456.789"></div>
+        <div><label class="field-label">Naam <span class="req">*</span></label><input class="input" id="orgName" value="Kenniscentrum Pleegzorg vzw"></div>
+        <div id="vatWrap"><label class="field-label">BTW of ondernemingsnr <span class="req">*</span></label><input class="input" id="orgVat" value="BE 0123.456.789"><div class="field-hint" id="vatHint">Formaat: BE 0XXX.XXX.XXX</div></div>
       </div>
+
+      <div class="field">
+        <label class="field-label">Facturatieadres <span class="req">*</span></label>
+        <input class="input" id="orgAddr" value="Stapelplein 28, 9000 Gent" style="margin-bottom:8px;">
+        <input class="input" id="orgInvoice" placeholder="E-mailadres voor de digitale factuur" value="facturen@kenniscentrumpleegzorg.be">
+      </div>
+
+      <div class="hairline"></div>
+
       <div class="field">
         <label class="field-label">Contactpersoon <span class="req">*</span></label>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-          <input class="input" placeholder="Naam" value="Suzan de Hoog">
-          <input class="input" placeholder="Telefoon" value="+32 9 123 45 67">
+        <p class="field-hint" style="margin-top:0;">Wie volgt deze aanvraag op en is bereikbaar op de dag zelf?</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px;">
+          <input class="input" id="contactName" placeholder="Naam" value="Suzan de Hoog">
+          <input class="input" id="contactPhone" placeholder="Telefoon" value="+32 9 123 45 67">
         </div>
-        <input class="input" placeholder="E-mail" value="suzan.dehoog@kenniscentrumpleegzorg.be" style="margin-top:12px;">
+        <input class="input" id="contactEmail" placeholder="E-mailadres" value="suzan.dehoog@kenniscentrumpleegzorg.be" style="margin-top:12px;">
+        <div class="field-err" id="contactErr">Vul minstens een naam en e-mailadres in.</div>
       </div>
+
       <div class="hairline"></div>
+
       <div class="field">
         <label class="field-label">Welke prijscategorie geldt voor jouw organisatie? <span class="req">*</span></label>
-        <p class="field-hint" style="margin-top:0; margin-bottom:12px;">Kies wat past. We verifiëren dit bij de goedkeuring.</p>
-        <div data-check-group="category">
-          <label class="check-row" data-value="sint-gillis"><span class="check"></span><div><strong style="font-size:14px;">Vzw of organisatie binnen Sint-Gillis</strong></div></label>
-          <label class="check-row" data-value="brussel"><span class="check"></span><div><strong style="font-size:14px;">Vzw of organisatie binnen Brussel</strong></div></label>
-          <label class="check-row" data-value="non-profit"><span class="check checked"></span><div><strong style="font-size:14px;">Non-profit of vzw buiten Brussel</strong></div></label>
-          <label class="check-row" data-value="commercieel"><span class="check"></span><div><strong style="font-size:14px;">Commercieel, politiek of syndicaal</strong></div></label>
+        <p class="field-hint" style="margin-top:0; margin-bottom:12px;">Twijfel je? Kies wat het dichtst past, wij controleren het bij de goedkeuring.</p>
+        <div data-card-group="category" id="catGroup">
+          <div class="check-card" data-value="Vzw of organisatie binnen Sint-Gillis"><div class="ttl">Vzw of organisatie binnen Sint-Gillis</div><div class="desc">Het voordeligste tarief, voor organisaties met zetel in Sint-Gillis.</div></div>
+          <div class="check-card" data-value="Vzw of organisatie binnen Brussel"><div class="ttl">Vzw of organisatie binnen Brussel</div><div class="desc">Voor Brusselse sociaal-culturele organisaties.</div></div>
+          <div class="check-card sel" data-value="Non-profit of vzw buiten Brussel"><div class="ttl">Non-profit (zorg, onderwijs) of vzw buiten Brussel</div><div class="desc">Voor sociale en educatieve organisaties zonder winstoogmerk.</div></div>
+          <div class="check-card" data-value="Commercieel, politiek of syndicaal"><div class="ttl">Commercieel, politiek of syndicaal</div><div class="desc">Voor bedrijven, politieke partijen en syndic-vergaderingen.</div></div>
         </div>
       </div>
-      <div class="hairline"></div>
-      <label class="check-row" data-check-toggle="terms"><span class="check checked"></span><div class="small">Ik ga akkoord met de <a href="#" onclick="event.preventDefault()">algemene voorwaarden</a> en de <a href="#" onclick="event.preventDefault()">privacyverklaring</a>.</div></label>
-      <div class="wizard-actions">
+
+      <div class="actions">
         <button class="btn-text" data-go="wizard-3">‹ Terug</button>
-        <button class="btn-primary" id="submitBtn">Aanvraag versturen ›</button>
+        <button class="btn-primary" data-next="4">Controleer je aanvraag ›</button>
       </div>
     </div>
   </div>
 
-  <!-- BEVESTIGING -->
-  <div data-view="wizard-done" hidden>
-    <div class="wizard-top"><div class="wizard-brand">Pianofabriek · zaalaanvraag</div><div class="wizard-lang"><button class="active">NL</button>·<button>FR</button></div></div>
+  <!-- REVIEW -->
+  <div data-view="wizard-review" hidden>
+    <div class="app-top"><div class="app-brand">Pianofabriek · zaalaanvraag</div><div class="lang"><button class="active">NL</button><button data-lang-fr>FR</button></div></div>
     <div class="wizard-body">
-      <div class="confirm-hero">
+      <div class="stepper" data-stepper="done"></div>
+      <h3 class="question">Bijna klaar. Controleer je aanvraag.</h3>
+      <p class="question-sub">Klopt alles? Verstuur dan je aanvraag. We laten binnen twee werkdagen iets weten.</p>
+
+      <div class="review" id="reviewBox"></div>
+
+      <label class="check-row" data-check-toggle="terms" style="margin-top:20px;"><span class="check checked"></span><div class="small">Ik ga akkoord met de <a href="#" onclick="event.preventDefault()">algemene voorwaarden</a>.</div></label>
+      <label class="check-row" data-check-toggle="privacy"><span class="check checked"></span><div class="small">Ik heb de <a href="#" onclick="event.preventDefault()">privacyverklaring</a> gelezen en ga akkoord met de verwerking van mijn gegevens.</div></label>
+      <div class="field-err" id="termsErr">Je moet akkoord gaan met de voorwaarden en de privacyverklaring om te kunnen versturen.</div>
+
+      <div class="actions">
+        <button class="btn-text" data-go="wizard-4">‹ Terug</button>
+        <button class="btn-primary" id="submitBtn">Verstuur aanvraag ›</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DONE -->
+  <div data-view="wizard-done" hidden>
+    <div class="app-top"><div class="app-brand">Pianofabriek · zaalaanvraag</div><div class="lang"><button class="active">NL</button><button data-lang-fr>FR</button></div></div>
+    <div class="wizard-body">
+      <div class="confirm">
         <h3 class="question">Bedankt, je aanvraag is ontvangen.</h3>
         <p class="question-sub">Isabelle bekijkt je aanvraag en laat binnen twee werkdagen weten of het lukt. Je krijgt elke update per e-mail.</p>
-        <div class="confirm-ref">Referentienummer · AAV-2026-0142</div>
-        <div>
-          <p class="small">We stuurden zonet een ontvangstbevestiging naar je mailbox.</p>
-          <button class="btn-primary" data-go-role="mailbox">Bekijk je mailbox ›</button>
-        </div>
+        <div class="ref" id="doneRef">Referentienummer · AAV-2026-0142</div>
+        <div><p class="small">We stuurden zonet een ontvangstbevestiging naar je mailbox.</p><button class="btn-primary" data-go-role="mailbox">Bekijk je mailbox ›</button></div>
       </div>
       <div class="next-steps">
         <h4>Wat gebeurt er nu?</h4>
-        <ul>
+        <ol>
           <li>Je gevraagde data zijn intern genoteerd.</li>
           <li>Isabelle bekijkt je aanvraag binnen twee werkdagen.</li>
-          <li>Je krijgt een e-mail met de toegewezen zaal, de prijs, of een alternatief voorstel.</li>
+          <li>Je krijgt een e-mail met de toegewezen zaal en de prijs, of een alternatief voorstel.</li>
           <li>Na bevestiging volgt het contract en de factuur.</li>
-        </ul>
+        </ol>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ===== MAILBOX KLANT ===== -->
+<!-- ===================== MAILBOX ===================== -->
 <div class="app" data-role-view="mailbox" hidden>
   <div class="mailbox-head">
     <h2>Mailbox van Suzan de Hoog</h2>
-    <p>In versie B vervangen deze automatische mails de aparte statuspagina. Alles wat de klant moet weten, staat in zijn inbox.</p>
+    <p>In versie 1 vervangen deze automatische mails de aparte statuspagina. Alles wat de klant moet weten, staat in zijn inbox.</p>
   </div>
   <div class="mailbox-body" id="mailboxBody"></div>
 </div>
 
-<!-- ===== WERKBANK ===== -->
+<!-- ===================== WERKBANK ===================== -->
 <div class="app" data-role-view="werkbank" hidden style="padding:0;">
   <div class="admin-shell">
     <aside class="sidebar">
       <div class="sidebar-brand">Pianofabriek · overzicht</div>
       <div class="sidebar-cta"><button class="btn-primary" id="newRequestBtn" style="width:100%;">+ Nieuwe aanvraag</button></div>
-      <div class="nav-section">
-        <div class="nav-section-title">Potentiële boekingen</div>
-        <div class="nav-item active">Alle <span class="count" id="countAll">7</span></div>
-        <div class="nav-item">Nieuw <span class="count" id="countNew">2</span></div>
-        <div class="nav-item">In behandeling <span class="count">2</span></div>
-        <div class="nav-item">Wacht op klant <span class="count">1</span></div>
-        <div class="nav-item">Goedgekeurd <span class="count">2</span></div>
-      </div>
+      <div class="nav-section-title">Potentiële boekingen</div>
+      <div id="navFilters"></div>
     </aside>
     <div class="admin-main">
-
-      <!-- LIST -->
       <div data-admin-view="list">
-        <div class="pulse-row">
-          <div class="pulse-cell attention"><div class="n" id="pulseNew">2</div><div class="l">nieuw, nog niet bekeken</div></div>
-          <div class="pulse-cell"><div class="n">2</div><div class="l">in behandeling</div></div>
-          <div class="pulse-cell"><div class="n">1</div><div class="l">wacht op antwoord klant</div></div>
-        </div>
+        <div class="pulse-row" id="pulseRow"></div>
         <div class="admin-head">
-          <h2>Aanvragen</h2>
-          <input class="input admin-search" placeholder="Zoek op naam, organisatie of referentie...">
+          <h2 id="listTitle">Alle aanvragen</h2>
+          <input class="input admin-search" id="adminSearch" placeholder="Zoek op naam, organisatie of referentie...">
         </div>
         <table class="admin-table">
           <thead><tr><th>Referentie</th><th>Aanvrager</th><th>Activiteit</th><th>Data</th><th>Pers</th><th>Status</th></tr></thead>
           <tbody id="adminTableBody"></tbody>
         </table>
       </div>
-
-      <!-- DETAIL -->
       <div data-admin-view="detail" hidden>
         <button class="back-link" id="backToList">‹ Terug naar overzicht</button>
         <div class="detail-head">
-          <div>
-            <h3>Tweedaagse opleiding pleegzorg</h3>
-            <div class="ref">AAV-2026-0142 · Kenniscentrum Pleegzorg vzw · 4 mei 2026</div>
-          </div>
+          <div><h3 id="dTitle"></h3><div class="ref" id="dRef"></div></div>
           <div class="detail-actions">
             <button class="btn-secondary" id="actRefuse">Weigeren</button>
             <button class="btn-secondary" id="actAlt">Alternatief voorstellen</button>
@@ -496,348 +608,573 @@
           </div>
         </div>
         <div class="detail-grid">
-          <div>
-            <div class="detail-card">
-              <h4>Activiteit</h4>
-              <div class="kv">
-                <div class="k">Type</div><div class="v">Opleiding · 22 deelnemers · gesloten groep</div>
-                <div class="k">Omschrijving</div><div class="v">Tweedaagse opleiding rond pleegzorg voor begeleiders. Plenaire ochtendsessies, break-outs in de namiddag, lunchpauze tussendoor.</div>
-              </div>
-            </div>
-            <div class="detail-card">
-              <h4>Data en tijd</h4>
-              <div class="kv"><div class="k">7 mei 2026</div><div class="v">09:00 — 16:00</div><div class="k">8 mei 2026</div><div class="v">09:00 — 16:00</div></div>
-            </div>
-            <div class="detail-card">
-              <h4>Technisch en horeca</h4>
-              <div class="kv">
-                <div class="k">Beamer</div><div class="v">1 ×</div>
-                <div class="k">Koffie / thee</div><div class="v">3 × / 2 ×</div>
-                <div class="k">Lunch broodjes</div><div class="v">22 ×</div>
-                <div class="k">Opmerking</div><div class="v" style="font-style:italic;">"2 personen glutenvrij."</div>
-              </div>
-            </div>
-            <div class="detail-card">
-              <h4>Organisatie en contact</h4>
-              <div class="kv">
-                <div class="k">Organisatie</div><div class="v">Kenniscentrum Pleegzorg vzw</div>
-                <div class="k">BTW</div><div class="v">BE 0123.456.789</div>
-                <div class="k">Categorie</div><div class="v">Non-profit <span class="muted">(door klant gekozen, te valideren)</span></div>
-                <div class="k">Contact</div><div class="v">Suzan de Hoog · suzan.dehoog@kenniscentrumpleegzorg.be</div>
-                <div class="k">Yesplan-contractnr</div><div class="v muted">in te vullen na overzetten</div>
-              </div>
-            </div>
-          </div>
+          <div id="dLeft"></div>
           <div>
             <div class="detail-card">
               <h4>Status</h4>
-              <div id="detailStatus" class="status-text in-behandeling">Nieuw</div>
-              <p class="small muted" style="margin-top:8px;">Ingediend 4 mei 14:32 via de website.</p>
+              <div id="dStatus" class="status-text nieuw">Nieuw</div>
+              <p class="small muted" id="dStatusSub" style="margin-top:8px;"></p>
+              <div style="margin-top:14px;">
+                <div class="field-label" style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted);">Yesplan-contractnummer</div>
+                <div class="yp-field"><input class="input" id="ypNr" placeholder="invullen na overzetten"><button class="btn-secondary" id="ypSave" style="padding:9px 14px;">Bewaar</button></div>
+              </div>
             </div>
             <div class="comm-log">
               <h4 style="font-size:11px; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin:0 0 12px;">Verloop</h4>
               <div id="commLog"></div>
+              <div class="note-add"><input class="input" id="noteInput" placeholder="Interne notitie toevoegen..."><button class="btn-secondary" id="noteBtn">Voeg toe</button></div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- MODAL: ACCEPT -->
-<div class="modal-backdrop" id="modalAccept" hidden>
-  <div class="modal">
-    <h3>Aanvraag aanvaarden</h3>
-    <p class="muted">Kies de zaal en vul de prijs in. Bij verzenden gaat automatisch de goedkeuringsmail naar de klant.</p>
-    <div class="field">
-      <label class="field-label">Toegewezen zaal <span class="req">*</span></label>
-      <div class="chip-row" data-chip-group="zaal">
-        <span class="chip" data-value="Arenberg">Arenberg</span>
-        <span class="chip selected" data-value="Calcutta">Calcutta</span>
-        <span class="chip" data-value="Charleroi">Charleroi</span>
-        <span class="chip" data-value="Dakar">Dakar</span>
-        <span class="chip" data-value="Dublin">Dublin</span>
-      </div>
-    </div>
-    <div class="field">
-      <label class="field-label">Extra zaal (optioneel)</label>
-      <div class="chip-row"><span class="chip selected">Alcantara (lunchpauze)</span><span class="chip">+ voeg toe</span></div>
-    </div>
-    <div class="field">
-      <label class="field-label">Totaalprijs (komt in de mail) <span class="req">*</span></label>
-      <input class="input" id="acceptPrice" value="315 €" style="max-width:160px;">
-    </div>
-    <div class="field">
-      <label class="field-label">Persoonlijke opmerking voor de klant</label>
-      <textarea class="input" id="acceptComment">Welkom! Calcutta past perfect voor jullie groep. We voorzien Alcantara voor de lunchpauze. Tot dan.</textarea>
-    </div>
-    <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" id="confirmAccept">Bevestig en verstuur</button></div>
-  </div>
-</div>
+<!-- MODALS -->
+<div class="modal-backdrop" id="modalAccept" hidden><div class="modal">
+  <h3>Aanvraag aanvaarden</h3>
+  <p class="muted">Kies de zaal en vul de prijs in. Bij verzenden vertrekt automatisch de goedkeuringsmail naar de klant.</p>
+  <div class="field"><label class="field-label">Toegewezen zaal <span class="req">*</span></label><div class="chip-row" data-chip-group="zaal" id="acceptRooms"></div></div>
+  <div class="field"><label class="field-label">Extra zaal <span class="opt">(optioneel)</span></label><div class="chip-row" data-chip-group="extra"><span class="chip" data-value="Alcantara">Alcantara (lunchpauze)</span><span class="chip" data-value="geen">Geen</span></div></div>
+  <div class="field"><label class="field-label">Totaalprijs (komt in de mail) <span class="req">*</span></label><input class="input" id="acceptPrice" value="315 €" style="max-width:160px;"></div>
+  <div class="field"><label class="field-label">Persoonlijke opmerking voor de klant</label><textarea class="input" id="acceptComment">Welkom! Deze zaal past perfect voor jullie groep. Tot dan.</textarea></div>
+  <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" id="confirmAccept">Bevestig en verstuur</button></div>
+</div></div>
 
-<!-- MODAL: ALTERNATIVE -->
-<div class="modal-backdrop" id="modalAlt" hidden>
-  <div class="modal">
-    <h3>Alternatief voorstellen</h3>
-    <p class="muted">De klant ontvangt jouw voorstel per mail en kan akkoord gaan of contact opnemen.</p>
-    <div class="field">
-      <label class="field-label">Voorgestelde zaal</label>
-      <div class="chip-row" data-chip-group="alt-zaal"><span class="chip selected" data-value="Calcutta">Calcutta</span><span class="chip" data-value="Arenberg">Arenberg</span><span class="chip" data-value="andere">Andere…</span></div>
-    </div>
-    <div class="field">
-      <label class="field-label">Voorgestelde data</label>
-      <div class="date-row"><input class="input" value="di 12/05/2026"><input class="input" value="09:00"><input class="input" value="16:00"><div></div></div>
-      <div class="date-row"><input class="input" value="wo 13/05/2026"><input class="input" value="09:00"><input class="input" value="16:00"><div></div></div>
-    </div>
-    <div class="field">
-      <label class="field-label">Toelichting <span class="req">*</span></label>
-      <textarea class="input" id="altComment">Op de oorspronkelijke data staat een interne workshop in Calcutta. Een week later is alles vrij en jullie kunnen op dezelfde manier werken. Laat ons weten of dit past.</textarea>
-    </div>
-    <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" id="confirmAlt">Verstuur voorstel</button></div>
-  </div>
-</div>
+<div class="modal-backdrop" id="modalAlt" hidden><div class="modal">
+  <h3>Alternatief voorstellen</h3>
+  <p class="muted">De klant ontvangt jouw voorstel per mail en kan akkoord gaan of contact opnemen.</p>
+  <div class="field"><label class="field-label">Voorgestelde zaal</label><div class="chip-row" data-chip-group="alt-zaal" id="altRooms"></div></div>
+  <div class="field"><label class="field-label">Voorgestelde data</label><input class="input" id="altDates" value="12-13 mei 2026"></div>
+  <div class="field"><label class="field-label">Toelichting <span class="req">*</span></label><textarea class="input" id="altComment">Op de oorspronkelijke data is de zaal bezet. Een week later is alles vrij en kunnen jullie op dezelfde manier werken. Laat ons weten of dit past.</textarea></div>
+  <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" id="confirmAlt">Verstuur voorstel</button></div>
+</div></div>
 
-<!-- MODAL: REFUSE -->
-<div class="modal-backdrop" id="modalRefuse" hidden>
-  <div class="modal">
-    <h3>Aanvraag weigeren</h3>
-    <p class="muted">De klant ontvangt een mail met jouw reden.</p>
-    <div class="field">
-      <label class="field-label">Reden <span class="req">*</span></label>
-      <div class="chip-row" data-chip-group="refuse-reason" style="margin-bottom:12px;">
-        <span class="chip selected" data-value="geen-zaal">Geen geschikte zaal vrij</span>
-        <span class="chip" data-value="missie">Past niet bij missie</span>
-        <span class="chip" data-value="privefeest">Privéfeest</span>
-      </div>
-      <textarea class="input" id="refuseComment">Helaas zijn al onze zalen die geschikt zijn voor deze groepsgrootte op deze data al geboekt. We kunnen je aanvraag op deze data niet honoreren.</textarea>
-    </div>
-    <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" id="confirmRefuse">Verstuur afwijzing</button></div>
-  </div>
-</div>
+<div class="modal-backdrop" id="modalRefuse" hidden><div class="modal">
+  <h3>Aanvraag weigeren</h3>
+  <p class="muted">De klant ontvangt een mail met jouw reden.</p>
+  <div class="field"><label class="field-label">Reden <span class="req">*</span></label><div class="chip-row" data-chip-group="refuse" style="margin-bottom:12px;"><span class="chip selected" data-value="geen-zaal">Geen geschikte zaal vrij</span><span class="chip" data-value="missie">Past niet bij missie</span><span class="chip" data-value="privefeest">Privéfeest</span></div><textarea class="input" id="refuseComment">Helaas zijn al onze zalen die geschikt zijn voor deze groepsgrootte op deze data al geboekt. We kunnen je aanvraag op deze data niet honoreren.</textarea></div>
+  <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" id="confirmRefuse">Verstuur afwijzing</button></div>
+</div></div>
 
-<!-- MODAL: NEW (manual entry) -->
-<div class="modal-backdrop" id="modalNew" hidden>
-  <div class="modal">
-    <h3>Nieuwe aanvraag invoeren</h3>
-    <p class="muted">Voor aanvragen die via telefoon of mail binnenkomen. Zo staat alles op één plek.</p>
-    <div class="field">
-      <label class="field-label">Binnengekomen via</label>
-      <div class="chip-row" data-chip-group="source"><span class="chip selected" data-value="telefoon">Telefoon</span><span class="chip" data-value="email">E-mail</span><span class="chip" data-value="balie">Aan de balie</span></div>
-    </div>
-    <div class="field" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-      <div><label class="field-label">Naam organisatie</label><input class="input" placeholder="bv. Buurtcomité Zuid"></div>
-      <div><label class="field-label">Contactpersoon + e-mail</label><input class="input" placeholder="naam · e-mail"></div>
-    </div>
-    <div class="field"><label class="field-label">Activiteit, datum, aantal personen</label><textarea class="input" placeholder="Korte notitie van wat je aan de telefoon hoort..."></textarea></div>
-    <p class="small muted">De klant krijgt dezelfde automatische mails als bij een online aanvraag.</p>
-    <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" data-close-modal>Bewaar in overzicht</button></div>
-  </div>
-</div>
+<div class="modal-backdrop" id="modalNew" hidden><div class="modal">
+  <h3>Nieuwe aanvraag invoeren</h3>
+  <p class="muted">Voor aanvragen die via telefoon, mail of aan de balie binnenkomen. Zo staat alles op één plek.</p>
+  <div class="field"><label class="field-label">Binnengekomen via</label><div class="chip-row" data-chip-group="source"><span class="chip selected" data-value="telefoon">Telefoon</span><span class="chip" data-value="e-mail">E-mail</span><span class="chip" data-value="balie">Aan de balie</span></div></div>
+  <div class="field" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div><label class="field-label">Naam organisatie</label><input class="input" id="newOrg" placeholder="bv. Buurtcomité Zuid"></div><div><label class="field-label">Activiteit</label><input class="input" id="newActivity" placeholder="bv. Vergadering"></div></div>
+  <div class="field" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><div><label class="field-label">Data</label><input class="input" id="newDates" placeholder="bv. 20 mei 2026"></div><div><label class="field-label">Aantal personen</label><input class="input" id="newPeople" placeholder="bv. 12" inputmode="numeric"></div></div>
+  <div class="field"><label class="field-label">Contactpersoon + e-mail</label><input class="input" id="newContact" placeholder="naam · e-mail"></div>
+  <p class="small muted">De klant krijgt dezelfde automatische mails als bij een online aanvraag.</p>
+  <div class="modal-actions"><button class="btn-text" data-close-modal>Annuleren</button><button class="btn-primary" id="confirmNew">Bewaar in overzicht</button></div>
+</div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  const state = {
-    role: 'klant',
-    request: {
-      ref: 'AAV-2026-0142', activity: 'Opleiding', org: 'Kenniscentrum Pleegzorg',
-      dates: '7-8 mei 2026', people: 22,
-      status: 'nieuw', submitted: false,
-      assignedRoom: null, price: null, acceptComment: null,
-      altComment: null, altDates: null, altRoom: null, refuseComment: null,
-      commLog: [
-        { time: '4 mei · 14:32', who: 'systeem', text: 'Aanvraag ontvangen via de website.' },
-        { time: '4 mei · 14:32', who: 'systeem', text: 'Ontvangstbevestiging verstuurd naar Suzan de Hoog.' },
-      ],
-    },
-    otherRequests: [
-      { ref: 'AAV-2026-0141', name: 'ADDE asbl', activity: 'Formation', dates: '14 mei 2026', people: 35, status: 'nieuw', statusLabel: 'Nieuw', statusClass: 'row-status-new', warn: 'zelfde datum als 0139' },
-      { ref: 'AAV-2026-0139', name: 'Toneelgroep Zuid', activity: 'Repetitie', dates: '14 mei 2026', people: 12, status: 'in-behandeling', statusLabel: 'In behandeling', statusClass: 'row-status-pending' },
-      { ref: 'AAV-2026-0138', name: 'Brusselse VZW Cultuur', activity: 'Vergadering', dates: '22 mei 2026', people: 14, status: 'in-behandeling', statusLabel: 'In behandeling', statusClass: 'row-status-pending' },
-      { ref: 'AAV-2026-0135', name: 'Syndic Stamenei', activity: 'Vergadering', dates: '3 juni 2026', people: 9, status: 'goedgekeurd', statusLabel: 'Goedgekeurd · Saturna', statusClass: 'row-status-ok' },
-      { ref: 'AAV-2026-0128', name: 'OCMW Anderlecht', activity: 'Opleiding', dates: '24 juni 2026', people: 28, status: 'goedgekeurd', statusLabel: 'Goedgekeurd · Calcutta', statusClass: 'row-status-ok' },
-      { ref: 'AAV-2026-0119', name: 'Brussels Studio', activity: 'Receptie', dates: '5 juli 2026', people: 50, status: 'alternatief', statusLabel: 'Wacht op klant', statusClass: 'row-status-alt' },
-    ],
+const $ = (s, sc) => (sc||document).querySelector(s);
+const $$ = (s, sc) => Array.from((sc||document).querySelectorAll(s));
+function toast(t){ const e=$('#toast'); e.textContent=t; e.classList.add('visible'); setTimeout(()=>e.classList.remove('visible'),2400); }
+function euro(n){ return (Math.round(n*100)/100).toString().replace('.',',') + ' €'; }
+
+const STEP_NAMES = ['Activiteit','Wanneer','Wat nodig','Wie ben je'];
+const ROOMS = [
+  { name:'Arenberg', type:'Theaterzaal', cap:120, feat:'podium, licht en geluid' },
+  { name:'Brazzaville', type:'Feestzaal', cap:80, feat:'flexibel, catering mogelijk' },
+  { name:'Calcutta', type:'Vergaderzaal', cap:30, feat:'beamer, daglicht' },
+  { name:'Charleroi', type:'Conferentieruimte', cap:60, feat:'klein podium' },
+  { name:'Casablanca I', type:'Vergaderzaal', cap:16, feat:'beamer' },
+  { name:'Casablanca II', type:'Vergaderzaal', cap:16, feat:'beamer' },
+  { name:'Dakar', type:'Atelier', cap:20, feat:'daglicht, wasbak' },
+  { name:'Dublin', type:'Repetitieruimte dans', cap:15, feat:'spiegels, parket' },
+  { name:'Zabriskie Point', type:'Bioscoopzaal', cap:50, feat:'projectie' },
+];
+
+// ===== data: requests =====
+let SEQ = 143;
+const reqs = [
+  {
+    id:'cust', ref:'AAV-2026-0142', visible:false, source:'website',
+    org:'Kenniscentrum Pleegzorg vzw', orgShort:'Kenniscentrum Pleegzorg',
+    activity:'Opleiding', audience:'Gesloten groep', people:22,
+    desc:'Tweedaagse opleiding rond pleegzorg voor begeleiders uit de sector. Plenaire ochtendsessies en kleinere break-out groepjes in de namiddag. Lunchpauze tussendoor.',
+    datesText:'7-8 mei 2026', days:[{d:'do 7 mei 2026',t:'09:00 — 16:00'},{d:'vr 8 mei 2026',t:'09:00 — 16:00'}],
+    tech:'1 × beamer', horeca:'3× koffie, 2× thee, 22× broodjes', opmerking:'2 personen glutenvrij.',
+    vat:'BE 0123.456.789', addr:'Stapelplein 28, 9000 Gent', category:'Non-profit of vzw buiten Brussel',
+    contact:'Suzan de Hoog', email:'suzan.dehoog@kenniscentrumpleegzorg.be', phone:'+32 9 123 45 67',
+    status:'nieuw', statusSub:'Ingediend via de website.', assignedRoom:null, price:null, acceptComment:null,
+    altDates:null, altRoom:null, altComment:null, refuseComment:null, ypNr:'',
+    log:[ {t:'4 mei · 14:32', who:'systeem', x:'Aanvraag ontvangen via de website.'}, {t:'4 mei · 14:32', who:'systeem', x:'Ontvangstbevestiging verstuurd naar Suzan de Hoog.'} ]
+  },
+  {
+    id:'adde', ref:'AAV-2026-0141', visible:true, source:'website',
+    org:'ADDE asbl', orgShort:'ADDE asbl',
+    activity:'Formation', audience:'Gesloten groep', people:35,
+    desc:'Formation juridique d\'une journée pour des travailleurs sociaux sur le droit des étrangers. Présentation plénière le matin, ateliers l\'après-midi.',
+    datesText:'14 mei 2026', days:[{d:'do 14 mei 2026',t:'09:30 — 17:00'}],
+    tech:'1 × beamer, 1 × micro', horeca:'4× koffie, 35× broodjes', opmerking:'Demande en français.',
+    vat:'BE 0444.555.666', addr:'Rue du Boulet 22, 1000 Bruxelles', category:'Non-profit of vzw buiten Brussel',
+    contact:'Farah Benali', email:'f.benali@adde.be', phone:'+32 2 227 42 41',
+    status:'nieuw', statusSub:'Ingediend via de website.', warn:'zelfde datum als 0139',
+    assignedRoom:null, price:null, ypNr:'',
+    log:[ {t:'5 mei · 09:10', who:'systeem', x:'Aanvraag ontvangen via de website.'} ]
+  },
+  {
+    id:'toneel', ref:'AAV-2026-0139', visible:true, source:'telefoon',
+    org:'Toneelgroep Zuid', orgShort:'Toneelgroep Zuid',
+    activity:'Repetitie', audience:'Gesloten groep', people:12,
+    desc:'Repetitie voor een nieuwe voorstelling. Vooral beweging en stemwerk, dus nood aan een open ruimte met spiegels.',
+    datesText:'14 mei 2026', days:[{d:'do 14 mei 2026',t:'18:00 — 22:00'}],
+    tech:'geen', horeca:'geen', opmerking:'',
+    vat:'BE 0777.888.999', addr:'Waterloosesteenweg 12, 1060 Sint-Gillis', category:'Vzw of organisatie binnen Sint-Gillis',
+    contact:'Marc Peeters', email:'marc@toneelgroepzuid.be', phone:'+32 478 12 34 56',
+    status:'in-behandeling', statusSub:'Telefonisch aangevraagd, door Isabelle ingevoerd.', assignedRoom:null, price:null, ypNr:'',
+    log:[ {t:'3 mei · 11:00', who:'Isabelle', x:'Telefonische aanvraag ingevoerd.'} ]
+  },
+  {
+    id:'brusvzw', ref:'AAV-2026-0138', visible:true, source:'website',
+    org:'Brusselse VZW Cultuur', orgShort:'Brusselse VZW Cultuur',
+    activity:'Vergadering', audience:'Gesloten groep', people:14,
+    desc:'Bestuursvergadering met aansluitend een werklunch.',
+    datesText:'22 mei 2026', days:[{d:'vr 22 mei 2026',t:'10:00 — 14:00'}],
+    tech:'1 × flipchart', horeca:'2× koffie, 14× broodjes', opmerking:'',
+    vat:'BE 0333.222.111', addr:'Vlaamsesteenweg 80, 1000 Brussel', category:'Vzw of organisatie binnen Brussel',
+    contact:'Lien Janssens', email:'lien@brusselsevzw.be', phone:'+32 2 511 00 11',
+    status:'in-behandeling', statusSub:'Ingediend via de website.', assignedRoom:null, price:null, ypNr:'',
+    log:[ {t:'2 mei · 15:20', who:'systeem', x:'Aanvraag ontvangen via de website.'} ]
+  },
+  {
+    id:'syndic', ref:'AAV-2026-0135', visible:true, source:'website',
+    org:'Syndic Stamenei', orgShort:'Syndic Stamenei',
+    activity:'Vergadering', audience:'Gesloten groep', people:9,
+    desc:'Algemene vergadering van mede-eigenaars.',
+    datesText:'3 juni 2026', days:[{d:'wo 3 juni 2026',t:'19:00 — 22:00'}],
+    tech:'geen', horeca:'1× koffie', opmerking:'',
+    vat:'BE 0888.111.222', addr:'Munthofstraat 5, 1060 Sint-Gillis', category:'Commercieel, politiek of syndicaal',
+    contact:'Paul Stamenei', email:'paul@stamenei.be', phone:'+32 475 99 88 77',
+    status:'goedgekeurd', statusSub:'Goedgekeurd door Isabelle.', assignedRoom:'Saturna', price:'120 €', acceptComment:'In orde, tot dan.', ypNr:'26155',
+    log:[ {t:'28 apr · 10:00', who:'systeem', x:'Aanvraag ontvangen.'}, {t:'29 apr · 09:30', who:'Isabelle', x:'Goedgekeurd. Zaal Saturna, prijs 120 €.'} ]
+  },
+  {
+    id:'ugent', ref:'AAV-2026-0132', visible:true, source:'website',
+    org:'Universiteit Gent', orgShort:'Universiteit Gent',
+    activity:'Conferentie', audience:'Publiek toegankelijk', people:80,
+    desc:'Tweedaagse conferentie met sprekers en publiek. Plenaire sessies in de grote zaal.',
+    datesText:'17-18 juni 2026', days:[{d:'wo 17 juni 2026',t:'09:00 — 18:00'},{d:'do 18 juni 2026',t:'09:00 — 17:00'}],
+    tech:'beamer, micro, podiumtechnicus', horeca:'koffie, buffet 80p', opmerking:'Mogelijk pers aanwezig.',
+    vat:'BE 0248.015.142', addr:'Sint-Pietersnieuwstraat 25, 9000 Gent', category:'Non-profit of vzw buiten Brussel',
+    contact:'Prof. K. Devos', email:'k.devos@ugent.be', phone:'+32 9 264 30 00',
+    status:'in-behandeling', statusSub:'Ingediend via de website.', assignedRoom:null, price:null, ypNr:'',
+    log:[ {t:'1 mei · 08:40', who:'systeem', x:'Aanvraag ontvangen via de website.'} ]
+  },
+  {
+    id:'studio', ref:'AAV-2026-0119', visible:true, source:'e-mail',
+    org:'Brussels Studio', orgShort:'Brussels Studio',
+    activity:'Receptie', audience:'Gesloten groep', people:50,
+    desc:'Netwerkreceptie met drankjes en hapjes.',
+    datesText:'5 juli 2026', days:[{d:'zo 5 juli 2026',t:'18:00 — 23:00'}],
+    tech:'micro en geluid', horeca:'drankreceptie', opmerking:'',
+    vat:'BE 0500.600.700', addr:'Kanaalstraat 30, 1080 Sint-Jans-Molenbeek', category:'Commercieel, politiek of syndicaal',
+    contact:'Tom De Wit', email:'tom@brusselsstudio.be', phone:'+32 486 33 22 11',
+    status:'alternatief', statusSub:'Alternatief voorgesteld, wacht op antwoord klant.', assignedRoom:null, price:null,
+    altDates:'12 juli 2026', altRoom:'Brazzaville', altComment:'Op 5 juli is Brazzaville bezet. Op 12 juli is alles vrij.', ypNr:'',
+    log:[ {t:'20 apr · 14:00', who:'systeem', x:'Aanvraag ontvangen via e-mail, ingevoerd door Isabelle.'}, {t:'21 apr · 11:15', who:'Isabelle', x:'Alternatief voorgesteld: Brazzaville op 12 juli.'} ]
+  },
+];
+const byId = id => reqs.find(r=>r.id===id);
+let currentId = 'cust';
+let filterStatus = 'alle';
+let searchTerm = '';
+
+const STATUS_META = {
+  'nieuw': {label:'Nieuw', cls:'st-new', stxt:'nieuw'},
+  'in-behandeling': {label:'In behandeling', cls:'st-pending', stxt:'in-behandeling'},
+  'goedgekeurd': {label:'Goedgekeurd', cls:'st-ok', stxt:'goedgekeurd'},
+  'alternatief': {label:'Wacht op klant', cls:'st-alt', stxt:'alt'},
+  'geweigerd': {label:'Geweigerd', cls:'st-rej', stxt:'geweigerd'},
+};
+
+// ===== role / view nav =====
+function setRole(role){
+  $$('.demo-tab').forEach(b=>b.classList.toggle('active', b.dataset.role===role));
+  $$('[data-role-view]').forEach(v=>v.hidden = v.dataset.roleView!==role);
+  if(role==='mailbox') renderMailbox();
+  if(role==='werkbank'){ renderFilters(); renderList(); }
+}
+function setView(v){ $$('[data-view]', $('[data-role-view="klant"]')).forEach(x=>x.hidden = x.dataset.view!==v); window.scrollTo(0,0); if(v==='wizard-review') renderReview(); }
+function setAdminView(n){ $$('[data-admin-view]').forEach(v=>v.hidden = v.dataset.adminView!==n); }
+
+// ===== steppers (visual) =====
+function renderSteppers(){
+  $$('[data-stepper]').forEach(el=>{
+    const cur = el.dataset.stepper;
+    let html='';
+    for(let i=1;i<=4;i++){
+      const done = (cur==='done') || (parseInt(cur)>i);
+      const active = parseInt(cur)===i;
+      html += `<span class="step-dot ${done?'done':''} ${active?'active':''}">${done?'✓':i}</span>`;
+      if(i<4) html += `<span class="step-line ${done?'done':''}"></span>`;
+    }
+    el.innerHTML = html;
+  });
+  $$('[data-stepnames]').forEach(el=>{
+    const cur = parseInt(el.dataset.stepnames);
+    el.innerHTML = STEP_NAMES.map((n,i)=>`<span class="${i+1===cur?'active':''}">${n}</span>`).join('');
+  });
+}
+
+// ===== landing =====
+function renderLanding(){
+  $('#roomGrid').innerHTML = ROOMS.slice(0,6).map(r=>`
+    <div class="room-card"><div class="room-photo"><span>${r.type}</span></div>
+    <div class="room-info"><h3>${r.name}</h3><p>${r.feat}</p><div class="room-cap">Tot ${r.cap} personen</div></div></div>`).join('');
+  $('#priceNote').textContent = 'Benieuwd naar de prijs? Die hangt af van je organisatie en de gekozen zaal. Je krijgt een concrete prijs zodra we je aanvraag goedkeuren.';
+  const sel = $('#prefRoom');
+  sel.innerHTML = '<option value="">Geen voorkeur</option>' + ROOMS.map(r=>`<option value="${r.name}">${r.name} — ${r.type}, tot ${r.cap}p</option>`).join('');
+}
+
+// ===== generic selectors =====
+document.addEventListener('click', (e)=>{
+  const chip = e.target.closest('.chip');
+  if(chip && chip.closest('[data-chip-group]')){ const g=chip.closest('[data-chip-group]'); $$('.chip',g).forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); onChipChange(g,chip); return; }
+  const seg = e.target.closest('.seg button');
+  if(seg){ const g=seg.closest('.seg'); $$('button',g).forEach(b=>b.classList.remove('on')); seg.classList.add('on'); return; }
+  const card = e.target.closest('[data-card-group] .check-card');
+  if(card){ const g=card.closest('[data-card-group]'); $$('.check-card',g).forEach(c=>c.classList.remove('sel')); card.classList.add('sel'); return; }
+  const tog = e.target.closest('[data-check-toggle]');
+  if(tog){ $('.check',tog).classList.toggle('checked'); return; }
+});
+function onChipChange(group, chip){
+  if(group.id==='typeChips'){
+    const other = chip.dataset.value==='Iets anders';
+    $('#typeOther').hidden = !other;
+  }
+  if(group.id==='orgtypeChips'){
+    const particulier = chip.dataset.value==='Particulier';
+    $('#vatWrap').style.visibility = particulier ? 'hidden' : 'visible';
+  }
+}
+
+// ===== number steppers =====
+document.addEventListener('click',(e)=>{
+  const b = e.target.closest('[data-num]');
+  if(!b) return;
+  let input;
+  if(b.dataset.shop!==undefined){ input = b.closest('.stepper-num').querySelector('input'); }
+  else { input = document.getElementById(b.dataset.target); }
+  let v = parseInt(input.value||'0',10); if(isNaN(v)) v=0;
+  v += (b.dataset.num==='+'?1:-1); if(v<0) v=0;
+  input.value = v;
+  if(b.dataset.shop!==undefined) computeTotal();
+});
+
+// ===== step 1: desc counter =====
+$('#desc').addEventListener('input', ()=>{ $('#descCount').textContent = $('#desc').value.length; if($('#desc').value.trim()){ $('#desc').classList.remove('err'); $('#descErr').classList.remove('show'); } });
+$('#descCount').textContent = $('#desc').value.length;
+
+// ===== step 2: dates =====
+const NL_DAYS = ['zo','ma','di','wo','do','vr','za'];
+const NL_MONTHS = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+function fmtDate(iso){ if(!iso) return ''; const d=new Date(iso+'T00:00'); return NL_DAYS[d.getDay()]+' '+d.getDate()+' '+NL_MONTHS[d.getMonth()]+' '+d.getFullYear(); }
+function makeDateRow(date, start, end){
+  const row = document.createElement('div'); row.className='date-card';
+  row.innerHTML = `
+    <div class="date-grid">
+      <div><label>Datum</label><input class="input dd" type="date" value="${date||''}"></div>
+      <div><label>Van</label><input class="input ds" type="time" value="${start||''}"></div>
+      <div><label>Tot</label><input class="input de" type="time" value="${end||''}"></div>
+      <button class="date-remove" title="Verwijder">×</button>
+    </div>
+    <div class="date-meta"></div>`;
+  row.querySelector('.date-remove').addEventListener('click', ()=>{ row.remove(); updateDateMeta(); });
+  row.querySelectorAll('input').forEach(i=>i.addEventListener('input', updateDateMeta));
+  return row;
+}
+function updateDateMeta(){
+  let hasNextSeason=false;
+  $$('#dateList .date-card').forEach(card=>{
+    const date=card.querySelector('.dd').value, s=card.querySelector('.ds').value, e=card.querySelector('.de').value;
+    const meta=card.querySelector('.date-meta'); let parts=[];
+    if(date) parts.push('<span>'+fmtDate(date)+'</span>');
+    if(s&&e){
+      const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
+      const dur=(eh*60+em)-(sh*60+sm);
+      if(dur>0) parts.push('<span>'+Math.floor(dur/60)+'u'+(dur%60?(' '+(dur%60)+'m'):'')+'</span>');
+      if(eh>23 || (eh===23&&em>0) || eh<sh) {} // handled below
+      if((eh*60+em) > 23*60) parts.push('<span class="warn">Sluitingsuur is 23:00</span>');
+    }
+    if(date){ const d=new Date(date+'T00:00'); const y=d.getFullYear(),m=d.getMonth(); if((y===2026&&m>=8)||(y===2027&&m<=5)) hasNextSeason=true; }
+    meta.innerHTML = parts.join('');
+  });
+  $('#halfMeiNotice').hidden = !hasNextSeason;
+}
+function initDates(){
+  const list=$('#dateList'); list.innerHTML='';
+  list.appendChild(makeDateRow('2026-05-07','09:00','16:00'));
+  list.appendChild(makeDateRow('2026-05-08','09:00','16:00'));
+  updateDateMeta();
+}
+$('#addDate').addEventListener('click', ()=>{
+  if($$('#dateList .date-card').length>=10){ toast('Maximaal 10 dagen per aanvraag'); return; }
+  const rows=$$('#dateList .date-card'); const last=rows[rows.length-1];
+  const s=last?last.querySelector('.ds').value:'09:00', e=last?last.querySelector('.de').value:'16:00';
+  $('#dateList').appendChild(makeDateRow('', s, e)); updateDateMeta();
+});
+
+// ===== step 3: total =====
+function computeTotal(){
+  let total=0;
+  $$('#dateList .date-card').length;
+  $$('[data-view="wizard-3"] .shop-item').forEach(item=>{
+    const price=parseFloat(item.dataset.price); const qty=parseInt(item.querySelector('.qty').value||'0',10)||0;
+    const line=price*qty; total+=line;
+    item.querySelector('.line').textContent = qty>0 ? euro(line) : '';
+  });
+  $('#grandTotal').textContent = euro(total);
+  // horeca hint based on people
+  const ppl=parseInt($('#people').value||'0',10)||0;
+  $('#horecaHint').textContent = ppl>0 ? `Je gaf ${ppl} deelnemers op. Voor broodjes reken je doorgaans ongeveer ${ppl} stuks. Buffet kan vanaf 15 personen.` : '';
+}
+
+// ===== validation + next =====
+function gotoNext(step){
+  if(step==='1'){
+    let ok=true;
+    if(!$('#desc').value.trim()){ $('#desc').classList.add('err'); $('#descErr').classList.add('show'); ok=false; }
+    if(!ok){ toast('Vul de ontbrekende velden in'); return; }
+    computeTotal(); setView('wizard-2');
+  } else if(step==='2'){
+    const rows=$$('#dateList .date-card');
+    const complete = rows.some(c=>c.querySelector('.dd').value && c.querySelector('.ds').value && c.querySelector('.de').value);
+    if(!complete){ toast('Voeg minstens één volledige dag toe (datum, van, tot)'); return; }
+    setView('wizard-3');
+  } else if(step==='3'){
+    setView('wizard-4');
+  } else if(step==='4'){
+    let ok=true;
+    if(!$('#contactName').value.trim() || !$('#contactEmail').value.trim()){ $('#contactErr').classList.add('show'); ok=false; } else { $('#contactErr').classList.remove('show'); }
+    if(!ok){ toast('Vul de contactgegevens in'); return; }
+    setView('wizard-review');
+  }
+}
+$$('[data-next]').forEach(b=>b.addEventListener('click',()=>gotoNext(b.dataset.next)));
+$$('[data-go]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.go)));
+$$('[data-go-role]').forEach(b=>b.addEventListener('click',()=>setRole(b.dataset.goRole)));
+
+// ===== review =====
+function getWizardData(){
+  const type = $('#typeChips .chip.selected').dataset.value;
+  const typeFull = type==='Iets anders' && $('#typeOther').value.trim() ? $('#typeOther').value.trim() : type;
+  const audience = $('[data-seg="audience"] button.on').dataset.value;
+  const days = $$('#dateList .date-card').filter(c=>c.querySelector('.dd').value).map(c=>({
+    d: fmtDate(c.querySelector('.dd').value), t: (c.querySelector('.ds').value||'')+' — '+(c.querySelector('.de').value||'')
+  }));
+  const tech=[]; const horeca=[];
+  $$('[data-view="wizard-3"] .shop-item').forEach(item=>{
+    const qty=parseInt(item.querySelector('.qty').value||'0',10)||0; if(qty<=0) return;
+    const entry = qty+'× '+item.dataset.name;
+    if(['Beamer','Micro en versterkt geluid','Flipchart'].includes(item.dataset.name)) tech.push(entry); else horeca.push(entry);
+  });
+  return {
+    type:typeFull, audience, people:parseInt($('#people').value||'0',10)||0, desc:$('#desc').value.trim(),
+    days, prefRoom:$('#prefRoom').value,
+    tech:tech.join(', ')||'geen', horeca:horeca.join(', ')||'geen', opmerking:$('#allergy').value.trim(),
+    org:$('#orgName').value, vat:$('#orgVat').value, addr:$('#orgAddr').value, invoice:$('#orgInvoice').value,
+    contact:$('#contactName').value, email:$('#contactEmail').value, phone:$('#contactPhone').value,
+    category:($('#catGroup .check-card.sel')||{dataset:{value:''}}).dataset.value, total:$('#grandTotal').textContent
   };
-  const INITIAL = JSON.stringify(state);
+}
+function renderReview(){
+  const d=getWizardData();
+  const rows=[
+    ['Activiteit', `<strong>${d.type}</strong> voor ${d.people} deelnemers, ${d.audience.toLowerCase()}<br><span class="muted">${d.desc}</span>`, 'wizard-1'],
+    ['Wanneer', d.days.map(x=>x.d+' · '+x.t).join('<br>') + (d.prefRoom?`<br><span class="muted">Voorkeurzaal: ${d.prefRoom}</span>`:''), 'wizard-2'],
+    ['Technisch', d.tech, 'wizard-3'],
+    ['Horeca', d.horeca + (d.opmerking?`<br><span class="muted">${d.opmerking}</span>`:''), 'wizard-3'],
+    ['Organisatie', `${d.org}<br><span class="muted">${d.vat} · ${d.addr}</span><br><span class="muted">Categorie: ${d.category}</span>`, 'wizard-4'],
+    ['Contact', `${d.contact} · ${d.email} · ${d.phone}`, 'wizard-4'],
+  ];
+  $('#reviewBox').innerHTML = rows.map(r=>`<div class="review-row"><div class="rk">${r[0]}</div><div class="rv">${r[1]}</div><button class="edit" data-edit="${r[2]}">Wijzig</button></div>`).join('');
+  $$('#reviewBox .edit').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.edit)));
+}
 
-  const $ = (s, sc) => (sc||document).querySelector(s);
-  const $$ = (s, sc) => Array.from((sc||document).querySelectorAll(s));
+// ===== submit =====
+$('#submitBtn').addEventListener('click', ()=>{
+  const terms = $('[data-check-toggle="terms"] .check').classList.contains('checked');
+  const priv = $('[data-check-toggle="privacy"] .check').classList.contains('checked');
+  if(!terms || !priv){ $('#termsErr').classList.add('show'); toast('Ga akkoord met de voorwaarden'); return; }
+  $('#termsErr').classList.remove('show');
+  const d=getWizardData();
+  const c=byId('cust');
+  c.visible=true; c.status='nieuw'; c.activity=d.type; c.audience=d.audience; c.people=d.people; c.desc=d.desc;
+  c.days = d.days.length?d.days:c.days; c.datesText = d.days.length?(d.days[0].d.replace(/^\w+ /,'')+(d.days.length>1?(' +'+(d.days.length-1)):'')):c.datesText;
+  c.tech=d.tech; c.horeca=d.horeca; c.opmerking=d.opmerking; c.org=d.org; c.orgShort=d.org.replace(/ vzw| asbl/i,'');
+  c.vat=d.vat; c.addr=d.addr; c.category=d.category; c.contact=d.contact; c.email=d.email; c.phone=d.phone;
+  c.prefRoom=d.prefRoom;
+  $('#mailDot').hidden=false;
+  setView('wizard-done');
+  toast('Aanvraag verstuurd, bevestigingsmail onderweg');
+});
 
-  function showToast(t) { const e = $('#toast'); e.textContent = t; e.classList.add('visible'); setTimeout(()=>e.classList.remove('visible'), 2400); }
-
-  function setRole(role) {
-    state.role = role;
-    $$('.demo-tab').forEach(b => b.classList.toggle('active', b.dataset.role === role));
-    $$('[data-role-view]').forEach(v => v.hidden = v.dataset.roleView !== role);
-    if (role === 'mailbox') renderMailbox();
-    if (role === 'werkbank') renderAdmin();
+// ===== mailbox =====
+function mailCard(subject, time, body){ return `<div class="mail"><div class="mail-head"><div class="mail-subject">${subject}</div><div class="mail-meta">Van: Pianofabriek · zalen@pianofabriek.be · ${time}</div></div><div class="mail-body">${body}</div></div>`; }
+function renderMailbox(){
+  const s=byId('cust'), box=$('#mailboxBody');
+  if(!s.visible){ box.innerHTML='<div class="mail-empty"><h3>Nog geen mails</h3><p>Vul eerst de aanvraag in via de tab "Aanvraag (klant)". De automatische mails verschijnen hier.</p></div>'; return; }
+  let html='';
+  if(s.status==='goedgekeurd'){
+    html += mailCard('Je aanvraag is goedgekeurd — '+s.ref, 'zojuist',
+      `<p>Beste ${s.contact.split(' ')[0]},</p><p>Goed nieuws: je aanvraag is goedgekeurd.</p>
+       <div class="mail-data"><div class="kv"><span class="k">Zaal</span><span>${s.assignedRoom||''}${s.extraRoom&&s.extraRoom!=='geen'?(' + '+s.extraRoom+' (lunchpauze)'):''}</span><span class="k">Data</span><span>${s.datesText}</span><span class="k">Prijs</span><span>${s.price||''}</span></div></div>
+       <div class="mail-quote">"${s.acceptComment||''}"</div>
+       <p class="muted small">Het contract en de factuur volgen binnenkort. Betaling uiterlijk 2 weken voor het evenement.</p>`);
+  } else if(s.status==='alternatief'){
+    html += mailCard('Een voorstel voor je aanvraag — '+s.ref, 'zojuist',
+      `<p>Beste ${s.contact.split(' ')[0]},</p><p>Je oorspronkelijke data zijn helaas niet beschikbaar. We stellen een alternatief voor:</p>
+       <div class="mail-data"><div class="kv"><span class="k">Nieuwe data</span><span>${s.altDates||''}</span><span class="k">Zaal</span><span>${s.altRoom||''}</span></div></div>
+       <div class="mail-quote">"${s.altComment||''}"</div><p>Laat ons weten of dit past, dan bevestigen we meteen.</p>`);
+  } else if(s.status==='geweigerd'){
+    html += mailCard('Over je aanvraag — '+s.ref, 'zojuist',
+      `<p>Beste ${s.contact.split(' ')[0]},</p><p>Bedankt voor je aanvraag. Helaas kunnen we er deze keer niet op ingaan:</p><div class="mail-quote">"${s.refuseComment||''}"</div><p class="muted small">Heb je vragen? Antwoord gerust op deze mail.</p>`);
   }
-  function setView(v) { $$('[data-view]', $('[data-role-view="klant"]')).forEach(x => x.hidden = x.dataset.view !== v); }
-  function setAdminView(n) { $$('[data-admin-view]').forEach(v => v.hidden = v.dataset.adminView !== n); }
+  html += mailCard('We hebben je aanvraag goed ontvangen — '+s.ref, '4 mei 14:32',
+    `<p>Beste ${s.contact.split(' ')[0]},</p><p>Bedankt voor je aanvraag voor ${s.datesText}. We hebben alles goed ontvangen.</p>
+     <p>Isabelle bekijkt je aanvraag en laat <strong>binnen twee werkdagen</strong> weten of het lukt, met de toegewezen zaal en de prijs.</p>
+     <p class="muted small">Referentie: ${s.ref}</p>`);
+  box.innerHTML=html;
+}
 
-  // chips / radios / checks
-  document.addEventListener('click', (e) => {
-    const chip = e.target.closest('.chip');
-    if (chip) { const g = chip.closest('[data-chip-group]'); if (g) { $$('.chip', g).forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); } return; }
-    const radio = e.target.closest('[data-radio-group] label');
-    if (radio) { const g = radio.closest('[data-radio-group]'); $$('label .radio', g).forEach(r=>r.classList.remove('checked')); $('.radio', radio).classList.add('checked'); return; }
-    const cr = e.target.closest('[data-check-group] .check-row');
-    if (cr) { const g = cr.closest('[data-check-group]'); $$('.check', g).forEach(c=>c.classList.remove('checked')); $('.check', cr).classList.add('checked'); return; }
-    const ct = e.target.closest('[data-check-toggle]');
-    if (ct) { $('.check', ct).classList.toggle('checked'); return; }
-  });
+// ===== werkbank: filters + list =====
+function counts(){ const c={alle:0,nieuw:0,'in-behandeling':0,goedgekeurd:0,alternatief:0}; reqs.filter(r=>r.visible).forEach(r=>{ c.alle++; if(c[r.status]!==undefined)c[r.status]++; }); return c; }
+function renderFilters(){
+  const c=counts();
+  $('#navFilters').innerHTML = [
+    ['alle','Alle',c.alle],['nieuw','Nieuw',c.nieuw],['in-behandeling','In behandeling',c['in-behandeling']],['goedgekeurd','Goedgekeurd',c.goedgekeurd],['alternatief','Wacht op klant',c.alternatief]
+  ].map(f=>`<div class="nav-item ${filterStatus===f[0]?'active':''}" data-filter="${f[0]}">${f[1]} <span class="count">${f[2]}</span></div>`).join('');
+  $$('#navFilters .nav-item').forEach(n=>n.addEventListener('click',()=>{ filterStatus=n.dataset.filter; renderFilters(); renderList(); }));
+  $('#pulseRow').innerHTML = [
+    ['nieuw',c.nieuw,'nieuw, nog niet bekeken','attention'],
+    ['in-behandeling',c['in-behandeling'],'in behandeling',''],
+    ['alternatief',c.alternatief,'wacht op antwoord klant','']
+  ].map(p=>`<div class="pulse-cell ${p[3]} ${filterStatus===p[0]?'sel':''}" data-filter="${p[0]}"><div class="n">${p[1]}</div><div class="l">${p[2]}</div></div>`).join('');
+  $$('#pulseRow .pulse-cell').forEach(n=>n.addEventListener('click',()=>{ filterStatus = filterStatus===n.dataset.filter?'alle':n.dataset.filter; renderFilters(); renderList(); }));
+}
+function renderList(){
+  const tb=$('#adminTableBody');
+  let list=reqs.filter(r=>r.visible);
+  if(filterStatus!=='alle') list=list.filter(r=>r.status===filterStatus);
+  if(searchTerm){ const q=searchTerm.toLowerCase(); list=list.filter(r=>(r.ref+' '+r.org+' '+r.activity).toLowerCase().includes(q)); }
+  $('#listTitle').textContent = filterStatus==='alle'?'Alle aanvragen':({nieuw:'Nieuwe aanvragen','in-behandeling':'In behandeling',goedgekeurd:'Goedgekeurd',alternatief:'Wacht op klant'}[filterStatus]);
+  if(!list.length){ tb.innerHTML='<tr class="empty-row"><td colspan="6">Geen aanvragen gevonden.</td></tr>'; return; }
+  tb.innerHTML = list.map(r=>{
+    const m=STATUS_META[r.status]; const room=r.status==='goedgekeurd'&&r.assignedRoom?(' · '+r.assignedRoom):'';
+    const warn=r.warn?` <span class="warn-flag">⚠ ${r.warn}</span>`:'';
+    const src=r.source!=='website'?`<span class="source-badge">${r.source}</span>`:'';
+    return `<tr data-open="${r.id}"><td class="ref">${r.ref}</td><td>${r.orgShort}${src}</td><td>${r.activity}</td><td>${r.datesText}</td><td>${r.people}</td><td class="${m.cls}">${m.label}${room}${warn}</td></tr>`;
+  }).join('');
+  $$('#adminTableBody tr[data-open]').forEach(tr=>tr.addEventListener('click',()=>openDetail(tr.dataset.open)));
+}
+$('#adminSearch').addEventListener('input', e=>{ searchTerm=e.target.value; renderList(); });
 
-  $$('[data-go]').forEach(b => b.addEventListener('click', () => setView(b.dataset.go)));
-  $$('[data-go-role]').forEach(b => b.addEventListener('click', () => setRole(b.dataset.goRole)));
+// ===== werkbank: detail =====
+function openDetail(id){
+  currentId=id; const r=byId(id);
+  $('#dTitle').textContent = r.desc.slice(0,46)+(r.desc.length>46?'…':'');
+  $('#dTitle').textContent = r.activity + ' · ' + r.orgShort;
+  $('#dRef').textContent = r.ref+' · '+r.org;
+  $('#dLeft').innerHTML = `
+    <div class="detail-card"><h4>Activiteit</h4><div class="kv">
+      <div class="k">Type</div><div class="v">${r.activity} · ${r.people} deelnemers · ${r.audience.toLowerCase()}</div>
+      <div class="k">Omschrijving</div><div class="v">${r.desc}</div>
+      ${r.prefRoom?`<div class="k">Voorkeurzaal</div><div class="v">${r.prefRoom} <span class="muted">(voorkeur klant)</span></div>`:''}
+    </div></div>
+    <div class="detail-card"><h4>Data en tijd</h4><div class="kv">${r.days.map(d=>`<div class="k">${d.d}</div><div class="v">${d.t}</div>`).join('')}</div></div>
+    <div class="detail-card"><h4>Technisch en horeca</h4><div class="kv">
+      <div class="k">Technisch</div><div class="v">${r.tech}</div>
+      <div class="k">Horeca</div><div class="v">${r.horeca}</div>
+      ${r.opmerking?`<div class="k">Opmerking</div><div class="v" style="font-style:italic;">"${r.opmerking}"</div>`:''}
+    </div></div>
+    <div class="detail-card"><h4>Organisatie en contact</h4><div class="kv">
+      <div class="k">Organisatie</div><div class="v">${r.org}</div>
+      <div class="k">BTW</div><div class="v">${r.vat}</div>
+      <div class="k">Adres</div><div class="v">${r.addr}</div>
+      <div class="k">Categorie</div><div class="v">${r.category} <span class="muted">(door klant gekozen, te valideren)</span></div>
+      <div class="k">Contact</div><div class="v">${r.contact} · ${r.email} · ${r.phone}</div>
+    </div></div>`;
+  const m=STATUS_META[r.status];
+  $('#dStatus').className='status-text '+m.stxt; $('#dStatus').textContent=m.label+(r.status==='goedgekeurd'&&r.assignedRoom?(' · '+r.assignedRoom):'');
+  $('#dStatusSub').textContent = r.statusSub||'';
+  $('#ypNr').value = r.ypNr||'';
+  renderLog(r);
+  setAdminView('detail');
+}
+function renderLog(r){
+  $('#commLog').innerHTML = r.log.map(e=>`<div class="comm-entry"><div class="comm-meta">${e.t} · ${e.who}</div>${e.x}</div>`).join('');
+}
+$('#backToList').addEventListener('click',()=>{ setAdminView('list'); renderFilters(); renderList(); });
+$('#ypSave').addEventListener('click',()=>{ const r=byId(currentId); r.ypNr=$('#ypNr').value; toast('Yesplan-nummer bewaard'); });
+$('#noteBtn').addEventListener('click',()=>{
+  const v=$('#noteInput').value.trim(); if(!v) return;
+  byId(currentId).log.push({t:'nu', who:'Isabelle (notitie)', x:v}); $('#noteInput').value=''; renderLog(byId(currentId)); toast('Notitie toegevoegd');
+});
 
-  $('#addDateBtn').addEventListener('click', () => {
-    const row = document.createElement('div');
-    row.className = 'date-row';
-    row.innerHTML = '<div><input class="input" placeholder="dd/mm/jjjj"></div><div><input class="input" placeholder="09:00"></div><div><input class="input" placeholder="16:00"></div><div class="date-row-remove" data-remove-date>×</div>';
-    $('#dateRows').appendChild(row);
-  });
-  document.addEventListener('click', (e) => { const rm = e.target.closest('[data-remove-date]'); if (rm) rm.closest('.date-row').remove(); });
+// ===== werkbank actions =====
+function fillRoomChips(container, selected){
+  container.innerHTML = ROOMS.map(r=>`<span class="chip ${r.name===selected?'selected':''}" data-value="${r.name}">${r.name}</span>`).join('');
+}
+$('#actAccept').addEventListener('click',()=>{ const r=byId(currentId); fillRoomChips($('#acceptRooms'), r.prefRoom||'Calcutta'); $('#acceptComment').value='Welkom! Deze zaal past perfect voor jullie groep. Tot dan.'; $('#modalAccept').hidden=false; });
+$('#actAlt').addEventListener('click',()=>{ fillRoomChips($('#altRooms'),'Calcutta'); $('#modalAlt').hidden=false; });
+$('#actRefuse').addEventListener('click',()=>$('#modalRefuse').hidden=false);
+$('#newRequestBtn').addEventListener('click',()=>$('#modalNew').hidden=false);
+$$('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>$$('.modal-backdrop').forEach(m=>m.hidden=true)));
 
-  $('#submitBtn').addEventListener('click', () => {
-    state.request.status = 'in-behandeling';
-    state.request.submitted = true;
-    $('#mailDot').hidden = false;
-    setView('wizard-done');
-    showToast('Aanvraag verstuurd, bevestigingsmail onderweg');
-  });
+$('#confirmAccept').addEventListener('click',()=>{
+  const r=byId(currentId); const sel=$('#acceptRooms .chip.selected');
+  r.status='goedgekeurd'; r.assignedRoom=sel?sel.dataset.value:'Calcutta';
+  const ex=$('#modalAccept [data-chip-group="extra"] .chip.selected'); r.extraRoom = ex?ex.dataset.value:null;
+  r.price=$('#acceptPrice').value; r.acceptComment=$('#acceptComment').value; r.statusSub='Goedgekeurd door Isabelle.';
+  r.log.push({t:'5 mei · 11:10', who:'Isabelle', x:`Goedgekeurd. Zaal ${r.assignedRoom}${r.extraRoom&&r.extraRoom!=='geen'?(' + '+r.extraRoom):''}, prijs ${r.price}. Goedkeuringsmail verstuurd naar de klant.`});
+  $('#modalAccept').hidden=true; if(currentId==='cust')$('#mailDot').hidden=false;
+  renderFilters(); renderList(); setAdminView('list'); toast('Aanvaard, mail naar klant verstuurd');
+});
+$('#confirmAlt').addEventListener('click',()=>{
+  const r=byId(currentId); const sel=$('#altRooms .chip.selected');
+  r.status='alternatief'; r.altRoom=sel?sel.dataset.value:'Calcutta'; r.altDates=$('#altDates').value; r.altComment=$('#altComment').value; r.statusSub='Alternatief voorgesteld, wacht op antwoord klant.';
+  r.log.push({t:'5 mei · 11:10', who:'Isabelle', x:`Alternatief voorgesteld: ${r.altRoom} op ${r.altDates}. Voorstel-mail verstuurd naar de klant.`});
+  $('#modalAlt').hidden=true; if(currentId==='cust')$('#mailDot').hidden=false;
+  renderFilters(); renderList(); setAdminView('list'); toast('Alternatief voorstel verstuurd');
+});
+$('#confirmRefuse').addEventListener('click',()=>{
+  const r=byId(currentId); r.status='geweigerd'; r.refuseComment=$('#refuseComment').value; r.statusSub='Geweigerd door Isabelle.';
+  r.log.push({t:'5 mei · 11:10', who:'Isabelle', x:'Geweigerd. Afwijzingsmail verstuurd naar de klant.'});
+  $('#modalRefuse').hidden=true; if(currentId==='cust')$('#mailDot').hidden=false;
+  renderFilters(); renderList(); setAdminView('list'); toast('Afwijzing verstuurd');
+});
+$('#confirmNew').addEventListener('click',()=>{
+  const src=$('#modalNew [data-chip-group="source"] .chip.selected').dataset.value;
+  SEQ++; const r={ id:'n'+SEQ, ref:'AAV-2026-0'+SEQ, visible:true, source:src,
+    org:$('#newOrg').value||'Nieuwe aanvraag', orgShort:$('#newOrg').value||'Nieuwe aanvraag',
+    activity:$('#newActivity').value||'Vergadering', audience:'Gesloten groep', people:parseInt($('#newPeople').value||'0',10)||0,
+    desc:'Telefonisch/per mail aangevraagd, in te vullen door Isabelle.', datesText:$('#newDates').value||'nog te bepalen',
+    days:[{d:$('#newDates').value||'nog te bepalen',t:'nog te bepalen'}], tech:'nog te bepalen', horeca:'nog te bepalen', opmerking:'',
+    vat:'', addr:'', category:'nog te bepalen', contact:($('#newContact').value||'').split('·')[0].trim()||'onbekend', email:($('#newContact').value||'').split('·')[1]?$('#newContact').value.split('·')[1].trim():'', phone:'',
+    status:'nieuw', statusSub:`Via ${src} aangevraagd, door Isabelle ingevoerd.`, assignedRoom:null, price:null, ypNr:'',
+    log:[{t:'nu', who:'Isabelle', x:`Aanvraag via ${src} ingevoerd.`}] };
+  reqs.unshift(r);
+  ['newOrg','newActivity','newDates','newPeople','newContact'].forEach(id=>$('#'+id).value='');
+  $('#modalNew').hidden=true; filterStatus='alle'; renderFilters(); renderList(); toast('Aanvraag toegevoegd aan overzicht');
+});
 
-  // ===== MAILBOX =====
-  function renderMailbox() {
-    const s = state.request, box = $('#mailboxBody');
-    if (!s.submitted) {
-      box.innerHTML = '<div class="mail-empty"><h3>Nog geen mails</h3><p>Vul eerst de aanvraag in via de tab "Aanvraag (klant)". De automatische mails verschijnen hier.</p></div>';
-      return;
-    }
-    let html = '';
-    // decision mail (newest on top)
-    if (s.status === 'goedgekeurd') {
-      html += mailCard('Je aanvraag is goedgekeurd — ' + s.ref, 'Pianofabriek · zalen@pianofabriek.be', 'zojuist',
-        '<p>Beste Suzan,</p><p>Goed nieuws: je aanvraag voor de tweedaagse opleiding is goedgekeurd.</p>' +
-        '<div class="mail-data"><div class="kv">' +
-        '<span class="k">Zaal</span><span>' + (s.assignedRoom||'Calcutta') + ' + Alcantara (lunchpauze)</span>' +
-        '<span class="k">Data</span><span>7-8 mei 2026 · 09:00 — 16:00</span>' +
-        '<span class="k">Prijs</span><span>' + (s.price||'315 €') + '</span></div></div>' +
-        '<div class="mail-quote">"' + (s.acceptComment||'Welkom!') + '"</div>' +
-        '<p class="muted small">Het contract en de factuur volgen binnenkort. Betaling uiterlijk 2 weken voor het evenement.</p>');
-    } else if (s.status === 'alternatief') {
-      html += mailCard('Een voorstel voor je aanvraag — ' + s.ref, 'Pianofabriek · zalen@pianofabriek.be', 'zojuist',
-        '<p>Beste Suzan,</p><p>Je oorspronkelijke data zijn helaas niet beschikbaar. We stellen een alternatief voor:</p>' +
-        '<div class="mail-data"><div class="kv">' +
-        '<span class="k">Nieuwe data</span><span>' + (s.altDates||'12-13 mei 2026') + ' · 09:00 — 16:00</span>' +
-        '<span class="k">Zaal</span><span>' + (s.altRoom||'Calcutta') + '</span></div></div>' +
-        '<div class="mail-quote">"' + (s.altComment||'') + '"</div>' +
-        '<p>Laat ons weten of dit past, dan bevestigen we meteen.</p>');
-    } else if (s.status === 'geweigerd') {
-      html += mailCard('Over je aanvraag — ' + s.ref, 'Pianofabriek · zalen@pianofabriek.be', 'zojuist',
-        '<p>Beste Suzan,</p><p>Bedankt voor je aanvraag. Helaas kunnen we er deze keer niet op ingaan:</p>' +
-        '<div class="mail-quote">"' + (s.refuseComment||'') + '"</div>' +
-        '<p class="muted small">Heb je vragen? Antwoord gerust op deze mail.</p>');
-    }
-    // confirmation mail (always, oldest)
-    html += mailCard('We hebben je aanvraag goed ontvangen — ' + s.ref, 'Pianofabriek · zalen@pianofabriek.be', '4 mei 14:32',
-      '<p>Beste Suzan,</p><p>Bedankt voor je aanvraag voor de tweedaagse opleiding op 7-8 mei 2026. We hebben alles goed ontvangen.</p>' +
-      '<p>Isabelle bekijkt je aanvraag en laat <strong>binnen twee werkdagen</strong> weten of het lukt, met de toegewezen zaal en de prijs.</p>' +
-      '<p class="muted small">Referentie: ' + s.ref + '</p>');
-    box.innerHTML = html;
-  }
-  function mailCard(subject, from, time, body) {
-    return '<div class="mail"><div class="mail-head"><div class="mail-subject">' + subject + '</div><div class="mail-meta">Van: ' + from + ' · ' + time + '</div></div><div class="mail-body">' + body + '</div></div>';
-  }
+// ===== FR toggle (prototype) =====
+document.addEventListener('click',e=>{ if(e.target.closest('[data-lang-fr]')) toast('FR is een beslispunt voor de workshop. In dit prototype tonen we NL.'); });
 
-  // ===== ADMIN =====
-  function renderAdmin() {
-    const tb = $('#adminTableBody'); tb.innerHTML = '';
-    const m = labelForStatus(state.request.status, state.request.assignedRoom);
-    const mainRow = document.createElement('tr');
-    mainRow.innerHTML = '<td class="ref">'+state.request.ref+'</td><td>'+state.request.org+'</td><td>'+state.request.activity+'</td><td>'+state.request.dates+'</td><td>'+state.request.people+'</td><td class="'+m.cls+'">'+m.label+'</td>';
-    mainRow.addEventListener('click', () => setAdminView('detail'));
-    tb.appendChild(mainRow);
-    state.otherRequests.forEach(r => {
-      const tr = document.createElement('tr');
-      const warn = r.warn ? ' <span class="warn-flag">⚠ '+r.warn+'</span>' : '';
-      tr.innerHTML = '<td class="ref">'+r.ref+'</td><td>'+r.name+'</td><td>'+r.activity+'</td><td>'+r.dates+'</td><td>'+r.people+'</td><td class="'+r.statusClass+'">'+r.statusLabel+warn+'</td>';
-      tb.appendChild(tr);
-    });
-    $('#detailStatus').className = 'status-text ' + statusClass(state.request.status);
-    $('#detailStatus').textContent = labelForStatus(state.request.status, state.request.assignedRoom).label;
-    const log = $('#commLog'); log.innerHTML = '';
-    state.request.commLog.forEach(e => {
-      const d = document.createElement('div'); d.className = 'comm-entry';
-      d.innerHTML = '<div class="comm-meta">'+e.time+' · '+e.who+'</div>'+e.text;
-      log.appendChild(d);
-    });
-    const counts = { nieuw:0,'in-behandeling':0,goedgekeurd:0,alternatief:0,geweigerd:0 };
-    counts[state.request.status]++;
-    state.otherRequests.forEach(r => counts[r.status]++);
-    $('#countAll').textContent = 1 + state.otherRequests.length;
-    $('#countNew').textContent = counts['nieuw'];
-    $('#pulseNew').textContent = counts['nieuw'];
-  }
-  function labelForStatus(s, room) {
-    switch(s){
-      case 'nieuw': return {label:'Nieuw', cls:'row-status-new'};
-      case 'in-behandeling': return {label:'Nieuw', cls:'row-status-new'};
-      case 'goedgekeurd': return {label: room?('Goedgekeurd · '+room):'Goedgekeurd', cls:'row-status-ok'};
-      case 'alternatief': return {label:'Wacht op klant', cls:'row-status-alt'};
-      case 'geweigerd': return {label:'Geweigerd', cls:'row-status-rejected'};
-      default: return {label:s, cls:''};
-    }
-  }
-  function statusClass(s){ return s==='goedgekeurd'?'goedgekeurd':s==='alternatief'?'alt':s==='geweigerd'?'geweigerd':'in-behandeling'; }
+// ===== demo bar + init =====
+$$('.demo-tab').forEach(b=>b.addEventListener('click',()=>setRole(b.dataset.role)));
+$('#resetBtn').addEventListener('click',()=>location.reload());
 
-  $('#backToList').addEventListener('click', () => setAdminView('list'));
-  $('#newRequestBtn').addEventListener('click', () => $('#modalNew').hidden = false);
-  $('#actAccept').addEventListener('click', () => $('#modalAccept').hidden = false);
-  $('#actAlt').addEventListener('click', () => $('#modalAlt').hidden = false);
-  $('#actRefuse').addEventListener('click', () => $('#modalRefuse').hidden = false);
-  $$('[data-close-modal]').forEach(b => b.addEventListener('click', () => $$('.modal-backdrop').forEach(m => m.hidden = true)));
-
-  $('#confirmAccept').addEventListener('click', () => {
-    const sel = $('#modalAccept .chip.selected[data-value]');
-    state.request.status = 'goedgekeurd';
-    state.request.assignedRoom = sel ? sel.dataset.value : 'Calcutta';
-    state.request.price = $('#acceptPrice').value;
-    state.request.acceptComment = $('#acceptComment').value;
-    state.request.commLog.unshift({ time:'5 mei · 11:10', who:'Isabelle', text:'Goedgekeurd. Zaal: '+state.request.assignedRoom+' + Alcantara. Prijs '+state.request.price+'. Goedkeuringsmail verstuurd naar de klant.' });
-    $('#modalAccept').hidden = true; $('#mailDot').hidden = false;
-    renderAdmin(); setAdminView('list');
-    showToast('Aanvaard, mail naar klant verstuurd');
-  });
-  $('#confirmAlt').addEventListener('click', () => {
-    state.request.status = 'alternatief';
-    state.request.altComment = $('#altComment').value;
-    state.request.altDates = '12-13 mei 2026'; state.request.altRoom = 'Calcutta';
-    state.request.commLog.unshift({ time:'5 mei · 11:10', who:'Isabelle', text:'Alternatief voorgesteld: Calcutta op 12-13 mei. Voorstel-mail verstuurd naar de klant.' });
-    $('#modalAlt').hidden = true; $('#mailDot').hidden = false;
-    renderAdmin(); setAdminView('list');
-    showToast('Alternatief voorstel verstuurd');
-  });
-  $('#confirmRefuse').addEventListener('click', () => {
-    state.request.status = 'geweigerd';
-    state.request.refuseComment = $('#refuseComment').value;
-    state.request.commLog.unshift({ time:'5 mei · 11:10', who:'Isabelle', text:'Geweigerd. Afwijzingsmail verstuurd naar de klant.' });
-    $('#modalRefuse').hidden = true; $('#mailDot').hidden = false;
-    renderAdmin(); setAdminView('list');
-    showToast('Afwijzing verstuurd');
-  });
-
-  $$('.demo-tab').forEach(b => b.addEventListener('click', () => setRole(b.dataset.role)));
-  $('#resetBtn').addEventListener('click', () => {
-    Object.assign(state, JSON.parse(INITIAL));
-    $('#mailDot').hidden = true;
-    setRole('klant'); setView('wizard-1'); setAdminView('list');
-    showToast('Demo gereset');
-  });
-
-  renderAdmin(); setRole('klant'); setView('wizard-1'); setAdminView('list');
+renderSteppers(); renderLanding(); initDates(); computeTotal();
+renderFilters(); renderList();
+setRole('klant'); setView('landing');
 </script>
 </body>
 </html>
