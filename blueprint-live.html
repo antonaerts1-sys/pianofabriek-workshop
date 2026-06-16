@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pianofabriek — Blueprint live (werkcanvas)</title>
+<style>
+  :root {
+    --ink: #1A1A1A;
+    --muted: #6B7280;
+    --accent: #1A6DFF;
+    --accent-soft: #EFF4FF;
+    --pain: #C2410C;
+    --pain-soft: #FFF4ED;
+    --bg: #FFFFFF;
+    --surface: #F9FAFB;
+    --border: #E5E7EB;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--surface); color: var(--ink);
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .eyebrow { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin: 6px 0 6px; }
+  .intro { color: var(--muted); margin: 0 0 20px; max-width: 620px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tbtn { background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 500; color: var(--ink); cursor: pointer; font-family: inherit; }
+  .tbtn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* phase progress */
+  .dots { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 16px 0 24px; }
+  .dot { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px 6px 8px; background: var(--bg); cursor: pointer; font-size: 12px; color: var(--muted); }
+  .dot .n { width: 20px; height: 20px; border-radius: 999px; border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+  .dot.active { border-color: var(--accent); color: var(--accent); }
+  .dot.active .n { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .dot.done .n { border-color: var(--accent); color: var(--accent); }
+
+  /* phase card */
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 32px 32px 28px; }
+  .card-h { display: flex; align-items: baseline; gap: 12px; }
+  .card-h .pn { font-family: ui-monospace, monospace; font-size: 13px; color: var(--muted); }
+  .card-h h2 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+  .q { color: var(--muted); margin: 8px 0 24px; font-size: 16px; }
+  .q b { color: var(--ink); font-weight: 500; }
+
+  .lane { margin-bottom: 18px; }
+  .lane-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .lane-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .lane.pain .lane-label { color: var(--pain); }
+  .lane-clear { background: transparent; border: none; color: var(--muted); font-size: 12px; cursor: pointer; font-family: inherit; }
+  .lane-clear:hover { color: var(--accent); }
+  textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+    font-family: inherit; font-size: 15px; line-height: 1.5; color: var(--ink); background: var(--surface);
+    resize: vertical; min-height: 64px; outline: none;
+  }
+  textarea:focus { border-color: var(--accent); background: var(--bg); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .lane.pain textarea { background: var(--pain-soft); border-color: #F3D6C4; }
+  .lane.pain textarea:focus { border-color: var(--pain); box-shadow: 0 0 0 3px rgba(194,65,12,0.12); }
+
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .btn { border-radius: 8px; padding: 11px 22px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .btn-prim { background: var(--accent); color: #fff; border: none; }
+  .btn-prim:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+  .btn-sec { background: var(--bg); color: var(--ink); border: 1px solid var(--border); }
+  .btn-sec:disabled { color: var(--muted); cursor: not-allowed; border-color: var(--border); opacity: 0.6; }
+
+  .savednote { font-size: 12px; color: var(--muted); text-align: center; margin-top: 14px; }
+
+  /* print: toon alle fases */
+  .print-only { display: none; }
+  @media print {
+    .toolbar, .dots, .nav, .savednote, .intro, .eyebrow { display: none !important; }
+    .live { display: none !important; }
+    .print-only { display: block !important; }
+    .wrap { max-width: none; padding: 0; }
+    .pcard { border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-bottom: 16px; break-inside: avoid; }
+    .pcard h3 { margin: 0 0 4px; font-size: 18px; }
+    .pcard .pq { color: #555; margin: 0 0 12px; font-size: 13px; }
+    .pcard .pl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #777; margin: 10px 0 2px; font-weight: 600; }
+    .pcard .pv { font-size: 13px; white-space: pre-wrap; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="live">
+    <div class="top">
+      <div>
+        <div class="eyebrow">Workshop GC Pianofabriek · werkcanvas</div>
+        <h1>De huidige flow, stap voor stap</h1>
+      </div>
+      <div class="toolbar">
+        <button class="tbtn" id="btnBlank">Begin met lege velden</button>
+        <button class="tbtn" id="btnRestore">Herstel voorstel</button>
+        <button class="tbtn" id="btnPrint">Print / bewaar</button>
+      </div>
+    </div>
+    <p class="intro">Bespreek samen één fase, pas de tekst live aan, ga dan naar de volgende. Velden mag je leegmaken en zelf invullen. Wat je typt blijft bewaard. Print op het einde om jullie versie vast te leggen.</p>
+
+    <div class="dots" id="dots"></div>
+
+    <div class="card">
+      <div class="card-h"><span class="pn" id="pn"></span><h2 id="title"></h2></div>
+      <p class="q" id="question"></p>
+
+      <div class="lane">
+        <div class="lane-head"><span class="lane-label">De klant</span><button class="lane-clear" data-clear="klant">leegmaken</button></div>
+        <textarea data-lane="klant" placeholder="Wat doet en voelt de klant in deze stap?"></textarea>
+      </div>
+      <div class="lane">
+        <div class="lane-head"><span class="lane-label">Pianofabriek</span><button class="lane-clear" data-clear="pf">leegmaken</button></div>
+        <textarea data-lane="pf" placeholder="Wat doen Isabelle en de collega's hier?"></textarea>
+      </div>
+      <div class="lane pain">
+        <div class="lane-head"><span class="lane-label">Pijnpunt</span><button class="lane-clear" data-clear="pijn">leegmaken</button></div>
+        <textarea data-lane="pijn" placeholder="Waar loopt het stroef? Waar gaat tijd of energie verloren?"></textarea>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-sec" id="prev">‹ Vorige fase</button>
+        <button class="btn btn-prim" id="next">Volgende fase ›</button>
+      </div>
+    </div>
+    <div class="savednote" id="saved"></div>
+  </div>
+
+  <!-- Print-weergave: alle fases onder elkaar -->
+  <div class="print-only" id="printArea"></div>
+
+</div>
+
+<script>
+  const PHASES = [
+    { title: 'Oriëntatie & aanvraag', q: 'Hoe komt een vraag vandaag binnen, en wat ontbreekt er meestal?',
+      klant: 'Zoekt een zaal. Neemt contact via mail, telefoon of website. Stuurt een eerste, vaak onvolledige vraag.',
+      pf: 'Vangt aanvragen op via drie kanalen. Geen vaste vorm of checklist.',
+      pijn: 'Drie kanalen door elkaar. Aanvragen zijn vaak onvolledig.' },
+    { title: 'Vervolledigen & afstemmen', q: 'Waarover gaan al die mails, en met wie moet je intern afstemmen?',
+      klant: 'Beantwoordt vragen, levert info in stukjes, wacht op een voorstel.',
+      pf: 'Vraagt ontbrekende info op. Stemt af over zaal, horeca en techniek. Gemiddeld zes mails per aanvraag.',
+      pijn: 'Eindeloos heen-en-weer mailen. Dit is de grootste tijdvreter. Info zit versnipperd.' },
+    { title: 'Beschikbaarheid & beslissing', q: 'Hoe weet je of een zaal echt vrij is? Wat gebeurt er als jij er niet bent?',
+      klant: 'Wacht op antwoord, soms dagen zonder nieuws.',
+      pf: 'Checkt beschikbaarheid in Yesplan en polst de interne teams. Beslist: aanvaarden, weigeren of alternatief.',
+      pijn: 'Intern beschikbaarheid uitzoeken. Yesplan toont niet alles (buffers, eigen plannen). Valt Isabelle weg, dan stilstand.' },
+    { title: 'Bevestiging & contract', q: 'Hoeveel tijd kost het overtypen in Yesplan, en waar loopt het contract vast?',
+      klant: 'Krijgt bevestiging en prijs. Tekent en stuurt het contract terug.',
+      pf: 'Zet de status in Yesplan. Typt alle info manueel over. Maakt en verstuurt het contract.',
+      pijn: 'Alles manueel overtikken in Yesplan. Contract: printen, tekenen, scannen, terugsturen.' },
+    { title: 'Voorbereiding & evenement', q: 'Welke wijzigingen komen het vaakst, en hoe weten horeca en techniek wat ze moeten doen?',
+      klant: 'Vraagt soms last-minute wijzigingen. Komt langs voor het evenement.',
+      pf: 'Speelt info door naar horeca en techniek. Verwerkt wijzigingen.',
+      pijn: 'Wijzigingen aan reservaties. Info gaat verloren tussen onthaal, horeca en techniek.' },
+    { title: 'Facturatie & afsluiting', q: 'Hoeveel werk is de facturatie, en weet je achteraf of de klant tevreden was?',
+      klant: 'Krijgt de factuur. Betaalt.',
+      pf: 'Financieel maakt de factuur en volgt de betaling op.',
+      pijn: 'Betalingen manueel matchen. Geen historiek, geen centraal dossier per klant.' },
+  ];
+  const LANES = ['klant','pf','pijn'];
+  const KEY = 'pf_blueprint_live_';
+  let cur = 0;
+
+  function val(i, lane){ const v = localStorage.getItem(KEY+i+'_'+lane); return v===null ? PHASES[i][lane] : v; }
+  function setVal(i, lane, text){ localStorage.setItem(KEY+i+'_'+lane, text); }
+
+  function renderDots(){
+    const d = document.getElementById('dots'); d.innerHTML='';
+    PHASES.forEach((p,i)=>{
+      const el = document.createElement('button');
+      el.className = 'dot' + (i===cur?' active':'') + (i<cur?' done':'');
+      el.innerHTML = `<span class="n">${i+1}</span><span>${p.title.split(' & ')[0]}</span>`;
+      el.onclick = ()=>{ cur=i; render(); };
+      d.appendChild(el);
+    });
+  }
+  function render(){
+    const p = PHASES[cur];
+    document.getElementById('pn').textContent = 'Fase '+(cur+1)+' van '+PHASES.length;
+    document.getElementById('title').textContent = p.title;
+    document.getElementById('question').innerHTML = '<b>Bespreek:</b> '+p.q;
+    LANES.forEach(lane=>{ document.querySelector('textarea[data-lane="'+lane+'"]').value = val(cur, lane); });
+    document.getElementById('prev').disabled = cur===0;
+    document.getElementById('next').disabled = cur===PHASES.length-1;
+    renderDots();
+    window.scrollTo(0,0);
+  }
+
+  document.querySelectorAll('textarea[data-lane]').forEach(ta=>{
+    ta.addEventListener('input', ()=>{
+      setVal(cur, ta.dataset.lane, ta.value);
+      const s=document.getElementById('saved'); s.textContent='Bewaard'; clearTimeout(window.__st); window.__st=setTimeout(()=>s.textContent='',1200);
+    });
+  });
+  document.querySelectorAll('.lane-clear').forEach(b=>{
+    b.addEventListener('click', ()=>{ const lane=b.dataset.clear; const ta=document.querySelector('textarea[data-lane="'+lane+'"]'); ta.value=''; setVal(cur,lane,''); ta.focus(); });
+  });
+
+  document.getElementById('prev').onclick = ()=>{ if(cur>0){cur--;render();} };
+  document.getElementById('next').onclick = ()=>{ if(cur<PHASES.length-1){cur++;render();} };
+
+  document.getElementById('btnBlank').onclick = ()=>{
+    if(!confirm('Alle velden leegmaken om samen van nul te beginnen?')) return;
+    PHASES.forEach((p,i)=>LANES.forEach(l=>setVal(i,l,'')));
+    render();
+  };
+  document.getElementById('btnRestore').onclick = ()=>{
+    if(!confirm('Onze voorgestelde tekst terugzetten? Je eigen aanpassingen gaan verloren.')) return;
+    PHASES.forEach((p,i)=>LANES.forEach(l=>localStorage.removeItem(KEY+i+'_'+l)));
+    render();
+  };
+  document.getElementById('btnPrint').onclick = ()=>{ buildPrint(); window.print(); };
+
+  function buildPrint(){
+    const pa = document.getElementById('printArea');
+    pa.innerHTML = '<h1 style="font-size:22px;margin:0 0 4px;">De huidige flow — GC Pianofabriek</h1><p style="color:#666;margin:0 0 20px;font-size:13px;">Ingevuld tijdens de workshop.</p>' +
+      PHASES.map((p,i)=>`<div class="pcard"><h3>Fase ${i+1}: ${p.title}</h3><p class="pq">${p.q}</p>`+
+        LANES.map(l=>{ const v=val(i,l)||'—'; const lbl=l==='klant'?'De klant':l==='pf'?'Pianofabriek':'Pijnpunt'; return `<div class="pl">${lbl}</div><div class="pv">${escapeHtml(v)}</div>`; }).join('')+
+        `</div>`).join('');
+  }
+  function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+  render();
+</script>
+</body>
+</html>
