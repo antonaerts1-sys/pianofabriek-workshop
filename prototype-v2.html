@@ -382,6 +382,23 @@
         </div>
       </div>
 
+      <div class="field">
+        <label class="field-label">Voor wie is de activiteit? <span class="opt">(optioneel)</span></label>
+        <input class="input" id="forWho" placeholder="bv. leden, professionals, buurtbewoners, studenten" style="max-width:420px;">
+      </div>
+
+      <div class="field">
+        <label class="field-label">Is de activiteit gratis voor de deelnemers? <span class="req">*</span></label>
+        <div class="seg" data-seg="gratis">
+          <button type="button" class="on" data-value="Gratis">Gratis</button>
+          <button type="button" data-value="Betalend">Betalend</button>
+        </div>
+        <div id="prijsWrap" hidden style="margin-top:12px;">
+          <label class="field-label">Deelnameprijs per persoon</label>
+          <div style="display:flex; align-items:center; gap:8px;"><input class="input" id="deelnamePrijs" inputmode="numeric" placeholder="0" style="max-width:120px;"><span class="muted">euro</span></div>
+        </div>
+      </div>
+
       <div class="actions">
         <button class="btn-text" data-go="landing">‹ Terug</button>
         <button class="btn-primary" data-next="1">Volgende stap ›</button>
@@ -407,9 +424,9 @@
       </div>
 
       <div class="field" style="margin-top:24px;">
-        <label class="field-label">Heb je een voorkeurzaal? <span class="opt">(optioneel)</span></label>
+        <label class="field-label">Heb je een voorkeur qua zaaltype? <span class="opt">(optioneel)</span></label>
         <select class="input" id="prefRoom" style="max-width:420px;"></select>
-        <div class="field-hint">Wij wijzen de definitieve zaal toe op basis van je activiteit en de beschikbaarheid. Een voorkeur helpt, maar is geen reservatie.</div>
+        <div class="field-hint">Wij wijzen de concrete zaal toe op basis van je activiteit, je groep en de beschikbaarheid. Een voorkeur helpt, maar is geen reservatie.</div>
       </div>
 
       <div class="actions">
@@ -845,15 +862,16 @@ function renderLanding(){
     <div class="room-info"><h3>${r.name}</h3><p>${r.feat}</p><div class="room-cap">Tot ${r.cap} personen</div></div></div>`).join('');
   $('#priceNote').textContent = 'Benieuwd naar de prijs? Die hangt af van je organisatie en de gekozen zaal. Je krijgt een concrete prijs zodra we je aanvraag goedkeuren.';
   const sel = $('#prefRoom');
-  sel.innerHTML = '<option value="">Geen voorkeur</option>' + ROOMS.map(r=>`<option value="${r.name}">${r.name} — ${r.type}, tot ${r.cap}p</option>`).join('');
+  sel.innerHTML = '<option value="">Geen voorkeur</option>' + ZAALTYPES.map(t=>`<option value="${t}">${t}</option>`).join('');
 }
+const ZAALTYPES = ['Atelier','Feestzaal / conferentieruimte','Vergaderzaal','Bioscoopzaal','Repetitieruimte dans','Repetitie muziek','Tentoonstellingsruimte','Theater- of concertzaal'];
 
 // ===== generic selectors =====
 document.addEventListener('click', (e)=>{
   const chip = e.target.closest('.chip');
   if(chip && chip.closest('[data-chip-group]')){ const g=chip.closest('[data-chip-group]'); $$('.chip',g).forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); onChipChange(g,chip); return; }
   const seg = e.target.closest('.seg button');
-  if(seg){ const g=seg.closest('.seg'); $$('button',g).forEach(b=>b.classList.remove('on')); seg.classList.add('on'); return; }
+  if(seg){ const g=seg.closest('.seg'); $$('button',g).forEach(b=>b.classList.remove('on')); seg.classList.add('on'); if(g.dataset.seg==='gratis'){ $('#prijsWrap').hidden = seg.dataset.value!=='Betalend'; } return; }
   const card = e.target.closest('[data-card-group] .check-card');
   if(card){ const g=card.closest('[data-card-group]'); $$('.check-card',g).forEach(c=>c.classList.remove('sel')); card.classList.add('sel'); return; }
   const tog = e.target.closest('[data-check-toggle]');
@@ -1026,8 +1044,11 @@ function getWizardData(){
   const tarief = deriveTarief(orgType, $('#orgZip').value);
   const c2name = $('#contact2Name')?$('#contact2Name').value.trim():'';
   const contact2 = (!$('#contact2Wrap').hidden && c2name) ? [c2name, ($('#contact2Email').value||'').trim(), ($('#contact2Phone').value||'').trim()].filter(Boolean).join(' · ') : '';
+  const gratisBtn = $('[data-seg="gratis"] button.on'); const gratis = gratisBtn?gratisBtn.dataset.value:'Gratis';
+  const deelnamePrijs = gratis==='Betalend' ? ($('#deelnamePrijs').value.trim()||'?') : '';
   return {
-    type:typeFull, audience, people:parseInt($('#people').value||'0',10)||0, desc:$('#desc').value.trim(),
+    type:typeFull, audience, forWho:$('#forWho').value.trim(), gratis, deelnamePrijs,
+    people:parseInt($('#people').value||'0',10)||0, desc:$('#desc').value.trim(),
     days, prefRoom:$('#prefRoom').value,
     tech:tech.join(', ')||'geen', horeca:horeca.join(', ')||'geen', opmerking:$('#allergy').value.trim(),
     org:$('#orgName').value, orgType, vat:isPart?'geen (particulier)':$('#orgVat').value, addr, zip:$('#orgZip').value, invoice:$('#orgInvoice').value,
@@ -1040,9 +1061,10 @@ function renderReview(){
   const tariefLine = d.tariefConfident
     ? `<br><span class="muted">Tarief (voorstel): ${d.tariefLabel} — Pianofabriek bevestigt dit</span>`
     : `<br><span class="muted">Tarief: wordt bepaald door Pianofabriek</span>`;
+  const gratisLine = d.gratis==='Betalend' ? `betalend (${d.deelnamePrijs} € pp)` : 'gratis voor deelnemers';
   const rows=[
-    ['Activiteit', `<strong>${d.type}</strong> voor ${d.people} deelnemers, ${d.audience.toLowerCase()}<br><span class="muted">${d.desc}</span>`, 'wizard-1'],
-    ['Wanneer', d.days.map(x=>x.d+' · '+x.t).join('<br>') + (d.prefRoom?`<br><span class="muted">Voorkeurzaal: ${d.prefRoom}</span>`:''), 'wizard-2'],
+    ['Activiteit', `<strong>${d.type}</strong> voor ${d.people} deelnemers, ${d.audience.toLowerCase()}, ${gratisLine}${d.forWho?`<br><span class="muted">Voor: ${d.forWho}</span>`:''}<br><span class="muted">${d.desc}</span>`, 'wizard-1'],
+    ['Wanneer', d.days.map(x=>x.d+' · '+x.t).join('<br>') + (d.prefRoom?`<br><span class="muted">Voorkeur zaaltype: ${d.prefRoom}</span>`:''), 'wizard-2'],
     ['Technisch', d.tech, 'wizard-3'],
     ['Horeca', d.horeca + (d.opmerking?`<br><span class="muted">${d.opmerking}</span>`:''), 'wizard-3'],
     ['Organisatie', `${d.org}<br><span class="muted">${d.vat} · ${d.addr}</span>${tariefLine}`, 'wizard-4'],
@@ -1065,7 +1087,7 @@ $('#submitBtn').addEventListener('click', ()=>{
   c.tech=d.tech; c.horeca=d.horeca; c.opmerking=d.opmerking; c.org=d.org; c.orgShort=d.org.replace(/ vzw| asbl/i,'');
   c.vat=d.vat; c.addr=d.addr; c.contact=d.contact; c.email=d.email; c.phone=d.phone;
   c.category=d.tariefLabel; c.tariefReason=d.tariefReason; c.tariefConfident=d.tariefConfident; c.contact2=d.contact2;
-  c.prefRoom=d.prefRoom;
+  c.prefRoom=d.prefRoom; c.forWho=d.forWho; c.gratis=d.gratis; c.deelnamePrijs=d.deelnamePrijs;
   $('#mailDot').hidden=false;
   setView('wizard-done');
   toast('Aanvraag verstuurd, bevestigingsmail onderweg');
@@ -1140,8 +1162,10 @@ function openDetail(id){
   $('#dLeft').innerHTML = `
     <div class="detail-card"><h4>Activiteit</h4><div class="kv">
       <div class="k">Type</div><div class="v">${r.activity} · ${r.people} deelnemers · ${r.audience.toLowerCase()}</div>
+      ${r.forWho?`<div class="k">Voor wie</div><div class="v">${r.forWho}</div>`:''}
+      ${r.gratis?`<div class="k">Deelname</div><div class="v">${r.gratis==='Betalend'?('Betalend — '+(r.deelnamePrijs||'?')+' € pp'):'Gratis voor deelnemers'}</div>`:''}
       <div class="k">Omschrijving</div><div class="v">${r.desc}</div>
-      ${r.prefRoom?`<div class="k">Voorkeurzaal</div><div class="v">${r.prefRoom} <span class="muted">(voorkeur klant)</span></div>`:''}
+      ${r.prefRoom?`<div class="k">Voorkeur zaaltype</div><div class="v">${r.prefRoom} <span class="muted">(voorkeur klant)</span></div>`:''}
     </div></div>
     <div class="detail-card"><h4>Data en tijd</h4><div class="kv">${r.days.map(d=>`<div class="k">${d.d}</div><div class="v">${d.t}</div>`).join('')}</div></div>
     <div class="detail-card"><h4>Technisch en horeca</h4><div class="kv">
