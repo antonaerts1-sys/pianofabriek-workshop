@@ -44,7 +44,15 @@
   .swatch.muted { background: var(--muted); }
 
   /* blueprint grid */
+  .realcase { display: flex; gap: 14px; align-items: flex-start; margin: 24px 0 0; padding: 16px 18px; border: 1px solid var(--border); border-left: 3px solid var(--pain); border-radius: 0 12px 12px 0; background: var(--pain-soft); font-size: 14px; line-height: 1.5; }
+  .realcase-tag { flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--pain); text-transform: uppercase; letter-spacing: 0.06em; padding-top: 2px; }
   .scroll { overflow-x: auto; margin: 40px 0 0; border: 1px solid var(--border); border-radius: 12px; }
+  .two-band { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media (max-width: 760px){ .two-band { grid-template-columns: 1fr; } }
+  .band-card { border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .band-card h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; }
+  .band-card ol { margin: 0; padding-left: 18px; color: var(--ink); font-size: 14px; }
+  .band-card li { padding: 2px 0; }
   .grid { min-width: 1120px; display: grid; grid-template-columns: 170px repeat(6, 1fr); }
   .cell { padding: 14px 14px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); font-size: 13px; }
   .grid > .cell:nth-child(7n+1) { position: sticky; left: 0; background: var(--surface); z-index: 2; font-weight: 600; font-size: 12px; color: var(--ink); }
@@ -138,6 +146,10 @@
         <p style="font-size:13px; color:var(--muted); margin:14px 0 0;">Tip: laat de groep eerst zelf vertellen voor je de pijnpunten toont. Wat zij spontaan noemen, is goud.</p>
       </div>
     </div>
+    <div class="realcase">
+      <span class="realcase-tag">Echt voorbeeld</span>
+      <span><strong>Kenniscentrum Pleegzorg:</strong> aanvraag via de website op 24 februari, contract getekend op 5 mei. Ruim tien weken en zes mails, vooral over catering en praktische afspraken. Een doodgewone opleiding voor 20 mensen.</span>
+    </div>
   </header>
 
   <div class="scroll">
@@ -173,9 +185,9 @@
       <!-- ONTHAAL ROW -->
       <div class="cell lane-label">Onthaal<div class="sub">Isabelle</div></div>
       <div class="cell"><ul class="mini"><li>Vangt aanvragen op via 3 kanalen</li><li>Geen vaste vorm of checklist</li></ul></div>
-      <div class="cell"><ul class="mini"><li>Vraagt ontbrekende info op</li><li>Stemt af over zaal, horeca, techniek</li><li>Gemiddeld 6 mails per aanvraag</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Vraagt ontbrekende info op</li><li>Vraagt apart naar catering, stuurt de prijslijst, verwijst door naar Olivier</li><li>Gemiddeld 6 mails per aanvraag</li></ul></div>
       <div class="cell"><ul class="mini"><li>Checkt beschikbaarheid in Yesplan</li><li>Polst interne teams</li><li>Beslist: aanvaarden, weigeren of alternatief</li></ul></div>
-      <div class="cell"><ul class="mini"><li>Zet de status in Yesplan</li><li>Typt alle info manueel over</li><li>Maakt en verstuurt het contract</li></ul></div>
+      <div class="cell"><ul class="mini"><li>Zet de status in Yesplan</li><li>Typt alle info manueel over</li><li>Typt elke keer hetzelfde blok praktische info uit</li><li>Maakt en verstuurt het contract</li></ul></div>
       <div class="cell"><ul class="mini"><li>Speelt info door naar horeca en techniek</li><li>Verwerkt wijzigingen</li></ul></div>
       <div class="cell"><ul class="mini"><li>Geeft door aan financieel</li></ul></div>
 
@@ -200,11 +212,11 @@
       <!-- PAIN ROW -->
       <div class="cell lane-label pain-lane">Pijnpunten<div class="sub" style="color:rgba(255,255,255,0.7)">waar het stroef loopt</div></div>
       <div class="cell pain-cell"><span class="pain-tag">P1</span>Drie kanalen door elkaar, geen vaste vorm<br><span class="pain-tag" style="margin-top:6px;">P2</span>Aanvragen vaak onvolledig</div>
-      <div class="cell pain-cell"><span class="pain-tag">P3</span>Eindeloos heen-en-weer mailen<div class="top">Tijdvreter #1</div><br><span class="pain-tag" style="margin-top:6px;">P4</span>Info versnipperd over diensten</div>
+      <div class="cell pain-cell"><span class="pain-tag">P3</span>Eindeloos heen-en-weer mailen<div class="top">Tijdvreter #1</div><br><span class="pain-tag" style="margin-top:6px;">P4</span>Catering apart navragen: prijslijst, deadline, doorverwijzen naar Olivier</div>
       <div class="cell pain-cell"><span class="pain-tag">P5</span>Intern beschikbaarheid uitzoeken<div class="top">Tijdvreter #2</div><br><span class="pain-tag" style="margin-top:6px;">P6</span>Yesplan toont niet alles (buffers, eigen plannen)<br><span class="pain-tag" style="margin-top:6px;">P7</span>Valt Isabelle weg, dan stilstand</div>
-      <div class="cell pain-cell"><span class="pain-tag">P8</span>Alles manueel overtypen in Yesplan<br><span class="pain-tag" style="margin-top:6px;">P9</span>Contract: printen, tekenen, scannen</div>
-      <div class="cell pain-cell"><span class="pain-tag">P10</span>Wijzigingen aan reservaties<div class="top">Tijdvreter #3</div><br><span class="pain-tag" style="margin-top:6px;">P11</span>Info gaat verloren tussen diensten</div>
-      <div class="cell pain-cell"><span class="pain-tag">P12</span>Betalingen manueel matchen<br><span class="pain-tag" style="margin-top:6px;">P13</span>Geen historiek, geen centraal dossier</div>
+      <div class="cell pain-cell"><span class="pain-tag">P8</span>Alles manueel overtypen in Yesplan<br><span class="pain-tag" style="margin-top:6px;">P9</span>Elke keer hetzelfde blok praktische info uittypen<br><span class="pain-tag" style="margin-top:6px;">P10</span>Contract: printen, tekenen, scannen</div>
+      <div class="cell pain-cell"><span class="pain-tag">P11</span>Wijzigingen aan reservaties<div class="top">Tijdvreter #3</div><br><span class="pain-tag" style="margin-top:6px;">P12</span>Info gaat verloren tussen diensten</div>
+      <div class="cell pain-cell"><span class="pain-tag">P13</span>Betalingen manueel matchen<br><span class="pain-tag" style="margin-top:6px;">P14</span>Geen historiek, geen centraal dossier</div>
 
     </div>
   </div>
@@ -218,6 +230,16 @@
       <div class="top-card"><div class="rank">Tijdvreter #2 · fase 3</div><h4>Beschikbaarheid intern uitzoeken</h4><p>Nakijken wat de inhoudelijke teams van plan zijn, want hun activiteiten staan nog niet altijd in Yesplan. Veel intern afstemmen voor één ja of nee.</p></div>
       <div class="top-card"><div class="rank">Tijdvreter #3 · fase 5</div><h4>Wijzigingen aan reservaties</h4><p>Last-minute aanpassingen aan uren, data of aantallen, vooral bij reservaties met meerdere zalen. Opnieuw veel mailverkeer en kans op fouten.</p></div>
     </div>
+    <div class="two-band">
+      <div class="band-card">
+        <h4>Wat huurders het vaakst vragen</h4>
+        <ol><li>Is de zaal vrij op mijn datum?</li><li>Wat kost het?</li><li>Wat kan er qua catering en technisch materiaal?</li></ol>
+      </div>
+      <div class="band-card">
+        <h4>Waar het het vaakst misloopt</h4>
+        <ol><li>Technisch onderschat: niet genoeg of niet geschikt materiaal</li><li>Sluitingsuur 23u wordt vergeten</li><li>Catering (deadline, aantallen, wensen)</li></ol>
+      </div>
+    </div>
   </section>
 
   <!-- DOORVRAAG -->
@@ -228,9 +250,9 @@
     </div>
     <div class="probe-grid" id="probeGrid">
       <div class="probe-card"><div class="ph-n">Fase 01</div><h4>Oriëntatie &amp; aanvraag</h4><ul><li>Via welk kanaal komen de meeste aanvragen binnen?</li><li>Wat ontbreekt het vaakst in een eerste aanvraag?</li><li>Wie helpen we vandaag telefonisch en waarom?</li></ul></div>
-      <div class="probe-card"><div class="ph-n">Fase 02</div><h4>Vervolledigen &amp; afstemmen</h4><ul><li>Waarover gaan die zes mails meestal?</li><li>Wie moet je intern aanspreken, en hoe?</li><li>Waar loopt het mis tussen onthaal, horeca en techniek?</li></ul></div>
+      <div class="probe-card"><div class="ph-n">Fase 02</div><h4>Vervolledigen &amp; afstemmen</h4><ul><li>Hoeveel van die mails gaan over catering?</li><li>Hoe loopt het bestellen van catering bij Olivier nu?</li><li>Wat moet je intern aanspreken, en hoe?</li></ul></div>
       <div class="probe-card"><div class="ph-n">Fase 03</div><h4>Beschikbaarheid &amp; beslissing</h4><ul><li>Hoe weet je of een zaal écht vrij is?</li><li>Wat staat er niet in Yesplan?</li><li>Wat gebeurt er als jij er even niet bent?</li></ul></div>
-      <div class="probe-card"><div class="ph-n">Fase 04</div><h4>Bevestiging &amp; contract</h4><ul><li>Hoeveel tijd kost het overtypen in Yesplan?</li><li>Welke velden vul je telkens opnieuw in?</li><li>Waar loopt het contractproces vast?</li></ul></div>
+      <div class="probe-card"><div class="ph-n">Fase 04</div><h4>Bevestiging &amp; contract</h4><ul><li>Hoeveel tijd kost het overtypen in Yesplan?</li><li>Welk blok praktische info typ je elke keer opnieuw?</li><li>Waar loopt het contract tekenen en terugsturen vast?</li></ul></div>
       <div class="probe-card"><div class="ph-n">Fase 05</div><h4>Voorbereiding &amp; evenement</h4><ul><li>Welke wijzigingen komen het vaakst voor?</li><li>Hoe weten horeca en techniek wat ze moeten doen?</li><li>Wat loopt er soms mis op de dag zelf?</li></ul></div>
       <div class="probe-card"><div class="ph-n">Fase 06</div><h4>Facturatie &amp; afsluiting</h4><ul><li>Hoeveel werk is de facturatie en opvolging?</li><li>Weten jullie achteraf of de klant tevreden was?</li><li>Waar zou je de historiek van een klant willen terugvinden?</li></ul></div>
     </div>
