@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pianofabriek — Prototype V2 (nieuwe flow)</title>
+<style>
+  :root {
+    --ink:#1A1A1A; --muted:#6B7280; --accent:#1A6DFF; --accent-soft:#EFF4FF;
+    --ok:#0E9F6E; --ok-soft:#E7F7F0; --warn:#C2410C; --warn-soft:#FFF4ED;
+    --bg:#FFFFFF; --surface:#F9FAFB; --border:#E5E7EB;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--surface);color:var(--ink);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  [hidden]{display:none!important;} button{font-family:inherit;} a{color:var(--accent);text-decoration:none;}
+  input,textarea,select{font-family:inherit;}
+
+  .demo-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px;}
+  .demo-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+  .demo-tabs{display:flex;gap:4px;background:var(--surface);border-radius:8px;padding:4px;}
+  .demo-tab{background:transparent;border:none;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .demo-tab.active{background:var(--bg);color:var(--ink);border:1px solid var(--border);}
+  .demo-reset{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:6px 12px;white-space:nowrap;}
+  .demo-reset:hover{color:var(--accent);}
+  .vbadge{font-size:11px;font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:2px 8px;}
+
+  .app{max-width:1040px;margin:32px auto;background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;min-height:70vh;}
+  .app-top{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;border-bottom:1px solid var(--border);}
+  .app-brand{font-size:14px;font-weight:600;}
+  .lang{display:inline-flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;}
+  .lang button{background:transparent;border:none;color:var(--muted);padding:4px 12px;cursor:pointer;font-size:13px;}
+  .lang button.active{background:var(--ink);color:var(--bg);}
+
+  /* progress */
+  .body{padding:36px 40px;}
+  .prog{display:flex;gap:6px;margin-bottom:26px;flex-wrap:wrap;}
+  .prog .dot{height:4px;border-radius:2px;background:var(--border);flex:1;min-width:24px;}
+  .prog .dot.on{background:var(--accent);}
+  .q{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px;max-width:640px;}
+  .qsub{color:var(--muted);margin:0 0 24px;max-width:640px;}
+
+  .field{margin-bottom:22px;max-width:620px;}
+  .label{display:block;font-size:13px;font-weight:600;margin-bottom:7px;}
+  .label .opt{color:var(--muted);font-weight:400;}
+  .hint{font-size:13px;color:var(--muted);margin-top:5px;}
+  .input{border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:15px;color:var(--ink);width:100%;outline:none;background:var(--bg);}
+  .input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  textarea.input{min-height:84px;resize:vertical;}
+
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:620px;}
+  @media(max-width:560px){.cards{grid-template-columns:1fr;}}
+  .opt-card{border:1px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;}
+  .opt-card:hover{border-color:var(--muted);}
+  .opt-card.sel{border-color:var(--accent);background:var(--accent-soft);}
+  .opt-card .t{font-weight:600;font-size:15px;}
+  .opt-card .d{font-size:13px;color:var(--muted);margin-top:2px;}
+
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .seg button{background:var(--bg);border:none;padding:9px 16px;font-size:14px;color:var(--muted);cursor:pointer;border-right:1px solid var(--border);}
+  .seg button:last-child{border-right:none;}
+  .seg button.on{background:var(--accent-soft);color:var(--accent);font-weight:500;}
+
+  .stepper-num{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .stepper-num button{width:38px;height:40px;border:none;background:var(--bg);color:var(--ink);font-size:18px;cursor:pointer;}
+  .stepper-num button:hover{background:var(--surface);}
+  .stepper-num input{width:56px;height:40px;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);text-align:center;font-size:15px;outline:none;}
+
+  .actions{display:flex;justify-content:space-between;align-items:center;margin-top:34px;padding-top:22px;border-top:1px solid var(--border);max-width:620px;}
+  .btn{border-radius:8px;padding:11px 22px;font-size:15px;font-weight:500;cursor:pointer;}
+  .btn-prim{background:var(--accent);color:#fff;border:none;}
+  .btn-prim:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+  .btn-sec{background:var(--bg);color:var(--ink);border:1px solid var(--border);}
+  .btn-text{background:transparent;color:var(--accent);border:none;padding:11px 0;font-weight:500;cursor:pointer;font-size:15px;}
+  .btn-text:disabled{color:var(--muted);cursor:not-allowed;}
+
+  .notice{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 16px;margin:16px 0;max-width:620px;border-radius:0 8px 8px 0;font-size:14px;}
+  .notice .nl{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+  .notice.contact{border-left-color:var(--warn);background:var(--warn-soft);}
+  .notice.contact .nl{color:var(--warn);}
+
+  /* rooms availability */
+  .room-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:620px;}
+  @media(max-width:560px){.room-list{grid-template-columns:1fr;}}
+  .room{border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;}
+  .room:hover{border-color:var(--muted);}
+  .room.sel{border-color:var(--accent);}
+  .room .ph{height:60px;background:linear-gradient(135deg,#E9EDF5,#D7DDEA);}
+  .room .ri{padding:12px 14px;}
+  .room .rn{font-weight:600;font-size:14px;}
+  .room .rd{font-size:12px;color:var(--muted);margin-top:2px;}
+  .room .rav{font-size:12px;color:var(--ok);font-weight:600;margin-top:6px;}
+  .room .more{font-size:12px;color:var(--accent);margin-top:6px;display:inline-block;}
+  .room.sel .rn::after{content:' ✓';color:var(--accent);}
+
+  /* gated food/drink */
+  .gate{border:1px solid var(--border);border-radius:12px;margin-bottom:12px;max-width:620px;}
+  .gate-h{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px;}
+  .gate-h .gt{font-weight:600;font-size:15px;}
+  .gate-h .gm{font-size:13px;color:var(--muted);margin-top:2px;}
+  .gate-b{border-top:1px solid var(--border);padding:12px 14px;}
+  .gate-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:9px 0;border-top:1px solid var(--border);}
+  .gate-row:first-child{border-top:none;}
+  .gate-row .gn{font-size:14px;} .gate-row .gu{font-size:12px;color:var(--muted);}
+
+  /* login mock */
+  .login-box{border:1px solid var(--border);border-radius:12px;padding:20px;max-width:620px;margin-bottom:16px;}
+  .login-box h4{margin:0 0 6px;font-size:15px;font-weight:600;}
+  .login-box p{margin:0 0 12px;font-size:13px;color:var(--muted);}
+  .known{background:var(--ok-soft);border:1px solid #BBE7D4;border-radius:10px;padding:14px 16px;font-size:14px;max-width:620px;margin-bottom:16px;}
+  .known b{color:var(--ink);}
+
+  /* confirm */
+  .confirm .ref{display:inline-block;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-family:ui-monospace,monospace;font-size:14px;margin:12px 0 22px;}
+  .next-steps{border-top:1px solid var(--border);padding-top:22px;margin-top:24px;max-width:620px;}
+  .next-steps h4{margin:0 0 12px;font-size:14px;font-weight:600;}
+  .next-steps ol{margin:0;padding-left:20px;color:var(--muted);} .next-steps li{padding:4px 0;}
+
+  /* modal */
+  .modal-back{position:fixed;inset:0;background:rgba(26,26,26,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .modal{background:var(--bg);border:1px solid var(--border);border-radius:12px;max-width:480px;width:100%;padding:28px;max-height:90vh;overflow-y:auto;}
+  .modal h3{margin:0 0 8px;font-size:18px;font-weight:600;}
+  .modal .ph{height:120px;background:linear-gradient(135deg,#E9EDF5,#D7DDEA);border-radius:10px;margin-bottom:14px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:20px;}
+
+  /* werkbank */
+  .admin-shell{display:grid;grid-template-columns:250px 1fr;min-height:700px;}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:24px 0;}
+  .sb-brand{padding:0 24px 18px;border-bottom:1px solid var(--border);font-size:14px;font-weight:600;}
+  .sb-title{padding:14px 24px 6px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+  .nav{display:flex;justify-content:space-between;align-items:center;padding:9px 24px;font-size:14px;cursor:pointer;border-left:2px solid transparent;}
+  .nav:hover{background:var(--bg);} .nav.on{color:var(--accent);font-weight:500;background:var(--bg);border-left-color:var(--accent);}
+  .nav .c{font-size:12px;color:var(--muted);} .nav.on .c{color:var(--accent);}
+  .admin-main{padding:24px 32px;background:var(--bg);overflow:hidden;}
+  .admin-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px;flex-wrap:wrap;}
+  .admin-head h2{margin:0;font-size:22px;font-weight:600;}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .chip{border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:13px;background:var(--bg);color:var(--ink);cursor:pointer;}
+  .chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+  .search{width:260px;}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{text-align:left;padding:12px;border-bottom:1px solid var(--border);}
+  th{font-weight:500;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+  tbody tr{cursor:pointer;} tbody tr:hover{background:var(--surface);}
+  .ref{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);}
+  .path-tag{font-size:11px;border:1px solid var(--border);border-radius:999px;padding:1px 8px;color:var(--muted);margin-left:6px;}
+  .st-new{color:var(--accent);font-weight:500;} .st-pending{color:var(--ink);} .st-ok{color:var(--muted);}
+  .empty{padding:32px;text-align:center;color:var(--muted);}
+
+  .back{background:transparent;border:none;color:var(--accent);cursor:pointer;font-size:14px;padding:0 0 16px;}
+  .dhead{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px;gap:20px;flex-wrap:wrap;}
+  .dhead h3{margin:0 0 4px;font-size:20px;font-weight:600;}
+  .dactions{display:flex;gap:8px;flex-wrap:wrap;}
+  .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:760px;}
+  @media(max-width:760px){.edit-grid{grid-template-columns:1fr;} .admin-shell{grid-template-columns:1fr;}}
+  .edit-field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;font-weight:600;}
+  .edit-field .input{font-size:14px;padding:8px 12px;}
+  .edit-full{grid-column:1 / -1;}
+  .save-row{display:flex;gap:10px;align-items:center;margin-top:16px;}
+  .saved-note{font-size:13px;color:var(--ok);}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:8px;font-size:14px;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;}
+  .toast.on{opacity:1;}
+  .muted{color:var(--muted);} .small{font-size:13px;}
+  .hr{height:1px;background:var(--border);margin:22px 0;max-width:620px;}
+</style>
+</head>
+<body>
+
+<div class="demo-bar">
+  <span class="demo-label">Prototype <span class="vbadge">V2</span> nieuwe flow</span>
+  <div class="demo-tabs">
+    <button class="demo-tab active" data-role="klant">Aanvraag (klant)</button>
+    <button class="demo-tab" data-role="werkbank">Werkbank (Isabelle)</button>
+  </div>
+  <button class="demo-reset" id="reset">Reset</button>
+</div>
+
+<!-- ============ KLANT ============ -->
+<div class="app" data-role-view="klant">
+  <div class="app-top"><div class="app-brand">Pianofabriek · zaalverhuur</div><div class="lang"><button class="active">NL</button><button data-fr>FR</button><button data-fr>EN</button></div></div>
+  <div class="body">
+    <div class="prog" id="prog"></div>
+    <div id="stepHost"></div>
+  </div>
+</div>
+
+<!-- ============ WERKBANK ============ -->
+<div class="app" data-role-view="werkbank" hidden style="padding:0;">
+  <div class="admin-shell">
+    <aside class="sidebar">
+      <div class="sb-brand">Pianofabriek · overzicht</div>
+      <div class="sb-title">Aanvragen</div>
+      <div id="navFilters"></div>
+    </aside>
+    <div class="admin-main">
+      <div data-admin="list">
+        <div class="admin-head"><h2 id="listTitle">Alle aanvragen</h2><input class="input search" id="search" placeholder="Zoek op naam, ref of activiteit..."></div>
+        <div class="filters" id="typeFilters"></div>
+        <table><thead><tr><th>Ref</th><th>Aanvrager</th><th>Activiteit</th><th>Data</th><th>Pers</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table>
+      </div>
+      <div data-admin="detail" hidden>
+        <button class="back" id="back">‹ Terug naar overzicht</button>
+        <div class="dhead">
+          <div><h3 id="dTitle"></h3><div class="ref" id="dRef"></div></div>
+          <div class="dactions">
+            <button class="btn btn-sec" id="aRefuse">Weigeren</button>
+            <button class="btn btn-sec" id="aAlt">Alternatief</button>
+            <button class="btn btn-prim" id="aAccept">Aanvaarden</button>
+          </div>
+        </div>
+        <p class="small muted" style="margin-top:-6px;">Alle velden zijn bewerkbaar. Pas aan wanneer de klant een wijziging doorgeeft en bewaar.</p>
+        <div class="edit-grid" id="editGrid"></div>
+        <div class="save-row"><button class="btn btn-prim" id="saveDossier">Wijzigingen bewaren</button><span class="saved-note" id="savedNote"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=(s,sc)=>(sc||document).querySelector(s);
+const $$=(s,sc)=>Array.from((sc||document).querySelectorAll(s));
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2400);}
+function euro(n){return (Math.round(n*100)/100).toString().replace('.',',')+' €';}
+
+// ===== data =====
+const ROOMS=[
+  {n:'Arenberg',type:'Theaterzaal',cap:120,feat:'podium, licht en geluid'},
+  {n:'Brazzaville',type:'Feestzaal',cap:80,feat:'flexibel, catering mogelijk'},
+  {n:'Charleroi',type:'Conferentieruimte',cap:60,feat:'klein podium'},
+  {n:'Zabriskie Point',type:'Bioscoopzaal',cap:50,feat:'projectie'},
+  {n:'Calcutta',type:'Vergaderzaal',cap:30,feat:'beamer, daglicht'},
+  {n:'Dakar',type:'Atelier',cap:20,feat:'daglicht, wasbak'},
+  {n:'Casablanca I',type:'Vergaderzaal',cap:16,feat:'beamer'},
+  {n:'Casablanca II',type:'Vergaderzaal',cap:16,feat:'beamer'},
+  {n:'Dublin',type:'Repetitieruimte',cap:15,feat:'spiegels, parket'},
+];
+// gesimuleerde Yesplan-bezetting: per datum welke zalen bezet zijn
+const BUSY={'2026-05-14':['Calcutta','Dakar','Charleroi'],'2026-05-20':['Arenberg'],'2026-06-17':['Calcutta','Casablanca I','Brazzaville']};
+// technisch per type (relevante opties)
+const TECH_BY_TYPE={
+  'Vergadering':[{n:'Beamer',p:20},{n:'Flipchart',p:8}],
+  'Opleiding':[{n:'Beamer',p:20},{n:'Flipchart',p:8},{n:'Micro en versterkt geluid',p:20}],
+  'Receptie':[{n:'Micro en versterkt geluid',p:20},{n:'Permanentie podiumtechnicus',p:20,uur:true}],
+  'Repetitie':[{n:'Micro en versterkt geluid',p:20}],
+  'default':[{n:'Beamer',p:20},{n:'Flipchart',p:8},{n:'Micro en versterkt geluid',p:20}]
+};
+const DRINKS=[{n:'Thermos koffie (10 koppen)',p:8},{n:'Thermos thee (10 koppen)',p:8},{n:'Plat water 1 L',p:3},{n:'Bruisend water 1 L',p:3},{n:'Fruitsap bio 1 L',p:3}];
+const LUNCH=[{v:'Broodjesassortiment',p:5.5},{v:'Broodjes met soep',p:8},{v:'Lunchbuffet',p:15},{v:'Dagschotel',p:8}];
+
+// bestaande klant (login mock)
+const KNOWN={org:'Kenniscentrum Pleegzorg vzw',vat:'BE 0123.456.789',addr:'Stapelplein 28, 9000 Gent',contact:'Suzan de Hoog',email:'suzan.dehoog@kenniscentrumpleegzorg.be',phone:'+32 490 66 26 98'};
+
+// ===== wizard state =====
+const S={ type:null, people:20, dayMode:'een', date:'2026-05-20', start:'09:00', end:'16:00',
+  room:null, tech:{}, drinkOn:false, drinks:{}, lunchOn:false, lunchFormule:'Broodjesassortiment', lunchPeople:20,
+  desc1:'', desc2:'', desc3:'', loggedIn:false, org:'', vat:'', addr:'', contact:'', email:'', phone:'', extra:'' };
+
+function isContactPath(){ return S.type==='Conferentie' || S.dayMode==='meer'; }
+
+// step order differs per path
+function steps(){
+  const base=['type','people','when'];
+  if(isContactPath()) return base.concat(['describe','details','done']);
+  return base.concat(['rooms','tech','food','details','done']);
+}
+let stepIdx=0;
+function curStep(){ return steps()[stepIdx]; }
+
+function renderProg(){
+  const arr=steps(); const host=$('#prog'); host.innerHTML='';
+  arr.forEach((s,i)=>{ const d=document.createElement('div'); d.className='dot'+(i<=stepIdx?' on':''); host.appendChild(d); });
+}
+
+function go(delta){ stepIdx+=delta; if(stepIdx<0)stepIdx=0; const arr=steps(); if(stepIdx>arr.length-1)stepIdx=arr.length-1; render(); }
+function jumpTo(name){ const arr=steps(); const i=arr.indexOf(name); if(i>=0){stepIdx=i;render();} }
+
+// ===== render each step =====
+function render(){
+  renderProg();
+  const s=curStep(); const host=$('#stepHost'); host.innerHTML='';
+  ({type:rType,people:rPeople,when:rWhen,rooms:rRooms,tech:rTech,food:rFood,describe:rDescribe,details:rDetails,done:rDone})[s]();
+  window.scrollTo(0,0);
+}
+
+function navRow(backLabel, nextLabel, onNext, nextDisabled){
+  const wrap=document.createElement('div'); wrap.className='actions';
+  const b=document.createElement('button'); b.className='btn-text'; b.textContent=backLabel||'‹ Terug'; b.disabled=stepIdx===0; b.onclick=()=>go(-1);
+  const n=document.createElement('button'); n.className='btn btn-prim'; n.textContent=nextLabel||'Volgende ›'; if(nextDisabled)n.disabled=true; n.onclick=onNext;
+  wrap.appendChild(b); wrap.appendChild(n); return wrap;
+}
+
+function rType(){
+  const host=$('#stepHost');
+  host.innerHTML=`<h3 class="q">Wat wil je organiseren?</h3><p class="qsub">We vertrekken vanuit het type activiteit. Daarna stemmen we de juiste stappen af.</p>`;
+  const types=[
+    {v:'Vergadering',d:'Overleg, bestuur, syndic'},
+    {v:'Opleiding',d:'Cursus, workshop, training'},
+    {v:'Receptie',d:'Borrel, netwerkmoment'},
+    {v:'Repetitie',d:'Dans, muziek, oefening'},
+    {v:'Conferentie',d:'Groot, meerdere zalen, publiek'},
+    {v:'Iets anders',d:'Vertel het ons'},
+  ];
+  const cards=document.createElement('div'); cards.className='cards';
+  types.forEach(t=>{
+    const c=document.createElement('div'); c.className='opt-card'+(S.type===t.v?' sel':'');
+    c.innerHTML=`<div class="t">${t.v}</div><div class="d">${t.d}</div>`;
+    c.onclick=()=>{ S.type=t.v; render(); };
+    cards.appendChild(c);
+  });
+  host.appendChild(cards);
+  if(S.type==='Conferentie'){
+    const note=document.createElement('div'); note.className='notice contact';
+    note.innerHTML='<div class="nl">Grotere events plannen we samen</div>Een conferentie vraagt menselijke planning. We vragen je straks een korte beschrijving en je gegevens, en nemen daarna persoonlijk contact op.';
+    host.appendChild(note);
+  }
+  host.appendChild(navRow(null,'Volgende ›',()=>{ if(!S.type){toast('Kies een type');return;} go(1); }, !S.type));
+}
+
+function rPeople(){
+  const host=$('#stepHost');
+  host.innerHTML=`<h3 class="q">Voor hoeveel personen?</h3><p class="qsub">Dit bepaalt mee welke zalen passen.</p>`;
+  const f=document.createElement('div'); f.className='field';
+  f.innerHTML=`<div class="stepper-num"><button data-d="-1">−</button><input id="people" value="${S.people}" inputmode="numeric"><button data-d="1">+</button></div>`;
+  host.appendChild(f);
+  $('#people').addEventListener('input',e=>{S.people=parseInt(e.target.value||'0',10)||0;});
+  f.querySelectorAll('button').forEach(b=>b.onclick=()=>{S.people=Math.max(1,S.people+parseInt(b.dataset.d,10));$('#people').value=S.people;});
+  host.appendChild(navRow(null,'Volgende ›',()=>go(1)));
+}
+
+function rWhen(){
+  const host=$('#stepHost');
+  host.innerHTML=`<h3 class="q">Wanneer wil je het organiseren?</h3><p class="qsub">Eén dag of meerdere dagen? Bij meerdere dagen plannen we het samen met je.</p>`;
+  const seg=document.createElement('div'); seg.className='field';
+  seg.innerHTML=`<label class="label">Duurt je activiteit</label><div class="seg" data-seg="day"><button class="${S.dayMode==='een'?'on':''}" data-v="een">Eén dag</button><button class="${S.dayMode==='meer'?'on':''}" data-v="meer">Meerdere dagen</button></div>`;
+  host.appendChild(seg);
+  seg.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{ S.dayMode=b.dataset.v; render(); });
+
+  const d=document.createElement('div'); d.className='field';
+  d.innerHTML=`<label class="label">${S.dayMode==='meer'?'Vanaf welke datum (ongeveer)?':'Datum en tijd'}</label>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:10px;max-width:620px;">
+      <input class="input" type="date" id="date" value="${S.date}">
+      <input class="input" type="time" id="start" value="${S.start}">
+      <input class="input" type="time" id="end" value="${S.end}">
+    </div>`;
+  host.appendChild(d);
+  $('#date').addEventListener('input',e=>S.date=e.target.value);
+  $('#start').addEventListener('input',e=>S.start=e.target.value);
+  $('#end').addEventListener('input',e=>S.end=e.target.value);
+
+  if(isContactPath()){
+    const note=document.createElement('div'); note.className='notice contact';
+    note.innerHTML='<div class="nl">We plannen dit samen</div>'+(S.type==='Conferentie'?'Voor een conferentie':'Voor een meerdaagse activiteit')+' bekijken we de beschikbaarheid en de zalen samen met jou. Je geeft straks een korte beschrijving, wij nemen contact op.';
+    host.appendChild(note);
+  }
+  host.appendChild(navRow(null, isContactPath()?'Beschrijf je activiteit ›':'Toon beschikbare zalen ›', ()=>go(1)));
+}
+
+function availableRooms(){
+  const busy=BUSY[S.date]||[];
+  return ROOMS.filter(r=>r.cap>=S.people && !busy.includes(r.n));
+}
+function rRooms(){
+  const host=$('#stepHost');
+  const avail=availableRooms();
+  host.innerHTML=`<h3 class="q">Beschikbare zalen op ${fmtDate(S.date)}</h3><p class="qsub">Voor ${S.people} personen tonen we wat vrij is volgens Yesplan. Kies je voorkeur. Wij bevestigen.</p>`;
+  if(!avail.length){
+    const note=document.createElement('div'); note.className='notice contact';
+    note.innerHTML='<div class="nl">Niets direct vrij</div>Op deze datum is er voor jouw groep niets vrij volgens Yesplan. Geef je gegevens, dan zoeken we samen een alternatief.';
+    host.appendChild(note);
+    host.appendChild(navRow(null,'Verder met mijn gegevens ›',()=>{ S.room=null; go(1); }));
+    return;
+  }
+  const list=document.createElement('div'); list.className='room-list';
+  avail.forEach(r=>{
+    const c=document.createElement('div'); c.className='room'+(S.room===r.n?' sel':'');
+    c.innerHTML=`<div class="ph"></div><div class="ri"><div class="rn">${r.n}</div><div class="rd">${r.type} · tot ${r.cap} pers</div><div class="rav">Beschikbaar</div><span class="more" data-room="${r.n}">Bekijk zaal</span></div>`;
+    c.onclick=(e)=>{ if(e.target.dataset.room){ openRoom(r); return; } S.room=r.n; render(); };
+    list.appendChild(c);
+  });
+  host.appendChild(list);
+  const note=document.createElement('div'); note.className='notice';
+  note.innerHTML='<div class="nl">Goed om te weten</div>Beschikbaarheid is een indicatie uit Yesplan. We bevestigen de zaal definitief na een korte controle.';
+  host.appendChild(note);
+  host.appendChild(navRow(null,'Volgende ›',()=>{ if(!S.room){toast('Kies een zaal of bekijk de opties');return;} go(1); }, !S.room));
+}
+function openRoom(r){
+  const back=document.createElement('div'); back.className='modal-back';
+  back.innerHTML=`<div class="modal"><div class="ph"></div><h3>${r.n}</h3><p class="small muted">${r.type} · tot ${r.cap} personen</p><p style="font-size:14px;">${r.feat}.</p><div class="modal-actions"><button class="btn btn-sec" data-close>Sluiten</button><button class="btn btn-prim" data-pick>Kies deze zaal</button></div></div>`;
+  document.body.appendChild(back);
+  back.querySelector('[data-close]').onclick=()=>back.remove();
+  back.querySelector('[data-pick]').onclick=()=>{ S.room=r.n; back.remove(); render(); };
+  back.onclick=(e)=>{ if(e.target===back) back.remove(); };
+}
+
+function rTech(){
+  const host=$('#stepHost');
+  const items=TECH_BY_TYPE[S.type]||TECH_BY_TYPE.default;
+  host.innerHTML=`<h3 class="q">Technisch materiaal</h3><p class="qsub">We tonen wat past bij een ${(S.type||'activiteit').toLowerCase()}. Niets nodig? Sla over.</p>`;
+  const gate=document.createElement('div'); gate.className='gate';
+  gate.innerHTML=`<div class="gate-b" style="border-top:none;"></div>`;
+  const b=gate.querySelector('.gate-b');
+  items.forEach(it=>{
+    const row=document.createElement('div'); row.className='gate-row';
+    const qty=S.tech[it.n]||0;
+    row.innerHTML=`<div><span class="gn">${it.n}</span> <span class="gu">· ${it.p} €${it.uur?'/uur':''}</span></div><div class="stepper-num"><button data-d="-1">−</button><input value="${qty}" inputmode="numeric" readonly style="width:48px;"><button data-d="1">+</button></div>`;
+    const inp=row.querySelector('input');
+    row.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{ let v=Math.max(0,(S.tech[it.n]||0)+parseInt(btn.dataset.d,10)); S.tech[it.n]=v; inp.value=v; });
+    b.appendChild(row);
+  });
+  host.appendChild(gate);
+  host.appendChild(navRow(null,'Volgende ›',()=>go(1)));
+}
+
+function rFood(){
+  const host=$('#stepHost');
+  host.innerHTML=`<h3 class="q">Eten en drinken</h3><p class="qsub">We vragen dit altijd, want het scheelt nadien veel heen en weer. Onze keuken is vegetarisch.</p>`;
+  // dranken
+  const g1=document.createElement('div'); g1.className='gate';
+  g1.innerHTML=`<div class="gate-h"><div><div class="gt">Dranken</div><div class="gm">Koffie, thee, water, fruitsap</div></div><div class="seg" data-seg="drink"><button class="${!S.drinkOn?'on':''}" data-v="nee">Nee</button><button class="${S.drinkOn?'on':''}" data-v="ja">Ja</button></div></div><div class="gate-b" id="drinkBody" ${S.drinkOn?'':'hidden'}></div>`;
+  host.appendChild(g1);
+  g1.querySelectorAll('.seg button').forEach(btn=>btn.onclick=()=>{ S.drinkOn=btn.dataset.v==='ja'; render(); });
+  if(S.drinkOn){
+    const db=$('#drinkBody');
+    DRINKS.forEach(d=>{
+      const row=document.createElement('div'); row.className='gate-row'; const qty=S.drinks[d.n]||0;
+      row.innerHTML=`<div><span class="gn">${d.n}</span> <span class="gu">· ${d.p} €</span></div><div class="stepper-num"><button data-d="-1">−</button><input value="${qty}" readonly style="width:48px;"><button data-d="1">+</button></div>`;
+      const inp=row.querySelector('input');
+      row.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{ let v=Math.max(0,(S.drinks[d.n]||0)+parseInt(btn.dataset.d,10)); S.drinks[d.n]=v; inp.value=v; });
+      db.appendChild(row);
+    });
+  }
+  // lunch
+  const g2=document.createElement('div'); g2.className='gate';
+  g2.innerHTML=`<div class="gate-h"><div><div class="gt">Lunch</div><div class="gm">Eén formule voor de groep</div></div><div class="seg" data-seg="lunch"><button class="${!S.lunchOn?'on':''}" data-v="nee">Nee</button><button class="${S.lunchOn?'on':''}" data-v="ja">Ja</button></div></div><div class="gate-b" id="lunchBody" ${S.lunchOn?'':'hidden'}></div>`;
+  host.appendChild(g2);
+  g2.querySelectorAll('.seg button').forEach(btn=>btn.onclick=()=>{ S.lunchOn=btn.dataset.v==='ja'; if(S.lunchOn)S.lunchPeople=S.people; render(); });
+  if(S.lunchOn){
+    const lb=$('#lunchBody');
+    lb.innerHTML=`<div class="field" style="margin-bottom:12px;"><label class="label">Formule</label><select class="input" id="lf" style="max-width:420px;">${LUNCH.map(l=>`<option value="${l.v}" ${S.lunchFormule===l.v?'selected':''}>${l.v} — ${(''+l.p).replace('.',',')} € pp</option>`).join('')}</select></div>
+      <div class="field"><label class="label">Voor hoeveel personen?</label><div class="stepper-num"><button data-d="-1">−</button><input id="lp" value="${S.lunchPeople}" readonly style="width:56px;"><button data-d="1">+</button></div></div>
+      <div class="muted small" id="lsub"></div>`;
+    $('#lf').addEventListener('change',e=>{S.lunchFormule=e.target.value;updLsub();});
+    lb.querySelectorAll('.stepper-num button').forEach(btn=>btn.onclick=()=>{ S.lunchPeople=Math.max(1,S.lunchPeople+parseInt(btn.dataset.d,10)); $('#lp').value=S.lunchPeople; updLsub(); });
+    updLsub();
+  }
+  host.appendChild(navRow(null,'Volgende ›',()=>go(1)));
+}
+function updLsub(){ const el=$('#lsub'); if(!el)return; const p=(LUNCH.find(l=>l.v===S.lunchFormule)||{}).p||0; el.textContent=`${S.lunchFormule} voor ${S.lunchPeople} personen = ${euro(p*S.lunchPeople)}`; }
+
+function rDescribe(){
+  const host=$('#stepHost');
+  host.innerHTML=`<h3 class="q">Vertel ons over je activiteit</h3><p class="qsub">Voor grotere of meerdaagse events plannen we samen. Hoe meer je vertelt, hoe gerichter we kunnen helpen.</p>`;
+  const f=document.createElement('div');
+  f.innerHTML=`
+    <div class="field"><label class="label">Wat ga je precies doen?</label><textarea class="input" id="d1" placeholder="Doel en inhoud van de activiteit">${S.desc1}</textarea></div>
+    <div class="field"><label class="label">Hoe ziet het programma of de dag eruit?</label><textarea class="input" id="d2" placeholder="Verloop, opstelling, aantal sessies, pauzes">${S.desc2}</textarea></div>
+    <div class="field"><label class="label">Bijzondere wensen? <span class="opt">(techniek, catering, toegankelijkheid)</span></label><textarea class="input" id="d3" placeholder="Alles wat we moeten weten">${S.desc3}</textarea></div>`;
+  host.appendChild(f);
+  $('#d1').addEventListener('input',e=>S.desc1=e.target.value);
+  $('#d2').addEventListener('input',e=>S.desc2=e.target.value);
+  $('#d3').addEventListener('input',e=>S.desc3=e.target.value);
+  host.appendChild(navRow(null,'Volgende ›',()=>go(1)));
+}
+
+function rDetails(){
+  const host=$('#stepHost');
+  host.innerHTML=`<h3 class="q">Jouw gegevens</h3><p class="qsub">Heb je al een account? Log in en we vullen je gegevens automatisch in.</p>`;
+  if(!S.loggedIn){
+    const lb=document.createElement('div'); lb.className='login-box';
+    lb.innerHTML=`<h4>Al klant bij Pianofabriek?</h4><p>De meeste huurders komen terug. Log in zodat je niets opnieuw moet invullen.</p><button class="btn btn-sec" id="loginBtn">Log in (demo)</button>`;
+    host.appendChild(lb);
+    $('#loginBtn').onclick=()=>{ S.loggedIn=true; Object.assign(S,{org:KNOWN.org,vat:KNOWN.vat,addr:KNOWN.addr,contact:KNOWN.contact,email:KNOWN.email,phone:KNOWN.phone}); render(); };
+    const or=document.createElement('div'); or.className='muted small'; or.style.margin='4px 0 12px'; or.textContent='Of vul je gegevens in als nieuwe klant:'; host.appendChild(or);
+  } else {
+    const k=document.createElement('div'); k.className='known';
+    k.innerHTML=`<b>Ingelogd als ${KNOWN.contact}</b> · ${KNOWN.org}<br><span class="muted">Je gegevens zijn ingevuld. Pas aan indien nodig.</span>`;
+    host.appendChild(k);
+  }
+  const f=document.createElement('div');
+  f.innerHTML=`
+    <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div><label class="label">Naam organisatie</label><input class="input" id="org" value="${S.org}"></div>
+      <div><label class="label">BTW / ondernemingsnr</label><input class="input" id="vat" value="${S.vat}"></div>
+    </div>
+    <div class="field"><label class="label">Facturatieadres</label><input class="input" id="addr" value="${S.addr}"></div>
+    <div class="field" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div><label class="label">Contactpersoon</label><input class="input" id="contact" value="${S.contact}"></div>
+      <div><label class="label">Telefoon</label><input class="input" id="phone" value="${S.phone}"></div>
+    </div>
+    <div class="field"><label class="label">E-mailadres</label><input class="input" id="email" value="${S.email}"></div>
+    <div class="field"><label class="label">Iets dat we nog moeten weten? <span class="opt">(optioneel)</span></label><textarea class="input" id="extra">${S.extra}</textarea></div>`;
+  host.appendChild(f);
+  ['org','vat','addr','contact','phone','email','extra'].forEach(id=>{ const el=$('#'+id); if(el) el.addEventListener('input',e=>S[id]=e.target.value); });
+  if(!S.loggedIn){
+    const np=document.createElement('div'); np.className='small muted'; np.style.maxWidth='620px';
+    np.innerHTML='Als nieuwe klant maken we automatisch een account aan, zodat je volgende keer sneller bent.';
+    host.appendChild(np);
+  }
+  const label=isContactPath()?'Verstuur aanvraag ›':'Verstuur aanvraag ›';
+  host.appendChild(navRow(null,label,()=>{ submit(); }));
+}
+
+function submit(){
+  const r=newRequest(); reqs.unshift(r);
+  go(1);
+}
+function rDone(){
+  const host=$('#stepHost');
+  if(isContactPath()){
+    host.innerHTML=`<div class="confirm"><h3 class="q">Bedankt, we plannen dit samen met je.</h3><p class="qsub">Omdat dit een ${S.type==='Conferentie'?'conferentie':'meerdaagse activiteit'} is, neemt Isabelle persoonlijk contact op om de zalen, data en praktische kant samen vast te leggen.</p><div class="ref">Referentie · AAV-2026-${seqRef}</div></div>
+    <div class="next-steps"><h4>Wat gebeurt er nu?</h4><ol><li>Je aanvraag staat in het overzicht van Pianofabriek.</li><li>Isabelle belt of mailt je voor de details.</li><li>Samen leggen we zalen, data en catering vast.</li></ol></div>`;
+  } else {
+    host.innerHTML=`<div class="confirm"><h3 class="q">Bedankt, je aanvraag is verstuurd.</h3><p class="qsub">Isabelle bekijkt je aanvraag en bevestigt de zaal binnen twee werkdagen. Je krijgt elke update per e-mail.</p><div class="ref">Referentie · AAV-2026-${seqRef}</div></div>
+    <div class="next-steps"><h4>Wat gebeurt er nu?</h4><ol><li>We controleren de beschikbaarheid van ${S.room||'de zaal'}.</li><li>Je krijgt een bevestiging met de zaal en de prijs.</li><li>Daarna volgen het contract en de factuur.</li></ol></div>`;
+  }
+  const wrap=document.createElement('div'); wrap.className='actions'; wrap.style.borderTop='none';
+  const b=document.createElement('button'); b.className='btn btn-sec'; b.textContent='Nieuwe aanvraag'; b.onclick=()=>{ resetWizard(); render(); };
+  const w=document.createElement('button'); w.className='btn btn-prim'; w.textContent='Bekijk in werkbank ›'; w.onclick=()=>setRole('werkbank');
+  wrap.appendChild(b); wrap.appendChild(w); host.appendChild(wrap);
+}
+
+function fmtDate(iso){ if(!iso)return ''; const D=['zo','ma','di','wo','do','vr','za'],M=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec']; const d=new Date(iso+'T00:00'); return D[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(); }
+
+// ===== werkbank dataset =====
+let SEQ=150; let seqRef='0150';
+function techStr(){ return Object.entries(S.tech).filter(([k,v])=>v>0).map(([k,v])=>v+'× '+k).join(', ')||'geen'; }
+function foodStr(){ const d=Object.entries(S.drinks).filter(([k,v])=>v>0).map(([k,v])=>v+'× '+k); if(S.lunchOn)d.push(S.lunchFormule+' voor '+S.lunchPeople+'p'); return d.join(', ')||'geen'; }
+function newRequest(){
+  SEQ++; seqRef=''+SEQ;
+  return { id:'n'+SEQ, ref:'AAV-2026-'+SEQ, org:S.org||'Onbekend', orgShort:(S.org||'Onbekend').replace(/ vzw| asbl/i,''),
+    activity:S.type==='Iets anders'?'Activiteit':S.type, people:S.people, path:isContactPath()?'contact':'direct',
+    datesText:S.dayMode==='meer'?('vanaf '+fmtDate(S.date)):fmtDate(S.date), date:S.date, start:S.start, end:S.end, dayMode:S.dayMode,
+    room:S.room||'', tech:techStr(), food:foodStr(),
+    desc:[S.desc1,S.desc2,S.desc3].filter(Boolean).join(' / '), extra:S.extra,
+    vat:S.vat, addr:S.addr, contact:S.contact, email:S.email, phone:S.phone,
+    status:'nieuw', price:'' };
+}
+let reqs=[
+  {id:'a1',ref:'AAV-2026-0142',org:'Kenniscentrum Pleegzorg vzw',orgShort:'Kenniscentrum Pleegzorg',activity:'Opleiding',people:22,path:'direct',datesText:'7 mei 2026',date:'2026-05-07',start:'09:00',end:'16:00',dayMode:'een',room:'Calcutta',tech:'1× Beamer',food:'3× koffie, Broodjesassortiment voor 22p',desc:'Tweedaagse opleiding pleegzorg.',extra:'2 personen glutenvrij',vat:'BE 0123.456.789',addr:'Stapelplein 28, 9000 Gent',contact:'Suzan de Hoog',email:'suzan.dehoog@kenniscentrumpleegzorg.be',phone:'+32 490 66 26 98',status:'nieuw',price:''},
+  {id:'a2',ref:'AAV-2026-0141',org:'ADDE asbl',orgShort:'ADDE asbl',activity:'Conferentie',people:80,path:'contact',datesText:'vanaf 14 mei 2026',date:'2026-05-14',start:'09:00',end:'17:00',dayMode:'meer',room:'',tech:'beamer, micro',food:'koffie, buffet',desc:'Meerdaagse vorming, meerdere zalen nodig.',extra:'Demande en français.',vat:'BE 0444.555.666',addr:'Rue du Boulet 22, 1000 Bruxelles',contact:'Farah Benali',email:'f.benali@adde.be',phone:'+32 2 227 42 41',status:'in-behandeling',price:''},
+  {id:'a3',ref:'AAV-2026-0138',org:'Syndic Stamenei',orgShort:'Syndic Stamenei',activity:'Vergadering',people:9,path:'direct',datesText:'3 juni 2026',date:'2026-06-03',start:'19:00',end:'22:00',dayMode:'een',room:'Casablanca I',tech:'geen',food:'1× koffie',desc:'Algemene vergadering mede-eigenaars.',extra:'',vat:'BE 0888.111.222',addr:'Munthofstraat 5, 1060 Sint-Gillis',contact:'Paul Stamenei',email:'paul@stamenei.be',phone:'+32 475 99 88 77',status:'goedgekeurd',price:'120 €'},
+  {id:'a4',ref:'AAV-2026-0132',org:'Universiteit Gent',orgShort:'Universiteit Gent',activity:'Conferentie',people:120,path:'contact',datesText:'vanaf 17 juni 2026',date:'2026-06-17',start:'09:00',end:'18:00',dayMode:'meer',room:'',tech:'beamer, micro, podiumtechnicus',food:'buffet 120p',desc:'Tweedaagse conferentie met publiek.',extra:'Mogelijk pers.',vat:'BE 0248.015.142',addr:'Sint-Pietersnieuwstraat 25, 9000 Gent',contact:'Prof. K. Devos',email:'k.devos@ugent.be',phone:'+32 9 264 30 00',status:'in-behandeling',price:''},
+];
+const byId=id=>reqs.find(r=>r.id===id);
+let curId=null, fStatus='alle', fType='alle', fPath='alle', search='';
+const SMETA={nieuw:{l:'Nieuw',c:'st-new'},'in-behandeling':{l:'In behandeling',c:'st-pending'},goedgekeurd:{l:'Goedgekeurd',c:'st-ok'},alternatief:{l:'Wacht op klant',c:'st-new'},geweigerd:{l:'Geweigerd',c:'st-ok'}};
+
+function setRole(role){
+  $$('.demo-tab').forEach(b=>b.classList.toggle('active',b.dataset.role===role));
+  $$('[data-role-view]').forEach(v=>v.hidden=v.dataset.roleView!==role);
+  if(role==='werkbank'){ renderNav(); renderRows(); setAdmin('list'); }
+}
+function setAdmin(v){ $$('[data-admin]').forEach(x=>x.hidden=x.dataset.admin!==v); }
+
+function counts(){ const c={alle:reqs.length,nieuw:0,'in-behandeling':0,goedgekeurd:0}; reqs.forEach(r=>{if(c[r.status]!==undefined)c[r.status]++;}); return c; }
+function renderNav(){
+  const c=counts();
+  $('#navFilters').innerHTML=[['alle','Alle',c.alle],['nieuw','Nieuw',c.nieuw],['in-behandeling','In behandeling',c['in-behandeling']],['goedgekeurd','Goedgekeurd',c.goedgekeurd]]
+    .map(f=>`<div class="nav ${fStatus===f[0]?'on':''}" data-f="${f[0]}">${f[1]} <span class="c">${f[2]}</span></div>`).join('');
+  $$('#navFilters .nav').forEach(n=>n.onclick=()=>{fStatus=n.dataset.f;renderNav();renderRows();});
+}
+function renderRows(){
+  // type + path filters
+  $('#typeFilters').innerHTML = ['alle','Vergadering','Opleiding','Receptie','Repetitie','Conferentie'].map(t=>`<span class="chip ${fType===t?'on':''}" data-t="${t}">${t==='alle'?'Alle types':t}</span>`).join('')
+    + ` <span class="chip ${fPath==='direct'?'on':''}" data-p="direct">Directe boeking</span><span class="chip ${fPath==='contact'?'on':''}" data-p="contact">Samen plannen</span>`;
+  $$('#typeFilters .chip[data-t]').forEach(c=>c.onclick=()=>{fType=c.dataset.t;renderRows();});
+  $$('#typeFilters .chip[data-p]').forEach(c=>c.onclick=()=>{fPath=fPath===c.dataset.p?'alle':c.dataset.p;renderRows();});
+  let list=reqs.slice();
+  if(fStatus!=='alle')list=list.filter(r=>r.status===fStatus);
+  if(fType!=='alle')list=list.filter(r=>r.activity===fType);
+  if(fPath!=='alle')list=list.filter(r=>r.path===fPath);
+  if(search){const q=search.toLowerCase();list=list.filter(r=>(r.ref+' '+r.org+' '+r.activity).toLowerCase().includes(q));}
+  $('#listTitle').textContent = fStatus==='alle'?'Alle aanvragen':SMETA[fStatus].l;
+  const tb=$('#rows');
+  if(!list.length){ tb.innerHTML='<tr><td colspan="6" class="empty">Geen aanvragen gevonden.</td></tr>'; return; }
+  tb.innerHTML=list.map(r=>{ const m=SMETA[r.status]; const room=r.status==='goedgekeurd'&&r.room?(' · '+r.room):''; const pt=r.path==='contact'?'<span class="path-tag">samen plannen</span>':'';
+    return `<tr data-open="${r.id}"><td class="ref">${r.ref}</td><td>${r.orgShort}${pt}</td><td>${r.activity}</td><td>${r.datesText}</td><td>${r.people}</td><td class="${m.c}">${m.l}${room}</td></tr>`; }).join('');
+  $$('#rows tr[data-open]').forEach(tr=>tr.onclick=()=>openDetail(tr.dataset.open));
+}
+$('#search').addEventListener('input',e=>{search=e.target.value;renderRows();});
+
+// editable dossier
+const FIELDS=[
+  ['activity','Activiteit',1],['people','Aantal personen',1],['datesText','Data',1],['room','Toegewezen zaal',1],
+  ['start','Beginuur',1],['end','Einduur',1],['tech','Technisch',1],['food','Eten en drinken',1],
+  ['org','Organisatie',1],['vat','BTW',1],['addr','Adres',2],['contact','Contactpersoon',1],['email','E-mail',1],['phone','Telefoon',1],
+  ['price','Prijs',1],['desc','Omschrijving',2],['extra','Extra info',2]
+];
+function openDetail(id){
+  curId=id; const r=byId(id);
+  $('#dTitle').textContent=r.activity+' · '+r.orgShort;
+  $('#dRef').textContent=r.ref+' · '+(r.path==='contact'?'samen plannen':'directe boeking')+' · '+SMETA[r.status].l;
+  $('#editGrid').innerHTML=FIELDS.map(f=>{
+    const full=f[2]===2?' edit-full':''; const val=(r[f[0]]!==undefined?r[f[0]]:'');
+    const big=f[2]===2;
+    return `<div class="edit-field${full}"><label>${f[1]}</label>${big?`<textarea class="input" data-k="${f[0]}">${val}</textarea>`:`<input class="input" data-k="${f[0]}" value="${(''+val).replace(/"/g,'&quot;')}">`}</div>`;
+  }).join('');
+  $('#savedNote').textContent='';
+  setAdmin('detail');
+}
+$('#saveDossier').onclick=()=>{
+  const r=byId(curId);
+  $$('#editGrid [data-k]').forEach(el=>{ let v=el.value; if(el.dataset.k==='people')v=parseInt(v||'0',10)||0; r[el.dataset.k]=v; });
+  r.orgShort=(r.org||'').replace(/ vzw| asbl/i,'');
+  $('#savedNote').textContent='Bewaard. Het dossier is bijgewerkt.';
+  renderRows(); toast('Dossier bijgewerkt');
+};
+$('#back').onclick=()=>{ setAdmin('list'); renderNav(); renderRows(); };
+$('#aAccept').onclick=()=>{ const r=byId(curId); r.status='goedgekeurd'; if(!r.room)r.room='(zaal toewijzen)'; openDetail(curId); renderRows(); toast('Aanvaard, mail naar klant'); };
+$('#aAlt').onclick=()=>{ const r=byId(curId); r.status='alternatief'; renderRows(); toast('Alternatief voorgesteld'); setAdmin('list'); };
+$('#aRefuse').onclick=()=>{ const r=byId(curId); r.status='geweigerd'; renderRows(); toast('Afwijzing verstuurd'); setAdmin('list'); };
+
+// ===== wizard reset / demo =====
+function resetWizard(){
+  Object.assign(S,{type:null,people:20,dayMode:'een',date:'2026-05-20',start:'09:00',end:'16:00',room:null,tech:{},drinkOn:false,drinks:{},lunchOn:false,lunchFormule:'Broodjesassortiment',lunchPeople:20,desc1:'',desc2:'',desc3:'',loggedIn:false,org:'',vat:'',addr:'',contact:'',email:'',phone:'',extra:''});
+  stepIdx=0;
+}
+$$('.demo-tab').forEach(b=>b.onclick=()=>setRole(b.dataset.role));
+$('#reset').onclick=()=>location.reload();
+document.addEventListener('click',e=>{ if(e.target.closest('[data-fr]')) toast('NL / FR / EN is een beslispunt. In de demo tonen we NL.'); });
+
+// init
+renderNav(); renderRows();
+setRole('klant'); render();
+</script>
+
+<script>
+  window.CM_CONFIG = {
+    projectName:'Pianofabriek zaalverhuur — prototype V2',
+    storagePrefix:'pianofabriek_v2_',
+    apiEndpoint:null,
+    pageNames:{'prototype-v2-flow.html':'Prototype V2'},
+    screenNames:{'klant':'Aanvraag (klant)','werkbank':'Werkbank'}
+  };
+</script>
+<script src="comments.js"></script>
+</body>
+</html>
