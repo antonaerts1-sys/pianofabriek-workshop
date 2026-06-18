@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pianofabriek zaalverhuur — Technische briefing V2</title>
+<style>
+  :root{--ink:#1A1A1A;--muted:#6B7280;--accent:#1A6DFF;--accent-soft:#EFF4FF;--ok:#0E9F6E;--ok-soft:#E7F7F0;--warn:#C2410C;--warn-soft:#FFF4ED;--bg:#FFFFFF;--surface:#F9FAFB;--border:#E5E7EB;}
+  *{box-sizing:border-box;} html,body{margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .page{max-width:920px;margin:0 auto;padding:48px 28px 110px;}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:1px 6px;}
+  pre{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;overflow-x:auto;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.5;}
+  a{color:var(--accent);text-decoration:none;}
+  .eyebrow{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  h1{font-size:32px;font-weight:600;letter-spacing:-.02em;margin:8px 0 12px;line-height:1.15;}
+  h2{font-size:22px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px;}
+  h3{font-size:16px;font-weight:600;margin:22px 0 6px;}
+  .lead{color:var(--muted);max-width:680px;font-size:17px;margin:0 0 24px;}
+  .meta{display:flex;flex-wrap:wrap;gap:20px;padding:16px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .meta div{min-width:130px;} .meta .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);} .meta .v{font-weight:500;}
+  .toc{margin:28px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;}
+  .toc a{display:block;padding:9px 13px;border:1px solid var(--border);border-radius:8px;color:var(--ink);font-size:13px;}
+  .toc a:hover{border-color:var(--accent);color:var(--accent);} .toc a .n{color:var(--muted);font-family:ui-monospace,monospace;margin-right:8px;}
+  section{margin-top:52px;padding-top:8px;}
+  section>h2{scroll-margin-top:20px;}
+  .sub{color:var(--muted);margin:0 0 16px;max-width:680px;}
+  ul,ol{margin:0 0 14px;padding-left:20px;} li{margin-bottom:6px;}
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;padding:14px 18px;margin:16px 0;}
+  .callout.warn{border-left-color:var(--warn);background:var(--warn-soft);}
+  .callout.ok{border-left-color:var(--ok);background:var(--ok-soft);}
+  .callout .l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;color:var(--accent);}
+  .callout.warn .l{color:var(--warn);} .callout.ok .l{color:var(--ok);}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0 16px;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{font-weight:500;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+  .flow{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+  @media(max-width:640px){.flow{grid-template-columns:1fr;}}
+  .path{border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+  .path.contact{border-color:var(--warn);}
+  .path h4{margin:0 0 4px;font-size:15px;font-weight:600;} .path .tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);}
+  .path.contact .tag{color:var(--warn);}
+  .path ol{margin:10px 0 0;padding-left:18px;font-size:14px;}
+  .pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;border:1px solid var(--border);color:var(--muted);}
+  .pill.now{border-color:var(--accent);color:var(--accent);} .pill.f2{border-color:var(--border);color:var(--muted);} .pill.no{border-color:var(--ink);color:var(--ink);}
+  .filelist{border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .filelist .row{display:grid;grid-template-columns:230px 1fr;gap:16px;padding:12px 16px;border-top:1px solid var(--border);font-size:14px;}
+  .filelist .row:first-child{border-top:none;}
+  .filelist code{background:transparent;border:none;padding:0;color:var(--ink);font-weight:600;}
+  .foot{margin-top:64px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:13px;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="eyebrow">Technische briefing · overdracht aan het technische team</div>
+  <h1>Pianofabriek zaalverhuur — V2</h1>
+  <p class="lead">Alles wat het technische team nodig heeft om mee te zijn: de context, de harde technische grens (Yesplan), wat V2 is, het datamodel en de regels, wat prototype is versus wat echt gebouwd moet worden, en de openstaande beslissingen.</p>
+  <div class="meta">
+    <div><div class="k">Klant</div><div class="v">GC Pianofabriek (Sint-Gillis)</div></div>
+    <div><div class="k">Kader</div><div class="v">Impact Together · fase 3</div></div>
+    <div><div class="k">Status</div><div class="v">Klikbaar prototype V2</div></div>
+    <div><div class="k">Doel-livegang</div><div class="v">seizoen 2026-2027</div></div>
+  </div>
+
+  <nav class="toc">
+    <a href="#context"><span class="n">1</span>Context &amp; opdracht</a>
+    <a href="#yesplan"><span class="n">2</span>De Yesplan-grens (lees eerst)</a>
+    <a href="#v2"><span class="n">3</span>Wat is V2</a>
+    <a href="#flow"><span class="n">4</span>De klant-flow in detail</a>
+    <a href="#werkbank"><span class="n">5</span>De werkbank</a>
+    <a href="#datamodel"><span class="n">6</span>Datamodel &amp; business rules</a>
+    <a href="#protovsreal"><span class="n">7</span>Prototype vs echte build</a>
+    <a href="#stack"><span class="n">8</span>Integratiepunten &amp; stack</a>
+    <a href="#mails"><span class="n">9</span>Wat de echte mails leerden</a>
+    <a href="#beslissingen"><span class="n">10</span>Open beslispunten</a>
+    <a href="#bestanden"><span class="n">11</span>De bestanden &amp; opstarten</a>
+    <a href="#stappen"><span class="n">12</span>Aanbevolen eerste stappen</a>
+  </nav>
+
+  <!-- 1 -->
+  <section id="context">
+    <h2>1 · Context &amp; opdracht</h2>
+    <p class="sub">Pianofabriek (gemeenschapscentrum, VGC, Sint-Gillis) digitaliseert zijn zaalverhuur. Vandaag komen aanvragen binnen via mail, telefoon en een websiteformulier, en typt onthaalmedewerker Isabelle alles manueel over in Yesplan. 20 tot 30 aanvragen per week, gemiddeld zes mails per aanvraag.</p>
+    <ul>
+      <li><strong>Doel</strong>: één gestroomlijnd kanaal voor de huurder, en een werkbank waarmee Isabelle aanvragen overzichtelijk afhandelt. Mens-in-de-loop blijft een principe: Isabelle keurt altijd manueel goed.</li>
+      <li><strong>Budget</strong>: ~€18K excl. BTW (perceel 1 analyse ~€6K, perceel 2 bouw ~€12K). Tool bruikbaar tegen november 2026.</li>
+      <li><strong>Mensen</strong>: Cedric Vaessen (zakelijk, opdrachtgever), Isabelle (onthaal, eindgebruiker werkbank), Olivier (horeca), Sebastien (financieel), Marc Absolon (VGC/Yesplan).</li>
+    </ul>
+  </section>
+
+  <!-- 2 -->
+  <section id="yesplan">
+    <h2>2 · De Yesplan-grens — lees dit eerst</h2>
+    <p class="sub">Dit is de belangrijkste architecturale randvoorwaarde. Lees ze voor je iets ontwerpt.</p>
+    <div class="callout warn">
+      <div class="l">Hard feit</div>
+      <strong>Yesplan kan niet beschreven worden vanuit externe systemen.</strong> Geen events aanmaken, geen statussen of velden bijwerken via de API. Bevestigd door VGC (Marc) en door de klant. Dit is een platformkeuze van Yesplan, geen permissie-instelling die je kan aanzetten.
+    </div>
+    <p>Gevolgen voor de architectuur:</p>
+    <ul>
+      <li><strong>Read werkt en is bewezen.</strong> Bezetting, zalen en events zijn leesbaar via Yesplan dataviews. Onze proxy (<code>server.py</code>) haalt live ~4.200 GCPIF-records op (gecached). Beschikbaarheid tonen kan dus.</li>
+      <li><strong>Write bestaat niet voor ons.</strong> Onze tool wordt het centrale dossier; Isabelle blijft het event zelf in Yesplan invoeren. Bouw geen sync-laag, geen bidirectionele koppeling.</li>
+      <li><strong>Yesplan-bezetting is wel betrouwbaar voor "bezet", onbetrouwbaar voor "vrij".</strong> Eigen programmering van de inhoudelijke teams en opbouw/afbouw-buffers staan er vaak nog niet in. Daarom: een "bezet"-signaal mag je vertrouwen, een "vrij" nooit hard beloven.</li>
+    </ul>
+    <h3>Hoe de read-integratie werkt (referentie: <code>server.py</code> + <code>index.html</code>)</h3>
+    <ul>
+      <li>Auth via <code>?api_key=...</code> query param (read-only user). De key hoort server-side te blijven; in productie via een env var, niet hardcoded.</li>
+      <li>Dataviews zijn async: <code>POST /api/dataviewresult/{id}/json/</code> (met Content-Type en body, zelfs <code>{}</code>) → poll de <code>contents.url</code> tot het resultaat-array terugkomt.</li>
+      <li>Filter Pianofabriek-resources op de prefix <code>GCPIF_</code>.</li>
+      <li>De proxy cachet (15 min TTL) en houdt de key verborgen. <code>index.html</code> toont hoe je dit naar een kalender vertaalt (vrij/gedeeltelijk/bezet per zaal per dag).</li>
+    </ul>
+  </section>
+
+  <!-- 3 -->
+  <section id="v2">
+    <h2>3 · Wat is V2</h2>
+    <p class="sub">V2 is de richting na de bespreking van V1 met Pianofabriek. Het vertrekt vanuit het type activiteit en splitst in twee paden. V1 (de smallere variant zonder zaalkeuze) blijft bewaard als referentie, maar V2 is leidend.</p>
+    <div class="flow">
+      <div class="path">
+        <div class="tag">Pad A · directe flow</div>
+        <h4>Klein / eenvoudig, één dag</h4>
+        <p style="font-size:13px;color:var(--muted);margin:6px 0 0;">vergadering, opleiding, receptie, repetitie</p>
+        <ol>
+          <li>Type activiteit</li>
+          <li>Aantal personen</li>
+          <li>Datum (één dag)</li>
+          <li>Beschikbare zalen tonen (Yesplan) → klant kiest</li>
+          <li>Technisch (afhankelijk van type)</li>
+          <li>Eten &amp; drinken (altijd vragen)</li>
+          <li>Gegevens / login</li>
+        </ol>
+      </div>
+      <div class="path contact">
+        <div class="tag">Pad B · samen plannen</div>
+        <h4>Groot / complex of meerdaags</h4>
+        <p style="font-size:13px;color:var(--muted);margin:6px 0 0;">conferentie, of meerdere dagen</p>
+        <ol>
+          <li>Type activiteit</li>
+          <li>Aantal personen</li>
+          <li>Datum(s)</li>
+          <li>Beschrijving in subvragen (wat / programma / wensen)</li>
+          <li>Gegevens / login</li>
+          <li>"Wij nemen persoonlijk contact op" — geen directe boeking</li>
+        </ol>
+      </div>
+    </div>
+    <div class="callout">
+      <div class="l">Kernprincipe van de splitsing</div>
+      De klant vraagt nooit "meerdere zalen". Hij zegt type + personen + datum, en het systeem toont de beschikbare optie(s). Het pad wordt bepaald door <strong>type (conferentie) of meerdaags</strong>, niet door een door de klant gevraagd aantal zalen. Zo gebruik je Yesplan-beschikbaarheid waar ze betrouwbaar is (kleine, enkele dag) en val je terug op mensen waar ze dat niet is (groot, meerdaags, interne afstemming).
+    </div>
+    <h3>Wat V2 terugdraait t.o.v. V1</h3>
+    <ul>
+      <li>Beschikbaarheid + zaalkeuze door de klant: <strong>terug erin</strong> (was eruit).</li>
+      <li>Accounts/login: <strong>erin</strong> (was magic-link). 90% zijn terugkerende klanten → ingelogde klant = gegevens onthouden, nieuwe klant = account.</li>
+      <li>Voorkeur zaaltype: <strong>eruit</strong>.</li>
+      <li>Beschrijving: <strong>opgesplitst in subvragen</strong>.</li>
+      <li>Technisch: <strong>afhankelijk van type</strong>. Eten &amp; drinken: <strong>altijd vragen</strong>.</li>
+    </ul>
+  </section>
+
+  <!-- 4 -->
+  <section id="flow">
+    <h2>4 · De klant-flow in detail</h2>
+    <table>
+      <thead><tr><th>Stap</th><th>Inhoud</th><th>Logica / regels</th></tr></thead>
+      <tbody>
+        <tr><td>Type activiteit</td><td>Vergadering, Opleiding, Receptie, Repetitie, Conferentie, Iets anders</td><td>Conferentie → pad B. Bepaalt later ook welke technische opties getoond worden.</td></tr>
+        <tr><td>Aantal personen</td><td>Stepper</td><td>Filtert later de zalen op capaciteit.</td></tr>
+        <tr><td>Wanneer</td><td>Eén dag / meerdere dagen + datum + uren</td><td>Meerdere dagen → pad B. Sluitingsuur 23u (validatie). Half mei-regel voor volgend seizoen.</td></tr>
+        <tr><td>Beschikbare zalen (pad A)</td><td>Zalen die vrij zijn én passen qua capaciteit, uit Yesplan</td><td>Toon alleen <code>cap ≥ personen</code> en niet-bezet op die datum. Popup met zaaldetail. Geen vrije zaal → naar gegevens + "we zoeken samen".</td></tr>
+        <tr><td>Technisch (pad A)</td><td>Type-afhankelijke set</td><td>bv. receptie: micro/podiumtechnicus; opleiding: beamer/flipchart/micro.</td></tr>
+        <tr><td>Eten &amp; drinken (pad A)</td><td>Dranken + lunch, beide gegate (Nee/Ja)</td><td>Altijd vragen. Lunch = één formule × aantal personen. Vegetarisch.</td></tr>
+        <tr><td>Beschrijving (pad B)</td><td>3 subvragen: wat / programma / bijzondere wensen</td><td>Vervangt zaalkeuze+technisch+horeca; dat plant Isabelle samen met de klant.</td></tr>
+        <tr><td>Gegevens / login</td><td>Login (bestaande klant) of nieuwe klant + account</td><td>Ingelogd = gegevens voorgevuld. Org, BTW, adres, contact, e-mail, extra info.</td></tr>
+        <tr><td>Bevestiging</td><td>Referentienummer + "wat nu"</td><td>Pad A: zaal wordt bevestigd. Pad B: we nemen contact op.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 5 -->
+  <section id="werkbank">
+    <h2>5 · De werkbank (Isabelle)</h2>
+    <ul>
+      <li><strong>Aanvragenlijst</strong> met zoeken en <strong>filters</strong> op status, type én pad (directe boeking / samen plannen).</li>
+      <li><strong>Dossier per aanvraag</strong> waarin <strong>alle velden bewerkbaar</strong> zijn. Isabelle past een veld aan en bewaart, voor als de klant een wijziging doorgeeft. Dit vervangt het mailgedoe rond wijzigingen (de derde grote tijdvreter).</li>
+      <li><strong>Drie acties</strong>: aanvaarden (zaal toewijzen), weigeren (reden), alternatief voorstellen. Elke actie stuurt automatisch de bijhorende mail naar de klant.</li>
+      <li><strong>Status-flow</strong>: nieuw → in behandeling → goedgekeurd / alternatief / geweigerd.</li>
+    </ul>
+    <div class="callout">
+      <div class="l">Belangrijke hefboom</div>
+      Uit de echte mailthreads blijkt dat de winst niet alleen in het formulier zit, maar in een goede <strong>goedkeuringsmail</strong> die beschikbaarheid + prijs + de catering-bevestiging + het vaste blok praktische info in één keer bundelt. Vijf mails worden er zo één. Bouw die mail als template, niet als losse berichtjes.
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="datamodel">
+    <h2>6 · Datamodel &amp; business rules</h2>
+
+    <h3>Prijscategorieën — afleiden, niet vragen</h3>
+    <p class="sub">De klant kiest géén prijscategorie. Die wordt afgeleid uit rechtsvorm + postcode van de maatschappelijke zetel. Isabelle bevestigt.</p>
+    <table>
+      <thead><tr><th>Categorie</th><th>Afleiding</th></tr></thead>
+      <tbody>
+        <tr><td>Sint-Gillis</td><td>vzw/particulier, postcode 1060</td></tr>
+        <tr><td>Brussel</td><td>postcode 1000-1210 (vzw = grensgeval socio-cultureel vs non-profit → Isabelle beslist)</td></tr>
+        <tr><td>Non-profit / buiten Brussel</td><td>vzw of zorg/onderwijs buiten Brussel</td></tr>
+        <tr><td>Commercieel</td><td>bedrijf, politieke partij, syndic</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Horeca-regels</h3>
+    <ul>
+      <li>Keuken is vegetarisch. Lunch = één formule (broodjes / broodjes met soep / buffet / dagschotel) × aantal personen, optioneel dessert (+2/pers).</li>
+      <li>Buffet vanaf 15 personen, dagschotel vanaf 5. Annulering: 7 werkdagen voor eten, 2 voor drank.</li>
+      <li>Catering wordt afgenomen bij Pianofabriek; externe catering enkel met toestemming.</li>
+      <li>Prijzen (te bevestigen, één discrepantie op fruitsap): beamer/micro 20, flipchart 8, podiumtechnicus 20/u, koffie/thee 8 per thermos, water/fruitsap 3, broodjes 5,50/pers, broodjes+soep 8, buffet 15, dagschotel 8, cake 13.</li>
+    </ul>
+
+    <h3>Statussen — onze tool vs Yesplan</h3>
+    <p class="sub">Wij sturen niets automatisch naar Yesplan. Isabelle past de Yesplan-status manueel aan (zoals nu), maar vanuit een schoon dossier.</p>
+    <table>
+      <thead><tr><th>Onze tool</th><th>Yesplan (manueel)</th></tr></thead>
+      <tbody>
+        <tr><td>nieuw / in behandeling</td><td>In optie</td></tr>
+        <tr><td>goedgekeurd</td><td>In afhandeling</td></tr>
+        <tr><td>betaald</td><td>Bevestigd</td></tr>
+        <tr><td>geweigerd / geannuleerd</td><td>Geannuleerd</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Overige regels</h3>
+    <ul>
+      <li><strong>Beschikbaarheid (pad A)</strong>: toon zalen met <code>capaciteit ≥ personen</code> en niet bezet op de datum (uit Yesplan). "Bezet" vertrouwen, "vrij" als indicatie met voorbehoud tonen.</li>
+      <li><strong>Half mei-regel</strong>: aanvragen voor volgend seizoen (sep-juni) worden pas vanaf half mei bevestigd (eigen programmering eerst).</li>
+      <li><strong>Sluitingsuur 23u</strong>, <strong>max 10 data</strong> per aanvraag (daarboven mail), privéfeesten niet, concerten/tentoonstellingen/residenties buiten de standaardflow.</li>
+    </ul>
+  </section>
+
+  <!-- 7 -->
+  <section id="protovsreal">
+    <h2>7 · Prototype vs echte build</h2>
+    <div class="callout warn">
+      <div class="l">Belangrijk</div>
+      <code>prototype-v2-flow.html</code> is een <strong>klikbaar prototype</strong>, geen productiecode. Het is bewust één HTML-bestand zonder backend, om de flow en beslissingen te valideren. Bouw V2 fris met een echte stack; gebruik het prototype als functionele spec.
+    </div>
+    <table>
+      <thead><tr><th>Onderdeel</th><th>In het prototype</th><th>Voor productie nodig</th></tr></thead>
+      <tbody>
+        <tr><td>Yesplan-beschikbaarheid</td><td>gesimuleerd (hardcoded "bezet"-dagen)</td><td>live read via proxy (zie <code>server.py</code>), cache, foutafhandeling</td></tr>
+        <tr><td>Login / accounts</td><td>mockup (knop "log in" vult gegevens)</td><td>echte auth, accountbeheer, GDPR, anti-dubbele-accounts op BTW</td></tr>
+        <tr><td>Opslag</td><td>in-memory (verdwijnt bij refresh)</td><td>database (aanvragen, klanten, dossiers, historiek)</td></tr>
+        <tr><td>Mails</td><td>toast, geen verzending</td><td>transactionele mail (bevestiging, beslissing, goedkeuringsmail-template)</td></tr>
+        <tr><td>Talen</td><td>NL (FR/EN is mock)</td><td>i18n vanaf dag 1, teksten door PF aangeleverd</td></tr>
+        <tr><td>Tarief</td><td>afgeleid + getoond</td><td>idem, met bevestiging door Isabelle; geen automatische factuur</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 8 -->
+  <section id="stack">
+    <h2>8 · Integratiepunten &amp; aanbevolen stack</h2>
+    <ul>
+      <li><strong>Yesplan (read-only)</strong>: via een server-side proxy met de key in een env var. Dataview-pattern + <code>GCPIF_</code>-filter + cache. Referentie-implementatie: <code>server.py</code>. <em>Niet</em> proberen te schrijven.</li>
+      <li><strong>Database</strong>: aanvragen, klanten (voor login + onthouden gegevens), dossiers met volledige historiek. Keuze vrij (bv. Postgres/Supabase).</li>
+      <li><strong>Auth</strong>: account voor terugkerende klanten + werkbank-login voor het team. Eén rol volstaat voor de werkbank in V1 van de bouw (meerdere persoonlijke accounts met gelijke rechten i.p.v. een rollenhiërarchie).</li>
+      <li><strong>Mail</strong>: transactionele provider. Belangrijk: de goedkeuringsmail-template met beschikbaarheid + prijs + catering + vast praktisch-info-blok.</li>
+      <li><strong>Hosting</strong>: te bepalen met de klant; ook wie het beheert na oplevering.</li>
+    </ul>
+    <h3>Bewust fase 2 (niet in deze opdracht)</h3>
+    <p>
+      <span class="pill f2">Online betaling (Mollie/Payconiq)</span>
+      <span class="pill f2">Exact Online koppeling</span>
+      <span class="pill f2">Digitaal contract ondertekenen</span>
+      <span class="pill f2">Tevredenheidsenquête</span>
+      <span class="pill f2">Jetons-systeem</span>
+      <span class="pill f2">Geplande herinneringsmails</span>
+      <span class="pill no">Yesplan write (onmogelijk)</span>
+    </p>
+  </section>
+
+  <!-- 9 -->
+  <section id="mails">
+    <h2>9 · Wat de echte mailthreads leerden</h2>
+    <p class="sub">We analyseerden twee echte dossiers (Kenniscentrum Pleegzorg NL, ADDE FR) van eerste contact tot getekend contract.</p>
+    <ul>
+      <li>Het huidige websiteformulier ving al veel basis op. Toch ~6 mails per aanvraag.</li>
+      <li>De mails gingen vooral over <strong>catering</strong> (prijslijst sturen, deadline, doorverwijzen naar Olivier), beschikbaarheid + prijs bevestigen, het <strong>vaste blok praktische info</strong> dat elke keer wordt uitgetypt, en het contract tekenen.</li>
+      <li>Doorlooptijd Kenniscentrum: aanvraag 24 feb → contract getekend 5 mei = ruim <strong>10 weken, 6 mails</strong>, voor een gewone opleiding voor 20 mensen.</li>
+      <li>Conclusie: vang catering in het formulier (al gedaan), en bundel de bevestiging in één goede goedkeuringsmail.</li>
+    </ul>
+  </section>
+
+  <!-- 10 -->
+  <section id="beslissingen">
+    <h2>10 · Open beslispunten (klant)</h2>
+    <ol>
+      <li><strong>Talen</strong>: het live formulier draait in NL/FR/EN. Bouw i18n-klaar; bevestigen of alle drie nodig zijn voor de start.</li>
+      <li><strong>Concerten/tentoonstellingen</strong>: officieel "niet via de flow", maar staan op het live formulier wél in de zaaltype-lijst. Uitklaren.</li>
+      <li><strong>Prijslijst</strong>: één discrepantie (fruitsap 3 vs 8 €), volledige lijst laten bevestigen.</li>
+      <li><strong>De grens klein/groot</strong> (directe flow vs samen plannen) definitief vastleggen. Voorstel: conferentie + meerdaags = samen plannen; de rest = directe flow.</li>
+    </ol>
+  </section>
+
+  <!-- 11 -->
+  <section id="bestanden">
+    <h2>11 · De bestanden &amp; opstarten</h2>
+    <div class="filelist">
+      <div class="row"><code>prototype-v2-flow.html</code><div>V2 — de actuele richting. Klikbaar prototype (klant-flow + werkbank). Functionele spec. Comment-tool ingebouwd (druk C).</div></div>
+      <div class="row"><code>prototype-v2.html</code><div>V1 — smallere variant (geen zaalkeuze, magic-link). Referentie/vangnet, niet de richting.</div></div>
+      <div class="row"><code>index.html</code><div>Allereerste MVP met live Yesplan-kalender. Referentie voor de read-integratie en de kalenderweergave.</div></div>
+      <div class="row"><code>server.py</code><div>Python-proxy voor de Yesplan-read-API (key server-side, cache, dataview-polling). Referentie-implementatie.</div></div>
+      <div class="row"><code>comments.js</code><div>Drop-in feedbacklaag voor de prototypes (genummerde pins, export naar markdown).</div></div>
+      <div class="row"><code>technische-briefing-v2.html</code><div>Dit document.</div></div>
+    </div>
+    <h3>Het prototype draaien</h3>
+    <p>Het prototype is statisch; je kan <code>prototype-v2-flow.html</code> rechtstreeks in de browser openen. Voor de <strong>live Yesplan-kalender</strong> in <code>index.html</code> heb je de proxy nodig:</p>
+    <pre>cd pianofabriek-mvp
+python3 server.py        # poort 4173
+# open http://localhost:4173/index.html</pre>
+    <div class="callout warn">
+      <div class="l">Security</div>
+      <code>server.py</code> bevat een read-only Yesplan-key als fallback. Zet die in productie via een env var (<code>YESPLAN_API_KEY</code>) en laat hem niet in een publieke repo of doorgestuurde zip terechtkomen zonder rotatie.
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section id="stappen">
+    <h2>12 · Aanbevolen eerste stappen voor het team</h2>
+    <ol>
+      <li>Klik <code>prototype-v2-flow.html</code> door (beide paden + werkbank). Dat is jullie functionele referentie.</li>
+      <li>Bekijk de Yesplan-read in <code>server.py</code> + <code>index.html</code> en test of de proxy bij jullie ook live data ophaalt.</li>
+      <li>Kies de stack (DB, auth, mail) en zet een skelet op: publieke flow + werkbank + één DB voor aanvragen/klanten.</li>
+      <li>Bouw de Yesplan-read-integratie (beschikbaarheid) achter de proxy, met de "bezet betrouwbaar / vrij met voorbehoud"-logica.</li>
+      <li>Bouw de goedkeuringsmail-template (de grote hefboom uit de mailanalyse).</li>
+      <li>Houd de open beslispunten (talen, types, prijslijst, grens klein/groot) bij de klant af voordat je die delen vastzet.</li>
+    </ol>
+  </section>
+
+  <footer class="foot">
+    Technische briefing V2 · Gather voor GC Pianofabriek · gebaseerd op de klantdocumenten, twee echte mailthreads en de feedback na de V1-bespreking. Het prototype is een functionele spec, geen productiecode.
+  </footer>
+
+</div>
+</body>
+</html>
